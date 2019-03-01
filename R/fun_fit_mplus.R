@@ -76,7 +76,7 @@ fit_tree_mplus <- function(data = NULL,
 
     # pseudoitems <- recode_data(model = model, data = data)
     if (model$class == "tree") {
-        categ_dat <- unique(unlist(data[, model$j_names], use.names = FALSE))
+        categ_dat <- unique(na.omit(unlist(data[, model$j_names], use.names = FALSE)))
         categ_mod <- as.integer(names(model$expr))
         if (length(sym_diff(categ_dat, categ_mod)) > 0) {
             stop("'data' has categories ", clps(", ", sort(categ_dat)),
