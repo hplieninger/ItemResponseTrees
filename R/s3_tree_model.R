@@ -240,160 +240,217 @@ tree_model <- function(model = NULL) {
 
     ##### IRT #####
 
-    # irt1 <- strsplit(tolower(model_list$irt), "\\s*by\\s*")
-    # lv_names <- sapply(irt1, `[[`, 1)
+    intermediate <- tree_model_irt(model_list = model_list)
 
-    irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
-    missing_sc <- stringr::str_count(irt0, "(?i)\\s+BY\\s+") > 1
-    if (any(missing_sc)) {
-        stop("Error in model: Every definition in section 'IRT' must end with a ';'. ",
-             "Problem with:\n", clps("\nS", irt0[missing_sc]), call. = FALSE)
-    }
+                     irt_items    <- intermediate$irt_items
+                     irt_loadings <- intermediate$irt_loadings
+    out1$S        <- S            <- intermediate$S
+    out1$lv_names <- lv_names     <- intermediate$lv_names
 
-    tmp1 <- strsplit(paste(model_list$irt, collapse = " "), "(?i)\\s+BY\\s+")[[1]]
-    missing_BY <- stringr::str_count(tmp1, ";") > 1
-    if (any(missing_BY)) {
-        stop("Error in model: Every definition in section 'IRT' must contain the keyword 'BY'. ",
-             "Problem with:\n", clps("\n", tmp1[missing_BY]), call. = FALSE)
-    }
-
-    irt1 <- vapply(irt0,
-                   function(x)
-                       strsplit(x, split =  "(?i)\\s+by\\s+", perl = TRUE)[[1]],
-                   FUN.VALUE = character(2), USE.NAMES = FALSE)
-    lv_names <- irt1[1, ]
-
-    tmp1 <- grepl("[^[:alnum:]_]", x = lv_names, perl = TRUE)
-    # tmp1 <- stringr::str_detect(c("process_1", "process_t2", "process.e"),
-    #                             pattern = "[^[:alnum:][_]]")
-    if (any(tmp1)) {
-        stop("Variable names may only contain letters, digits, ",
-             "and the underscore '_': ", clps(", ", lv_names[tmp1]), call. = FALSE)
-    }
-    S <- out1$S <- length(lv_names)
-
-    # irt2 <- vapply(irt1, `[[`, 2, FUN.VALUE = "")
-    irt4 <- lapply(irt1[2, ],
-                   function(x) strsplit(x, split =  "[^[:alnum:]*]+\\s+|\\s+", perl = TRUE)[[1]])
-    irt5 <- lapply(irt4,
-                   vapply,
-                   stringr::str_extract, pattern = "@\\d+$|[*]$",
-                   FUN.VALUE = "")
-    irt_list <- lapply(irt4,
-                       vapply,
-                       sub, pattern = "@\\d+$|[*]$", replacement = "",
-                       FUN.VALUE = "")
-    names(irt_list) <- lv_names
-
-    # irt4 <- vapply(irt2, gsub, pattern = paste0(items, collapse = "|"), replacement = "", FUN.VALUE = "")
-
-    # irt3 <- vapply(irt2, gsub, pattern = "[@]\\d+|[*]", replacement = "", FUN.VALUE = "")
-    # irt_list <- lapply(irt3, function(x) strsplit(x, "[^[:alnum:]]+")[[1]])
+    #
+    # # irt1 <- strsplit(tolower(model_list$irt), "\\s*by\\s*")
+    # # lv_names <- sapply(irt1, `[[`, 1)
+    #
+    # irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
+    # missing_sc <- stringr::str_count(irt0, "(?i)\\s+BY\\s+") > 1
+    # if (any(missing_sc)) {
+    #     stop("Error in model: Every definition in section 'IRT' must end with a ';'. ",
+    #          "Problem with:\n", clps("\nS", irt0[missing_sc]), call. = FALSE)
+    # }
+    #
+    # tmp1 <- strsplit(paste(model_list$irt, collapse = " "), "(?i)\\s+BY\\s+")[[1]]
+    # missing_BY <- stringr::str_count(tmp1, ";") > 1
+    # if (any(missing_BY)) {
+    #     stop("Error in model: Every definition in section 'IRT' must contain the keyword 'BY'. ",
+    #          "Problem with:\n", clps("\n", tmp1[missing_BY]), call. = FALSE)
+    # }
+    #
+    # irt1 <- vapply(irt0,
+    #                function(x)
+    #                    strsplit(x, split =  "(?i)\\s+by\\s+", perl = TRUE)[[1]],
+    #                FUN.VALUE = character(2), USE.NAMES = FALSE)
+    # lv_names <- irt1[1, ]
+    #
+    # tmp1 <- grepl("[^[:alnum:]_]", x = lv_names, perl = TRUE)
+    # # tmp1 <- stringr::str_detect(c("process_1", "process_t2", "process.e"),
+    # #                             pattern = "[^[:alnum:][_]]")
+    # if (any(tmp1)) {
+    #     stop("Variable names may only contain letters, digits, ",
+    #          "and the underscore '_': ", clps(", ", lv_names[tmp1]), call. = FALSE)
+    # }
+    # S <- out1$S <- length(lv_names)
+    #
+    # # irt2 <- vapply(irt1, `[[`, 2, FUN.VALUE = "")
+    # irt4 <- lapply(irt1[2, ],
+    #                function(x) strsplit(x, split =  "[^[:alnum:]*]+\\s+|\\s+", perl = TRUE)[[1]])
+    # irt5 <- lapply(irt4,
+    #                vapply,
+    #                stringr::str_extract, pattern = "@\\d+$|[*]$",
+    #                FUN.VALUE = "")
+    # irt_list <- lapply(irt4,
+    #                    vapply,
+    #                    sub, pattern = "@\\d+$|[*]$", replacement = "",
+    #                    FUN.VALUE = "")
     # names(irt_list) <- lv_names
-
-
-    # items <- unique(unlist(irt_list))
-    # J <- args$J <- length(items)
+    #
+    # # irt4 <- vapply(irt2, gsub, pattern = paste0(items, collapse = "|"), replacement = "", FUN.VALUE = "")
+    #
+    # # irt3 <- vapply(irt2, gsub, pattern = "[@]\\d+|[*]", replacement = "", FUN.VALUE = "")
+    # # irt_list <- lapply(irt3, function(x) strsplit(x, "[^[:alnum:]]+")[[1]])
+    # # names(irt_list) <- lv_names
+    #
+    #
+    # # items <- unique(unlist(irt_list))
+    # # J <- args$J <- length(items)
 
     ##### Equations #####
 
     if (!is.null(model_list$equations)) {
-        # if (class == "tree") {
-        out1$equations <- equations <- vapply(
-            model_list$equations,
-            function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
-            FUN.VALUE = character(2), USE.NAMES = FALSE)
+        intermediate <- tree_model_equations(model_list = model_list)
 
-        eqs2 <- lapply(equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
-        names(eqs2) <- equations[1, ]
-        # out1$K <- K <- length(eqs2)
-        out1$K <- length(eqs2)
-        out1$expr <- eqs2
-        # }
+        out1$equations <- equations <- intermediate$equations
+        out1$expr                   <- intermediate$expr
+        out1$K                      <- length(intermediate$expr)
     }
+
+    # if (!is.null(model_list$equations)) {
+    #     # if (class == "tree") {
+    #     out1$equations <- equations <- vapply(
+    #         model_list$equations,
+    #         function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
+    #         FUN.VALUE = character(2), USE.NAMES = FALSE)
+    #
+    #     eqs2 <- lapply(equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
+    #     names(eqs2) <- equations[1, ]
+    #     # out1$K <- K <- length(eqs2)
+    #     out1$K <- length(eqs2)
+    #     out1$expr <- eqs2
+    #     # }
+    # }
 
     ##### Dimensions, ordered #####
 
-    tmp1 <- paste(model_list$processes, collapse = " ")
+    out1$s_names <- s_names <- tree_model_dimensions(model_list = model_list,
+                                                     lv_names = lv_names)
 
-    s_names <- strsplit(tmp1, "[^[:alnum:]]+\\s+")[[1]]
-
-    flag1 <- sym_diff(s_names, lv_names)
-    if (length(flag1) > 0) {
-        stop("Error in 'model': All processes in 'IRT' must be present in 'Processes' ",
-             "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
-    }
-    # else {
-    #     lv_names <- s_names
+    # tmp1 <- paste(model_list$processes, collapse = " ")
+    #
+    # s_names <- strsplit(tmp1, "[^[:alnum:]]+\\s+")[[1]]
+    #
+    # flag1 <- sym_diff(s_names, lv_names)
+    # if (length(flag1) > 0) {
+    #     stop("Error in 'model': All processes in 'IRT' must be present in 'Processes' ",
+    #          "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
     # }
-    out1$s_names <- s_names
+    # # else {
+    # #     lv_names <- s_names
+    # # }
+    # out1$s_names <- s_names
 
     ##### Items, ordered #####
 
-    tmp1 <- paste(model_list$items, collapse = " ")
+    out1$j_names <- j_names <- tree_model_items(irt_items = irt_items)
+    out1$J       <- J       <- length(j_names)
 
-    out1$j_names <- j_names <- strsplit(tmp1, ";\\s*|,\\s*|\\s+")[[1]]
-    out1$J <- J <- length(j_names)
-
-    tmp1 <- grepl("[^[:alnum:]_]", j_names, perl = TRUE)
-    if (any(tmp1)) {
-        stop("Variable names may only contain letters, digits, ",
-             "and the underscore '_': ", paste(j_names[tmp1], collapse = ", "), call. = FALSE)
-    }
-    irt_list <- lapply(irt_list, sort2, j_names)
-    out1$items <- items <- sort2(unique(unlist(irt_list)), j_names)
-    # out1$items <- items <- factor(items, levels = items)
-
-    # out1$j_names <- j_names <- factor(j_names, levels = j_names)
+    # out1$j_names <- j_names <- gtools::mixedsort(unique(unlist(irt_items, use.names = F)))
     # out1$J <- J <- length(j_names)
-    # if (J != length(unique(unlist(irt_list)))) {
-    #     stop("Error in 'model'. The number of items in the 'IRT'-part does ",
-    #          "not match the number of items in the 'Processes'-part.", call. = FALSE)
+    #
+    # tmp1 <- grepl("[^[:alnum:]_]", j_names, perl = TRUE)
+    # if (any(tmp1)) {
+    #     stop("Variable names may only contain letters, digits, ",
+    #          "and the underscore '_'. Problem with: ",
+    #          paste(j_names[tmp1], collapse = ", "), call. = FALSE)
     # }
 
-    flag1 <- sym_diff(j_names, items)
-    if (length(flag1) > 0) {
-        if (is.null(model_list$addendum)) {
-            stop("Error in 'model': All variables in 'IRT' must be present in 'Items' ",
-                 "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
-        } else {
-            flag2 <- vapply(flag1, function(x) {
-                any(
-                    stringr::str_detect(string = model_list$addendum, pattern = x))
-            }, FUN.VALUE = logical(1))
-            if (!all(flag2)) {
-                stop("Error in 'model': All variables in 'IRT' must be present in 'Items' ",
-                     "or 'Addendum' and vice versa. Problem with ",
-                     paste(flag1[!flag2], collapse = ", "), ".", call. = FALSE)
-            }
-        }
-    }
+    # tmp1 <- paste(model_list$items, collapse = " ")
+    #
+    # out1$j_names <- j_names <- strsplit(tmp1, ";\\s*|,\\s*|\\s+")[[1]]
+    # out1$J <- J <- length(j_names)
+    #
+    # tmp1 <- grepl("[^[:alnum:]_]", j_names, perl = TRUE)
+    # if (any(tmp1)) {
+    #     stop("Variable names may only contain letters, digits, ",
+    #          "and the underscore '_': ", paste(j_names[tmp1], collapse = ", "), call. = FALSE)
+    # }
+    # irt_list <- lapply(irt_list, sort2, j_names)
+    # out1$items <- items <- sort2(unique(unlist(irt_list)), j_names)
+    # # out1$items <- items <- factor(items, levels = items)
+    #
+    # # out1$j_names <- j_names <- factor(j_names, levels = j_names)
+    # # out1$J <- J <- length(j_names)
+    # # if (J != length(unique(unlist(irt_list)))) {
+    # #     stop("Error in 'model'. The number of items in the 'IRT'-part does ",
+    # #          "not match the number of items in the 'Processes'-part.", call. = FALSE)
+    # # }
+    #
+    # flag1 <- sym_diff(j_names, items)
+    # if (length(flag1) > 0) {
+    #     if (is.null(model_list$addendum)) {
+    #         stop("Error in 'model': All variables in 'IRT' must be present in 'Items' ",
+    #              "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
+    #     } else {
+    #         flag2 <- vapply(flag1, function(x) {
+    #             any(
+    #                 stringr::str_detect(string = model_list$addendum, pattern = x))
+    #         }, FUN.VALUE = logical(1))
+    #         if (!all(flag2)) {
+    #             stop("Error in 'model': All variables in 'IRT' must be present in 'Items' ",
+    #                  "or 'Addendum' and vice versa. Problem with ",
+    #                  paste(flag1[!flag2], collapse = ", "), ".", call. = FALSE)
+    #         }
+    #     }
+    # }
 
     ##### Subtree #####
 
-    if (!is.null(model_list$subtree)) {
-        subtree1 <- vapply(model_list$subtree,
-                           function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
-                           FUN.VALUE = character(2))
-        subtree2 <- subtree1[1, ]
-        subtree3 <- vapply(subtree1[2, ],
-                           gsub, pattern = "\\s*[+]\\s*", replacement = "|",
-                           FUN.VALUE = "")
-        subtree <- data.frame(trait = subtree2, facet = subtree3, row.names = NULL)
-    } else {
-        # subtree2 <- character()
-        subtree <- data.frame()
-    }
-    # tmp1 <- lv_names
-    tmp1 <- s_names
-    for (ii in seq_len(nrow(subtree))) {
-        tmp1 <- gsub(subtree[ii, 2], subtree[ii, 1], tmp1)
-    }
-    # out1$p_names <- p_names <- factor(unique(tmp1), levels = unique(tmp1))
-    out1$p_names <- p_names <- unique(tmp1)
-    out1$P <- P <- length(p_names)
+    intermediate <- tree_model_subtree(model_list = model_list,
+                                       s_names = s_names)
 
-    out1$subtree <- subtree
+    out1$subtree  <- subtree  <- intermediate$subtree
+    out1$p_names  <- p_names <- intermediate$p_name
+    out1$P        <- P       <- length(p_names)
+
+    # if (!is.null(model_list$subtree)) {
+    #     subtree1 <- vapply(model_list$subtree,
+    #                        function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
+    #                        FUN.VALUE = character(2))
+    #     subtree2 <- subtree1[1, ]
+    #     subtree3 <- vapply(subtree1[2, ],
+    #                        gsub, pattern = "\\s*[+]\\s*", replacement = "|",
+    #                        FUN.VALUE = "")
+    #     subtree <- data.frame(trait = subtree2, facet = subtree3, row.names = NULL)
+    # } else {
+    #     # subtree2 <- character()
+    #     subtree <- data.frame()
+    # }
+    # # tmp1 <- lv_names
+    # tmp1 <- s_names
+    # for (ii in seq_len(nrow(subtree))) {
+    #     tmp1 <- gsub(subtree[ii, 2], subtree[ii, 1], tmp1)
+    # }
+    # # out1$p_names <- p_names <- factor(unique(tmp1), levels = unique(tmp1))
+    # out1$p_names <- p_names <- unique(tmp1)
+    # out1$P <- P <- length(p_names)
+    #
+    # out1$subtree <- subtree
+
+    ##### Labels for Items and Processes #####
+
+    if (7 < sum(c(max(nchar(p_names)),
+                  max(nchar(j_names))))) {
+        p_names_new <- paste0(LETTERS[1:P], substr(p_names, 1, 2))
+        if (P > 26) {
+            stop("Fatal error, please contact package maintainer. ",
+                 "Renaming of names of processes only implemented for < 27 processes.")
+        }
+        if (7 < sum(c(max(nchar(p_names_new)),
+                      max(nchar(j_names))))) {
+            tmp1 <- floor(log10(J)) + 1
+            tmp2 <- gsub("\\d+", "", j_names)
+            tmp2[tmp2 == ""] <- "V"
+            j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1), 1:J)
+        }
+    }
 
     ##### Addendum #####
 
