@@ -74,6 +74,18 @@ fit_tree_mplus <- function(data = NULL,
               # , list(...)
     )
 
+    checkmate::assert_data_frame(data,
+                                 # types = "numeric",
+                                 all.missing = FALSE, min.rows = 1, min.cols = model$J)
+    checkmate::assert_data_frame(data[, model$j_names], types = "integerish",
+                                 ncols = model$J)
+    # checkmate::assert_set_equal(names(data), y = levels(j_names))
+    checkmate::assert_subset(model$j_names, choices = names(data))
+
+    args$model$j_names <- model$j_names <- sort2(model$j_names, names(data))
+    model$lambda$item <- factor(model$lambda$item, levels = model$j_names)
+    args$model$lambda <- model$lambda <- model$lambda[order(model$lambda$item, model$lambda$trait), ]
+
     # pseudoitems <- recode_data(model = model, data = data)
     if (model$class == "tree") {
         categ_dat <- unique(na.omit(unlist(data[, model$j_names], use.names = FALSE)))

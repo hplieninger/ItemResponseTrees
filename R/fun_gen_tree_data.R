@@ -243,13 +243,13 @@ recode_data <- function(model = NULL,
     # expr <- model$expr
     equations <- model$equations
 
-    checkmate::assert_data_frame(data,
-                                 # types = "numeric",
-                                 all.missing = FALSE, min.rows = 1, min.cols = J)
-    checkmate::assert_data_frame(data[, model$items], types = "integerish",
-                                 ncols = length(model$items))
-    # checkmate::assert_set_equal(names(data), y = levels(j_names))
-    checkmate::assert_subset(model$items, choices = names(data))
+    # checkmate::assert_data_frame(data,
+    #                              # types = "numeric",
+    #                              all.missing = FALSE, min.rows = 1, min.cols = J)
+    # checkmate::assert_data_frame(data[, j_names], types = "integerish",
+    #                              ncols = J)
+    # # checkmate::assert_set_equal(names(data), y = levels(j_names))
+    # checkmate::assert_subset(j_names, choices = names(data))
 
     ### mapping matrix for pseudoitems ###
 

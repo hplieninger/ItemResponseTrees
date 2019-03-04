@@ -32,8 +32,19 @@ fit_tree_mirt <- function(data = NULL,
     if (!inherits(model, "tree_model")) {
         model <- tree_model(model = model)
     }
-    checkmate::assert_data_frame(data, types = "integerish",
-                                 all.missing = FALSE, ncols = model$J)
+    # checkmate::assert_data_frame(data, types = "integerish",
+    #                              all.missing = FALSE, ncols = model$J)
+    checkmate::assert_data_frame(data,
+                                 # types = "numeric",
+                                 all.missing = FALSE, min.rows = 1, min.cols = model$J)
+    checkmate::assert_data_frame(data[, model$j_names], types = "integerish",
+                                 ncols = model$J)
+    # checkmate::assert_set_equal(names(data), y = levels(j_names))
+    checkmate::assert_subset(model$j_names, choices = names(data))
+
+    model$j_names <- sort2(model$j_names, names(data))
+    model$lambda$item <- factor(model$lambda$item, levels = model$j_names)
+    model$lambda <- model$lambda[order(model$lambda$item, model$lambda$trait), ]
 
     # SE <- force(SE)
     # verbose <- force(verbose)
