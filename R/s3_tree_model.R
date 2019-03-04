@@ -177,22 +177,14 @@
 #' @export
 tree_model <- function(model = NULL) {
 
-    # sym_diff <- function(a, b) unique(c(setdiff(a, b), setdiff(b, a)))
-
     if (inherits(model, "tree_model")) {
-        # message("The provided 'model' is already a 'tree_model'.")
         return(model)
     } else {
         checkmate::assert_string(model, min.chars = 10)
     }
 
-    # args <- c(as.list(environment())
-    #           # , list(...)
-    # )
-
     out1 <- list(string = model)
 
-    # model2 <- strsplit(model, "\\s*\\n\\s*")[[1]]
     model2 <- strsplit(model, "\\s*\\n+")[[1]]
     model2 <- model2[nchar(model2) > 0]
     model2 <- model2[!grepl("^#", model2)]
@@ -474,12 +466,6 @@ tree_model <- function(model = NULL) {
 
     return(out1)
 }
-
-# new_tree_model <- function(x) {
-#     stopifnot(is.list(x))
-#     structure(x, class = c("list", "tree_model"))
-# }
-
 
 # @param x Object of class \code{tree_model}.
 # @inheritDotParams base::print
