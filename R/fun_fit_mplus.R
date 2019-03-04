@@ -409,15 +409,22 @@ extract_mplus_output <- function(results = NULL,
 
     unstd <- results[["parameters"]][["unstandardized"]]
     unstd[unstd$est_se == 999, "se"] <- NA
+    class(unstd) <- "data.frame"
 
     if (!(is.null(results[["savedata"]]) | length(results[["savedata"]]) == 0)) {
 
         fscores <- results[["savedata"]]
 
-        lv_names <- unstd[unstd$paramHeader == "Variances", "param"]
+        # lv_names <- unstd[unstd$paramHeader == "Variances", "param"]
+        lv_names <- model$p_names
 
-        personpar_est <- fscores[,     which(names(fscores) %in% lv_names), drop = FALSE]
-        personpar_se  <- fscores[, 1 + which(names(fscores) %in% lv_names), drop = FALSE]
+        tmp1 <- paste0("^", lv_names, "$", collapse = "|")
+        fscore_cols1 <- grepl(tmp1, names(fscores), ignore.case = TRUE)
+        tmp2 <- paste0("^", lv_names, "_SE$", collapse = "|")
+        fscore_cols2 <- grepl(tmp2, names(fscores), ignore.case = TRUE)
+
+        personpar_est <- fscores[, fscore_cols1, drop = FALSE]
+        personpar_se  <- fscores[, fscore_cols2, drop = FALSE]
         colnames(personpar_est) <- tolower(names(personpar_est))
         colnames(personpar_se)  <- tolower(names(personpar_se))
 
@@ -433,6 +440,12 @@ extract_mplus_output <- function(results = NULL,
     sigma  <- results[["tech4"]][["latCovEst"]]
     cormat <- results[["tech4"]][["latCorEst"]]
 
+    tmp1 <- paste0("^", lv_names, "$", collapse = "|")
+    tmp2 <- grepl(tmp1, colnames(sigma), ignore.case = TRUE)
+    if (sum(tmp2) == model$P) {
+        sigma  <-  sigma[tmp2, tmp2, drop = FALSE]
+        cormat <- cormat[tmp2, tmp2, drop = FALSE]
+    }
 
     if (!is.null(lambda$new_name)) {
         alphapar    <- unstd[tolower(unstd$param) %in%        tolower(lambda$new_name), , drop = FALSE]
@@ -441,6 +454,10 @@ extract_mplus_output <- function(results = NULL,
         alphapar    <- unstd[grep("[.]BY$", unstd$paramHeader), , drop = FALSE]
         betapar     <- unstd[unstd$paramHeader == "Thresholds", , drop = FALSE]
     }
+    # class(alphapar) <- "data.frame"
+    alphapar$param <- factor(alphapar$param, levels = alphapar$param)
+    rownames(alphapar) <- NULL
+    rownames(betapar) <- NULL
 
     itempar <- list()
 
@@ -465,10 +482,13 @@ extract_mplus_output <- function(results = NULL,
          #     reshape2::dcast(item + variable ~ threshold) %>%
          #     split(., .$variable) %>%
          #     lapply(dplyr::select, -variable)
-         tmp1 <- tidyr::separate(betapar, col = "param",
-                             into = c("item", "threshold"),
-                             sep = "\\$")
-         tmp2 <- dplyr::select(tmp1, -est_se, -pval, -paramHeader)
+         # tmp1 <- tidyr::separate(betapar, col = "param",
+         #                     into = c("item", "threshold"),
+         #                     sep = "\\$")
+         tmp1 <- cbind(betapar,
+                       reshape2::colsplit(betapar$param, "\\$", c("item", "threshold")))
+         tmp2 <- dplyr::select(tmp1, -est_se, -pval, -paramHeader, -param)
+         tmp2$item <- factor(tmp2$item, levels = unique(tmp2$item))
          # tmp3 <- reshape2::melt(tmp2, id.vars = c("item", "threshold"))
          # tmp4 <- reshape2::dcast(tmp3, item + variable ~ threshold)
          tmp4 <- reshape2::recast(tmp2, item + variable ~ threshold, id.var = c("item", "threshold"))
