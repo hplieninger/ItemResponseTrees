@@ -401,16 +401,30 @@ write_mplus_input <- function(model = model,
 #' @export
 extract_mplus_output <- function(results = NULL,
                                  model = NULL,
-                                 class = c("tree", "grm")) {
+                                 class = c("tree", "grm"),
+                                 .errors2messages = FALSE) {
 
-    if (!inherits(model, "tree_model")) {
-        model <- tree_model(model)
+    checkmate::assert_class(results, "mplus.model")
+
+    tmp1 <- vapply(results$errors, function(x) {
+        any(stringr::str_detect(x,
+                                "THE MODEL ESTIMATION DID NOT TERMINATE NORMALLY"))},
+        FUN.VALUE = logical(1))
+
+    if (any(tmp1)) {
+        if (.errors2messages) {
+            lapply(results$errors[cumsum(tmp1) > 0], function(x) message("Mplus error: ", clps(" ", x), call. = FALSE))
+        } else {
+            stop("Mplus error: ", clps(" ", unlist(results$errors[cumsum(tmp1) > 0])), call. = FALSE)
+        }
     }
     if (!is.null(model)) {
+        model <- tree_model(model)
         e2 <- list2env(model)
     } else {
         e2 <- new.env()
-        tmp_list <- list(irt = results$input$model)
+        tmp1 <- strsplit(clps(" ", trimws(results$input$model)), "(?<=;)", perl = TRUE)[[1]]
+        tmp_list <- list(irt = tmp1)
         tmp_list$irt <- tmp_list$irt[grepl("\\s+by\\s+", tmp_list$irt, ignore.case = T)]
         tree_model_irt(tmp_list, e2)
         e2$class <- match.arg(class)
@@ -446,17 +460,23 @@ extract_mplus_output <- function(results = NULL,
 
     lambda <- e2$lambda
 
-    # sigma  <- results[["fit"]][["mplus"]][["tech4"]][["latCovEst"]]
-    # cormat <- results[["fit"]][["mplus"]][["tech4"]][["latCorEst"]]
-    sigma  <- results[["tech4"]][["latCovEst"]]
-    cormat <- results[["tech4"]][["latCorEst"]]
+    if (!(is.null(results[["tech4"]][["latCovEst"]]))) {
 
-    tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
-    tmp2 <- grepl(tmp1, colnames(sigma), ignore.case = TRUE)
-    if (sum(tmp2) == e2$P) {
-        sigma  <-  sigma[tmp2, tmp2, drop = FALSE]
-        cormat <- cormat[tmp2, tmp2, drop = FALSE]
+        sigma  <- results[["tech4"]][["latCovEst"]]
+        cormat <- results[["tech4"]][["latCorEst"]]
+
+        tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
+        tmp2 <- grepl(tmp1, colnames(sigma), ignore.case = TRUE)
+        if (sum(tmp2) == e2$S) {
+            sigma  <-  sigma[tmp2, tmp2, drop = FALSE]
+            cormat <- cormat[tmp2, tmp2, drop = FALSE]
+        }
+
+    } else {
+        sigma  <- NULL
+        cormat <- NULL
     }
+
 
     if (!is.null(lambda$new_name)) {
         alphapar    <- unstd[tolower(unstd$param) %in%        tolower(lambda$new_name), , drop = FALSE]
