@@ -308,13 +308,39 @@ write_mplus_input <- function(model = model,
     lambda$new_name <- attr(pseudoitems, "pseudoitem_names")
     lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
 
-    mplus1 <- split(lambda, lambda$trait)
-    # lapply(mplus1, function(x) glue::glue_collapse(glue::glue("{x$mplus}"), sep = " "))
+    lambda$label <- paste0("a", 1:nrow(lambda))
 
-    mplus2 <- vapply(seq_along(mplus1), function(x) {
-        glue::glue_collapse(c(glue::glue("{names(mplus1[x])} BY"),
-                              glue::glue(" {mplus1[[x]]$mplus}"), ";"), sep = "")
-    }, FUN.VALUE = "")
+    mplus1 <- split(lambda, lambda$trait)
+
+    # mplus2 <- vapply(seq_along(mplus1), function(x) {
+    #     glue::glue_collapse(c(glue::glue("{names(mplus1[x])} BY"),
+    #                           glue::glue(" {mplus1[[x]]$mplus} ({mplus1[[x]]$label})"), ";"),
+    #                         sep = "\n")
+    # }, FUN.VALUE = "")
+
+    mplus2 <- lapply(seq_along(mplus1), function(x) {
+        c(paste(names(mplus1[x]), "BY"),
+          paste0("    ", mplus1[[x]]$mplus, " (", mplus1[[x]]$label, ")"),
+          ";")
+    })
+
+    model_constr0 <-
+        vapply(seq_along(mplus1), function(x) {
+            if (any(mplus1[[x]]$loading != "*")) {
+                return(character(1))
+            }
+            glue::glue("0 = ",
+                       glue::glue_collapse(glue::glue("{mplus1[[x]]$label}"),
+                                           sep = " + "),
+                       " - {nrow(mplus1[[x]])};")
+            }, FUN.VALUE = "")
+
+    model_constr <- paste(
+        lapply(
+            lapply(model_constr0[model_constr0 != ""],
+                   strwrap, width = 89, indent = 2, exdent = 4),
+            paste, collapse = "\n"),
+        collapse = "\n")
 
     mplus3 <- paste(
         lapply(
@@ -322,7 +348,6 @@ write_mplus_input <- function(model = model,
                    strwrap, width = 89, indent = 2, exdent = 4),
             paste, collapse = "\n"),
         collapse = "\n")
-
 
     helper1 <- "_-_"
     if (length(analysis_list) > 0) {
@@ -374,7 +399,8 @@ write_mplus_input <- function(model = model,
         # PLOT = NULL,
         # usevariables = names(pseudoitems),
         rdata = pseudoitems,
-        autov = TRUE
+        autov = TRUE,
+        MODELCONSTRAINT = model_constr
     )
 
     # mplus_input <- MplusAutomation:::update.mplusObject(
