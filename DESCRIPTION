@@ -1,6 +1,6 @@
 Package: ItemResponseTrees
 Title: Fitting and Simulating IR-Tree Models
-Version: 0.0.0.9000
+Version: 0.0.1.9000
 Authors@R: person("Hansjoerg", "Plieninger", email = "plieninger@uni-mannheim.de", role = "cre")
 Description: The package uses 'Mplus' as a backend and provides functions for data generation, model fitting, and simulation studies.
 License: MIT + file LICENSE
@@ -17,7 +17,8 @@ Imports:
     glue,
     stringr,
     mirt,
-    rlang
+    rlang,
+    gtools
 Suggests: 
     future,
     listenv,

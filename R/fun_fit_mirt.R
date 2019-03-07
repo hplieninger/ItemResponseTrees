@@ -357,7 +357,7 @@ extract_mirt_output <- function(results = NULL,
 
     personpar_est <- mirt::fscores(results, method = method, ...)
     # personpar_se  <-
-    colnames(personpar_est) <- model$s_names
+    colnames(personpar_est) <- model$lv_names
     # colnames(personpar_se)  <- model$s_names
 
     itempar <- list()

@@ -77,18 +77,24 @@ fit_tree_mplus <- function(data = NULL,
     checkmate::assert_data_frame(data,
                                  # types = "numeric",
                                  all.missing = FALSE, min.rows = 1, min.cols = model$J)
-    checkmate::assert_data_frame(data[, model$j_names], types = "integerish",
+    checkmate::assert_data_frame(data[, names(model$j_names)], types = "integerish",
                                  ncols = model$J)
     # checkmate::assert_set_equal(names(data), y = levels(j_names))
-    checkmate::assert_subset(model$j_names, choices = names(data))
+    checkmate::assert_subset(names(model$j_names), choices = names(data))
 
     args$model$j_names <- model$j_names <- sort2(model$j_names, names(data))
     model$lambda$item <- factor(model$lambda$item, levels = model$j_names)
-    args$model$lambda <- model$lambda <- model$lambda[order(model$lambda$item, model$lambda$trait), ]
+    # CAVE: The following line is super important. It is the only safeguard that
+    # assures that the items in the 'MODEL'-statement of the mplus input are in
+    # the correct order, namely, that given by the data.
+    # This in turn assures that the item thresholds in the output are in that
+    # same order---and this is necessary, because otherwise checking the order
+    # whilst reading in the output is very cumbersome.
+    args$model$lambda <- model$lambda <- model$lambda[order(model$lambda$trait, model$lambda$item), ]
 
     # pseudoitems <- recode_data(model = model, data = data)
     if (model$class == "tree") {
-        categ_dat <- unique(na.omit(unlist(data[, model$j_names], use.names = FALSE)))
+        categ_dat <- unique(na.omit(unlist(data[, names(model$j_names)], use.names = FALSE)))
         categ_mod <- as.integer(names(model$expr))
         if (length(sym_diff(categ_dat, categ_mod)) > 0) {
             stop("'data' has categories ", clps(", ", sort(categ_dat)),
@@ -98,6 +104,9 @@ fit_tree_mplus <- function(data = NULL,
         pseudoitems <- recode_data(model = model, data = data, keep = TRUE)
     } else if (model$class == "grm") {
         pseudoitems <- data
+        tmp1 <- model$j_names
+        names(tmp1) <- paste0("^", names(tmp1), "$")
+        names(pseudoitems) <- stringr::str_replace_all(names(pseudoitems), tmp1)
         attr(pseudoitems, "pseudoitem_names") <- model$j_names
     }
 
@@ -293,16 +302,9 @@ write_mplus_input <- function(model = model,
                               # processors = 1,
                               analysis_list = list()) {
 
-    # CAVE: The following line is super important. It is the only safeguard that
-    # assures that the items in the 'MODEL'-statement of the mplus input are in
-    # the correct order, namely, that defined in the 'Processes'-section of 'model'.
-    # This in turn assures that the item thresholds in the output are in that
-    # same order---and this is necessary, because otherwise checking the order
-    # whilst reading in the output is very cumbersome.
     lambda <- model$lambda
-    lambda <- lambda[order(lambda$trait, lambda$item), ]
+    # lambda <- lambda[order(lambda$trait, lambda$item), ]
 
-    # lambda$new_name <- names(pseudoitems)
     lambda$new_name <- attr(pseudoitems, "pseudoitem_names")
     lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
 
@@ -321,7 +323,6 @@ write_mplus_input <- function(model = model,
             paste, collapse = "\n"),
         collapse = "\n")
 
-    # mplus_input <- readChar("mlus_template.txt", file.info("mlus_template.txt")$size)
 
     helper1 <- "_-_"
     if (length(analysis_list) > 0) {
@@ -399,10 +400,20 @@ write_mplus_input <- function(model = model,
 # @examples
 #' @export
 extract_mplus_output <- function(results = NULL,
-                                 model = NULL) {
+                                 model = NULL,
+                                 class = c("tree", "grm")) {
 
     if (!inherits(model, "tree_model")) {
         model <- tree_model(model)
+    }
+    if (!is.null(model)) {
+        e2 <- list2env(model)
+    } else {
+        e2 <- new.env()
+        tmp_list <- list(irt = results$input$model)
+        tmp_list$irt <- tmp_list$irt[grepl("\\s+by\\s+", tmp_list$irt, ignore.case = T)]
+        tree_model_irt(tmp_list, e2)
+        e2$class <- match.arg(class)
     }
 
     # results <- res$fit$mplus
@@ -416,11 +427,11 @@ extract_mplus_output <- function(results = NULL,
         fscores <- results[["savedata"]]
 
         # lv_names <- unstd[unstd$paramHeader == "Variances", "param"]
-        lv_names <- model$p_names
+        # lv_names <- model$p_names
 
-        tmp1 <- paste0("^", lv_names, "$", collapse = "|")
+        tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
         fscore_cols1 <- grepl(tmp1, names(fscores), ignore.case = TRUE)
-        tmp2 <- paste0("^", lv_names, "_SE$", collapse = "|")
+        tmp2 <- paste0("^", e2$lv_names, "_SE$", collapse = "|")
         fscore_cols2 <- grepl(tmp2, names(fscores), ignore.case = TRUE)
 
         personpar_est <- fscores[, fscore_cols1, drop = FALSE]
@@ -433,16 +444,16 @@ extract_mplus_output <- function(results = NULL,
         personpar_se  <- NULL
     }
 
-    lambda <- model$lambda
+    lambda <- e2$lambda
 
     # sigma  <- results[["fit"]][["mplus"]][["tech4"]][["latCovEst"]]
     # cormat <- results[["fit"]][["mplus"]][["tech4"]][["latCorEst"]]
     sigma  <- results[["tech4"]][["latCovEst"]]
     cormat <- results[["tech4"]][["latCorEst"]]
 
-    tmp1 <- paste0("^", lv_names, "$", collapse = "|")
+    tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
     tmp2 <- grepl(tmp1, colnames(sigma), ignore.case = TRUE)
-    if (sum(tmp2) == model$P) {
+    if (sum(tmp2) == e2$P) {
         sigma  <-  sigma[tmp2, tmp2, drop = FALSE]
         cormat <- cormat[tmp2, tmp2, drop = FALSE]
     }
@@ -454,51 +465,59 @@ extract_mplus_output <- function(results = NULL,
         alphapar    <- unstd[grep("[.]BY$", unstd$paramHeader), , drop = FALSE]
         betapar     <- unstd[unstd$paramHeader == "Thresholds", , drop = FALSE]
     }
-    # class(alphapar) <- "data.frame"
     alphapar$param <- factor(alphapar$param, levels = alphapar$param)
     rownames(alphapar) <- NULL
     rownames(betapar) <- NULL
 
     itempar <- list()
 
-    if (model$class == "tree") {
 
-        tmp1 <- cbind(lambda[, c("item", "trait")], betapar[, c("est", "se")])
-        itempar$beta    <- reshape2::dcast(tmp1, item ~ trait, value.var = "est")
-        itempar$beta_se <- reshape2::dcast(tmp1, item ~ trait, value.var = "se")
 
-        tmp1 <- cbind(lambda[, c("item", "trait")], alphapar[, c("est", "se")])
-        itempar$alpha    <- reshape2::dcast(tmp1, item ~ trait, value.var = "est")
-        itempar$alpha_se <- reshape2::dcast(tmp1, item ~ trait, value.var = "se")
+    if (e2$class == "tree") {
 
-    } else if (model$class == "grm") {
+        tmp_pattern <- paste0("(?i)(?<=[",
+                              clps(",", e2$lv_names),
+                              "])_")
+        tmp1 <- reshape2::colsplit(betapar$param,
+                           tmp_pattern,
+                           # "(?<=[A,b,a,B])_",
+                           c("trait", "item"))
+        tmp2 <- reshape2::colsplit(tmp1$item, "\\$", c("item", "threshold"))
+        betapar <- cbind(betapar, tmp1[, "trait", drop = FALSE], tmp2)
+        betapar$trait <- factor(betapar$trait, levels = unique(betapar$trait))
+        betapar$item <- factor(betapar$item, levels = unique(betapar$item))
 
-         # tmp1 <- betapar %>%
-         #     tidyr::separate(col = "param",
-         #                     into = c("item", "threshold"),
-         #                     sep = "\\$") %>%
-         #     dplyr::select(-est_se, -pval, -paramHeader) %>%
-         #     reshape2::melt(id.vars = c("item", "threshold")) %>%
-         #     reshape2::dcast(item + variable ~ threshold) %>%
-         #     split(., .$variable) %>%
-         #     lapply(dplyr::select, -variable)
-         # tmp1 <- tidyr::separate(betapar, col = "param",
-         #                     into = c("item", "threshold"),
-         #                     sep = "\\$")
+        # tmp1 <- cbind(lambda[, c("item", "trait")], betapar[, c("est", "se")])
+        itempar$beta    <- reshape2::dcast(betapar, item ~ trait, value.var = "est")
+        itempar$beta_se <- reshape2::dcast(betapar, item ~ trait, value.var = "se")
+
+        tmp3 <- reshape2::colsplit(alphapar$param,
+                                   tmp_pattern,
+                                   # "(?<=[A,b,a,B])_",
+                                   c("trait", "item"))
+        alphapar <- cbind(alphapar, tmp3)
+        alphapar$trait <- factor(alphapar$trait, levels = unique(alphapar$trait))
+        alphapar$item <- factor(alphapar$item, levels = unique(alphapar$item))
+
+        # tmp1 <- cbind(lambda[, c("item", "trait")], alphapar[, c("est", "se")])
+        itempar$alpha    <- reshape2::dcast(alphapar, item ~ trait, value.var = "est")
+        itempar$alpha_se <- reshape2::dcast(alphapar, item ~ trait, value.var = "se")
+
+    } else if (e2$class == "grm") {
+
          tmp1 <- cbind(betapar,
                        reshape2::colsplit(betapar$param, "\\$", c("item", "threshold")))
-         tmp2 <- dplyr::select(tmp1, -est_se, -pval, -paramHeader, -param)
+         tmp2 <- dplyr::select(tmp1, -.data$est_se, -.data$pval, -.data$paramHeader, -.data$param)
          tmp2$item <- factor(tmp2$item, levels = unique(tmp2$item))
-         # tmp3 <- reshape2::melt(tmp2, id.vars = c("item", "threshold"))
-         # tmp4 <- reshape2::dcast(tmp3, item + variable ~ threshold)
          tmp4 <- reshape2::recast(tmp2, item + variable ~ threshold, id.var = c("item", "threshold"))
          tmp5 <- split(tmp4, tmp4$variable)
-         tmp0 <- lapply(tmp5, dplyr::select, -variable)
+         tmp0 <- lapply(tmp5, dplyr::select, -.data$variable)
+         lapply(tmp0, function(x) {rownames(x) <- NULL; x})
          itempar$beta <- tmp0$est
          itempar$beta_se <- tmp0$se
 
-         itempar$alpha <- dplyr::select(alphapar, item = param, est)
-         itempar$alpha_se <- dplyr::select(alphapar, item = param, se)
+         itempar$alpha <- dplyr::select(alphapar, item = .data$param, .data$est)
+         itempar$alpha_se <- dplyr::select(alphapar, item = .data$param, .data$se)
 
     }
 

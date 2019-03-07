@@ -1,4 +1,4 @@
-tree_model_irt <- function(model_list = NULL) {
+tree_model_irt <- function(model_list = NULL, e1 = new.env()) {
 
     irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
     missing_sc <- stringr::str_count(irt0, "(?i)\\s+BY\\s+") > 1
@@ -19,6 +19,7 @@ tree_model_irt <- function(model_list = NULL) {
                        strsplit(x, split =  "(?i)\\s+by\\s+", perl = TRUE)[[1]],
                    FUN.VALUE = character(2), USE.NAMES = FALSE)
     lv_names <- irt1[1, ]
+    names(lv_names) <- lv_names
 
     tmp1 <- grepl("[^[:alnum:]_]", x = lv_names, perl = TRUE)
     if (any(tmp1)) {
@@ -41,58 +42,57 @@ tree_model_irt <- function(model_list = NULL) {
     names(irt_items) <- lv_names
     names(irt_loadings) <- lv_names
 
-    return(list(irt_items = irt_items,
-                irt_loadings = irt_loadings,
-                S = S,
-                lv_names = lv_names))
-
+    rlang::env_bind(e1,
+                    irt_items = irt_items,
+                    irt_loadings = irt_loadings,
+                    S = S,
+                    lv_names = lv_names)
 }
 
-tree_model_equations <- function(model_list = NULL) {
+tree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 
-    equations <- vapply(
+    if (is.null(model_list$equations)) {
+        return(invisible(NULL))
+    }
+
+    e1$equations <- vapply(
         model_list$equations,
         function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
         FUN.VALUE = character(2), USE.NAMES = FALSE)
 
-    eqs2 <- lapply(equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
-    names(eqs2) <- equations[1, ]
-    # out1$K <- length(eqs2)
-    # out1$expr <- eqs2
-
-    return(list(equations = equations,
-                expr = eqs2))
+    e1$expr <- lapply(e1$equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
+    names(e1$expr) <- e1$equations[1, ]
+    e1$K <- length(e1$expr)
 }
 
-tree_model_dimensions <- function(model_list = NULL, lv_names = NULL) {
+# tree_model_dimensions <- function(model_list = NULL, e1 = new.env()) {
+#
+#     tmp1 <- paste(model_list$processes, collapse = " ")
+#
+#     s_names <- strsplit(tmp1, "[^[:alnum:]]+\\s+")[[1]]
+#
+#     flag1 <- sym_diff(s_names, e1$lv_names)
+#     if (length(flag1) > 0) {
+#         stop("Error in 'model': All processes in 'IRT' must be present in 'Processes' ",
+#              "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
+#     }
+#     # return(s_names)
+# }
 
-    tmp1 <- paste(model_list$processes, collapse = " ")
+tree_model_items <- function(e1 = new.env()) {
+    e1$j_names <- gtools::mixedsort(unique(unlist(e1$irt_items, use.names = F)))
+    names(e1$j_names) <- e1$j_names
+    e1$J <- length(e1$j_names)
 
-    s_names <- strsplit(tmp1, "[^[:alnum:]]+\\s+")[[1]]
-
-    flag1 <- sym_diff(s_names, lv_names)
-    if (length(flag1) > 0) {
-        stop("Error in 'model': All processes in 'IRT' must be present in 'Processes' ",
-             "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
-    }
-    return(s_names)
-}
-
-tree_model_items <- function(irt_items = NULL) {
-    j_names <- gtools::mixedsort(unique(unlist(irt_items, use.names = F)))
-    # out1$J <- J <- length(j_names)
-
-    tmp1 <- grepl("[^[:alnum:]_]", j_names, perl = TRUE)
+    tmp1 <- grepl("[^[:alnum:]_]", e1$j_names, perl = TRUE)
     if (any(tmp1)) {
         stop("Variable names may only contain letters, digits, ",
              "and the underscore '_'. Problem with: ",
-             paste(j_names[tmp1], collapse = ", "), call. = FALSE)
+             paste(e1$j_names[tmp1], collapse = ", "), call. = FALSE)
     }
-    return(j_names)
 }
 
-tree_model_subtree <- function(model_list = NULL,
-                               s_names = NULL) {
+tree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
 
     if (!is.null(model_list$subtree)) {
         subtree1 <- vapply(model_list$subtree,
@@ -106,12 +106,36 @@ tree_model_subtree <- function(model_list = NULL,
     } else {
         subtree <- data.frame()
     }
-    tmp1 <- s_names
+    tmp1 <- e1$lv_names
     for (ii in seq_len(nrow(subtree))) {
         tmp1 <- gsub(subtree[ii, 2], subtree[ii, 1], tmp1)
     }
-    p_names <- unique(tmp1)
+    e1$p_names <- unique(tmp1)
+    names(e1$p_names) <- e1$p_names
+    e1$P       <- length(e1$p_names)
+    e1$subtree <- subtree
 
-    return(list(subtree = subtree,
-                p_names = p_names))
+    ### names of MPT-parameters ###
+
+    if (e1$class == "tree") {
+        mpt_names <-
+            all.vars(
+                as.formula(
+                    paste("~", e1$equations[2, ], collapse = " + ")))
+
+        flag1 <- sym_diff(rlang::env_get(e1, "p_names"), mpt_names)
+        if (length(flag1) > 0) {
+            stop("Error in 'model': All parameters in 'Equations' must be present in 'IRT' ",
+                 "combined with 'Subtree 'and vice versa. Problem with ",
+                 paste(flag1, collapse = ", "), ".", call. = FALSE)
+        }
+    }
+}
+
+tree_model_addendum <- function(model_list = NULL, e1 = new.env()) {
+    if (!is.null(model_list$addendum)) {
+        e1$addendum <- model_list$addendum
+    } else {
+        return(invisible(NULL))
+    }
 }

@@ -61,9 +61,9 @@ gen_tree_data <- function(model = NULL,
     # list2env(model[names(model) != "string"], envir = environment())
 
     S <- model$S
-    s_names <- model$s_names
+    # s_names <- model$s_names
     J <- model$J
-    J2 <- length(model$items)
+    # J2 <- length(model$items)
     j_names <- model$j_names
     P <- model$P
     p_names <- model$p_names
@@ -102,9 +102,9 @@ gen_tree_data <- function(model = NULL,
     checkmate::assert_names(names(itempar), permutation.of = c("beta", "alpha"))
 
     checkmate::assert_matrix(itempar$beta, mode = "numeric", any.missing = FALSE,
-                             nrows = J2, ncols = P)
+                             nrows = J, ncols = P)
     checkmate::assert_matrix(itempar$alpha, mode = "numeric", any.missing = FALSE,
-                             nrows = J2, ncols = P)
+                             nrows = J, ncols = P)
 
     ### Parse item parameters ###
 
@@ -113,26 +113,26 @@ gen_tree_data <- function(model = NULL,
     # theta_names <- paste0("theta", 1:S)
     theta_names <- paste0("theta", 1:P)
 
-    betas  <- data.frame(item = factor(model$items, levels = model$items),
+    betas  <- data.frame(item = factor(j_names, levels = j_names),
                          setNames(data.frame(itempar$beta), nm = beta_names))
-    alphas <- data.frame(item = factor(model$items, levels = model$items),
+    alphas <- data.frame(item = factor(j_names, levels = j_names),
                          setNames(data.frame(itempar$alpha), nm = alpha_names))
 
     ### Data generation ###
 
-    # Make a 'long' data frame with N*J2*K rows.
+    # Make a 'long' data frame with N*J*K rows.
     # Add the thetas and the betas in columns
     # Combine them, i.e., pnorm(theta - beta)
     # Apply model equation for each categ, i.e., p1*(1-p2)
 
     dat1 <- data.frame(
-        pers = gl(N, J2*K, length = J2*K*N),
-        item = gl(J2, K,   length = J2*K*N, labels = model$items),
-        cate = gl(K, 1,    length = J2*K*N)
+        pers = gl(N, J*K, length = J*K*N),
+        item = gl(J, K,   length = J*K*N, labels = j_names),
+        cate = gl(K, 1,    length = J*K*N)
     )
 
     tmp1 <- MASS::mvrnorm(ifelse(N == 1, 1.001, N), mu = rep(0, S), Sigma = sigma)
-    colnames(tmp1) <- s_names
+    colnames(tmp1) <- model$lv_names
     args$personpar <- personpar <- data.frame(pers = gl(N, 1), tmp1)
 
     dat2 <- dplyr::left_join(dat1, personpar, by = "pers")
@@ -183,7 +183,7 @@ gen_tree_data <- function(model = NULL,
     probs <- unsplit(dat8, dat7$cate)
 
     prob_item_sum <- aggregate(prob ~ pers + item, data = probs, sum)$prob
-    if (!isTRUE(all.equal(prob_item_sum, rep(1, N*J2)))) {
+    if (!isTRUE(all.equal(prob_item_sum, rep(1, N*J)))) {
         # stop("Probabilities do not sum to 1 within each person-item combination. ",
         #      "Make sure to provide model equations that define a proper IR-tree model", call. = FALSE)
         rlang::abort(
@@ -233,7 +233,7 @@ recode_data <- function(model = NULL,
     # S <- model$S
     # s_names <- model$s_names
     J <- model$J
-    J2 <- length(model$items)
+    # J2 <- length(model$items)
     j_names <- model$j_names
     P <- model$P
     p_names <- model$p_names
@@ -267,7 +267,7 @@ recode_data <- function(model = NULL,
         mapping_matrix[, p_names[ii]] <- pseudoitem
     }
 
-    dat10 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, model$items]),
+    dat10 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, j_names]),
                             id.vars = "pers",
                             variable.name = "item",
                             value.name = "cate")
@@ -292,7 +292,7 @@ recode_data <- function(model = NULL,
     if (keep) {
         X3 <- cbind(X2, data)
     } else {
-        X3 <- cbind(X2, data[, !names(data) %in% model$items, drop = FALSE])
+        X3 <- cbind(X2, data[, !names(data) %in% j_names, drop = FALSE])
     }
 
     attr(X3, "mapping_matrix") <- mapping_matrix

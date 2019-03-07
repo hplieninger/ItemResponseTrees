@@ -50,41 +50,41 @@
 #'   4 = (1-m)*t*(1-e)
 #'   5 = (1-m)*t*e}
 #'
-#' @section Processes:
-#'
-#'   The \code{model} must contain a section with heading Processes.
-#'   It is essentially a listing of all processes/parameters/latent variables
-#'   present in section IRT in the correct order.
-#'   That is, the first process in that listing is the first column in the
-#'   matrix of person parameters etc.
-#'   This section does not contain any new information wrt to the model but
-#'   simply safeguards against ambiguities in the model syntax.
-#'
-#'   It is advised to choose relatively short names for the processes and items,
-#'   because Mplus allows only names of up to eight characters.
-#'
-#'   \preformatted{
-#'   ## Example
-#'   Processes:
-#'   e, m, t}
-#'
-#' @section Items:
-#'
-#'   The \code{model} must contain a section with heading Items.
-#'   It is essentially a listing of all observed variables present in the data
-#'   set in the desired order.
-#'   That is, the first, second, ... item in that listing is the first, second,
-#'   ... row in the matrix of item parameters etc.
-#'   This section does not contain any new information wrt to the model but
-#'   simply safeguards against ambiguities in the model syntax.
-#'
-#'   It is advised to choose relatively short names for the processes and items,
-#'   because Mplus allows only names of up to eight characters.
-#'
-#'   \preformatted{
-#'   ## Example
-#'   Items:
-#'   x1, x2, x3, x4, x5}
+# @section Processes:
+#
+#   The \code{model} must contain a section with heading Processes.
+#   It is essentially a listing of all processes/parameters/latent variables
+#   present in section IRT in the correct order.
+#   That is, the first process in that listing is the first column in the
+#   matrix of person parameters etc.
+#   This section does not contain any new information wrt to the model but
+#   simply safeguards against ambiguities in the model syntax.
+#
+#   It is advised to choose relatively short names for the processes and items,
+#   because Mplus allows only names of up to eight characters.
+#
+#   \preformatted{
+#   ## Example
+#   Processes:
+#   e, m, t}
+#
+# @section Items:
+#
+#   The \code{model} must contain a section with heading Items.
+#   It is essentially a listing of all observed variables present in the data
+#   set in the desired order.
+#   That is, the first, second, ... item in that listing is the first, second,
+#   ... row in the matrix of item parameters etc.
+#   This section does not contain any new information wrt to the model but
+#   simply safeguards against ambiguities in the model syntax.
+#
+#   It is advised to choose relatively short names for the processes and items,
+#   because Mplus allows only names of up to eight characters.
+#
+#   \preformatted{
+#   ## Example
+#   Items:
+#   x1, x2, x3, x4, x5}
 #'
 #' @section Subtree:
 #'
@@ -163,12 +163,6 @@
 #' 4 = (1-m)*t*(1-e)
 #' 5 = (1-m)*t*e
 #'
-#' Processes:
-#' m, e, t1, t2
-#'
-#' Items:
-#' x1, x2, x3, x4, x5, x6
-#'
 #' Class:
 #' Tree
 #' "
@@ -183,28 +177,60 @@ tree_model <- function(model = NULL) {
         checkmate::assert_string(model, min.chars = 10)
     }
 
-    out1 <- list(string = model)
+    # out1 <- list(string = model)
+    e1 <- new.env()
+    e1$string <- model
 
-    model2 <- strsplit(model, "\\s*\\n+")[[1]]
+    model2 <- trimws(strsplit(model, "\\n+")[[1]])
     model2 <- model2[nchar(model2) > 0]
     model2 <- model2[!grepl("^#", model2)]
 
     ### Extract suparts of 'model' ###
 
-    model_list <- list("irt" = NULL, "equations" = NULL, "processes" = NULL, "subtree" = NULL,
-                       "items" = NULL, "class" = NULL, addendum = NULL)
-    headings <- na.omit(stringr::str_extract(model2,
-                                             paste0("(?i)", names(model_list), collapse = "|")))
-    if (any(duplicated(headings))) {
-        stop("Error in 'model': Each heading may appear at most once. Problem with: ",
-             paste(headings[duplicated(headings)], collapse = ", "), call. = FALSE)
+    model_list <- list("irt" = NULL, "equations" = NULL,
+                       # "processes" = NULL,
+                       "subtree" = NULL,
+                       # "items" = NULL,
+                       "class" = NULL, addendum = NULL)
+    # Check Headings in 'model'
+    headings <-
+        na.omit(
+            stringr::str_extract(model2,
+                                 paste0("(?i)^", names(model_list), ".*", collapse = "|")))
+    # No duplicated headings
+    if (any(
+        duplicated(
+            stringr::str_replace(headings, "\\:", ""),
+            incomparables = NA))) {
+        stop("Problem in 'model': Each heading may appear at most once. Problem with: ",
+             clps(", ", "'",
+                  headings[duplicated(stringr::str_replace(headings, "\\:", ""), incomparables = NA)],
+                  "'", sep = ""),
+             call. = FALSE)
     }
+
+    # All headings must end with a colon
+    if (any(stringr::str_detect(headings, ".*(?<!\\:)$"))) {
+        stop("Problem in 'model': All headings must end with a colon (:). Problem with: ",
+             clps(", ", "'",
+                  na.omit(stringr::str_extract(headings, ".*(?<!\\:)$")), "'", sep = ""),
+             call. = FALSE)
+    }
+
+    # Only headings may end with a colon
+    tmp1 <- setdiff(na.omit(stringr::str_extract(model2, ".*\\:$")), headings)
+    if (length(tmp1) > 0) {
+        stop("Problem in 'model': Only headings may end with a colon (:). Problem with:\n",
+             clps("; ", "'", tmp1, "'", sep = ""),
+             call. = FALSE)
+    }
+
     posx <- c(grep(paste(names(model_list), collapse = "|"), model2, ignore.case = TRUE), length(model2) + 1)
 
     flag <- integer()
 
     for (ii in seq_along(model_list)) {
-        tmp1 <- grepl(names(model_list)[ii], model2, ignore.case = TRUE)
+        tmp1 <- grepl(paste0("^", names(model_list)[ii], ":$"), model2, ignore.case = TRUE)
         if (any(tmp1, na.rm = TRUE)) {
             model_list[[ii]] <- model2[(1 + which(tmp1)):(posx[1 + which(posx == which(tmp1))] - 1)]
         } else {
@@ -219,7 +245,7 @@ tree_model <- function(model = NULL) {
 
     ##### Class #####
 
-    out1$class <- class <-
+    e1$class <-
         match.arg(
             tolower(
                 stringr::str_extract(model_list$class, "\\w+")),
@@ -228,299 +254,190 @@ tree_model <- function(model = NULL) {
     if (is.null(model_list$irt)) {
         stop("Argument 'model' must contain a part with heading 'IRT'.", call. = FALSE)
     }
-    if (is.null(model_list$equations) & class == "tree") {
+    if (is.null(model_list$equations) & e1$class == "tree") {
         stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
-    }
-    if (is.null(model_list$processes)) {
-        stop("Argument 'model' must contain a part with heading 'Processes'.", call. = FALSE)
-    }
-    if (is.null(model_list$items)) {
-        stop("Argument 'model' must contain a part with heading 'Items'.", call. = FALSE)
     }
 
     ##### IRT #####
 
-    intermediate <- tree_model_irt(model_list = model_list)
-
-                     irt_items    <- intermediate$irt_items
-                     irt_loadings <- intermediate$irt_loadings
-    out1$S        <- S            <- intermediate$S
-    out1$lv_names <- lv_names     <- intermediate$lv_names
-
-    #
-    # # irt1 <- strsplit(tolower(model_list$irt), "\\s*by\\s*")
-    # # lv_names <- sapply(irt1, `[[`, 1)
-    #
-    # irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
-    # missing_sc <- stringr::str_count(irt0, "(?i)\\s+BY\\s+") > 1
-    # if (any(missing_sc)) {
-    #     stop("Error in model: Every definition in section 'IRT' must end with a ';'. ",
-    #          "Problem with:\n", clps("\nS", irt0[missing_sc]), call. = FALSE)
-    # }
-    #
-    # tmp1 <- strsplit(paste(model_list$irt, collapse = " "), "(?i)\\s+BY\\s+")[[1]]
-    # missing_BY <- stringr::str_count(tmp1, ";") > 1
-    # if (any(missing_BY)) {
-    #     stop("Error in model: Every definition in section 'IRT' must contain the keyword 'BY'. ",
-    #          "Problem with:\n", clps("\n", tmp1[missing_BY]), call. = FALSE)
-    # }
-    #
-    # irt1 <- vapply(irt0,
-    #                function(x)
-    #                    strsplit(x, split =  "(?i)\\s+by\\s+", perl = TRUE)[[1]],
-    #                FUN.VALUE = character(2), USE.NAMES = FALSE)
-    # lv_names <- irt1[1, ]
-    #
-    # tmp1 <- grepl("[^[:alnum:]_]", x = lv_names, perl = TRUE)
-    # # tmp1 <- stringr::str_detect(c("process_1", "process_t2", "process.e"),
-    # #                             pattern = "[^[:alnum:][_]]")
-    # if (any(tmp1)) {
-    #     stop("Variable names may only contain letters, digits, ",
-    #          "and the underscore '_': ", clps(", ", lv_names[tmp1]), call. = FALSE)
-    # }
-    # S <- out1$S <- length(lv_names)
-    #
-    # # irt2 <- vapply(irt1, `[[`, 2, FUN.VALUE = "")
-    # irt4 <- lapply(irt1[2, ],
-    #                function(x) strsplit(x, split =  "[^[:alnum:]*]+\\s+|\\s+", perl = TRUE)[[1]])
-    # irt5 <- lapply(irt4,
-    #                vapply,
-    #                stringr::str_extract, pattern = "@\\d+$|[*]$",
-    #                FUN.VALUE = "")
-    # irt_list <- lapply(irt4,
-    #                    vapply,
-    #                    sub, pattern = "@\\d+$|[*]$", replacement = "",
-    #                    FUN.VALUE = "")
-    # names(irt_list) <- lv_names
-    #
-    # # irt4 <- vapply(irt2, gsub, pattern = paste0(items, collapse = "|"), replacement = "", FUN.VALUE = "")
-    #
-    # # irt3 <- vapply(irt2, gsub, pattern = "[@]\\d+|[*]", replacement = "", FUN.VALUE = "")
-    # # irt_list <- lapply(irt3, function(x) strsplit(x, "[^[:alnum:]]+")[[1]])
-    # # names(irt_list) <- lv_names
-    #
-    #
-    # # items <- unique(unlist(irt_list))
-    # # J <- args$J <- length(items)
+    tree_model_irt(model_list = model_list, e1 = e1)
 
     ##### Equations #####
 
-    if (!is.null(model_list$equations)) {
-        intermediate <- tree_model_equations(model_list = model_list)
+    tree_model_equations(model_list = model_list, e1 = e1)
 
-        out1$equations <- equations <- intermediate$equations
-        out1$expr                   <- intermediate$expr
-        out1$K                      <- length(intermediate$expr)
-    }
+    ##### Items #####
 
-    # if (!is.null(model_list$equations)) {
-    #     # if (class == "tree") {
-    #     out1$equations <- equations <- vapply(
-    #         model_list$equations,
-    #         function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
-    #         FUN.VALUE = character(2), USE.NAMES = FALSE)
-    #
-    #     eqs2 <- lapply(equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
-    #     names(eqs2) <- equations[1, ]
-    #     # out1$K <- K <- length(eqs2)
-    #     out1$K <- length(eqs2)
-    #     out1$expr <- eqs2
-    #     # }
-    # }
-
-    ##### Dimensions, ordered #####
-
-    out1$s_names <- s_names <- tree_model_dimensions(model_list = model_list,
-                                                     lv_names = lv_names)
-
-    # tmp1 <- paste(model_list$processes, collapse = " ")
-    #
-    # s_names <- strsplit(tmp1, "[^[:alnum:]]+\\s+")[[1]]
-    #
-    # flag1 <- sym_diff(s_names, lv_names)
-    # if (length(flag1) > 0) {
-    #     stop("Error in 'model': All processes in 'IRT' must be present in 'Processes' ",
-    #          "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
-    # }
-    # # else {
-    # #     lv_names <- s_names
-    # # }
-    # out1$s_names <- s_names
-
-    ##### Items, ordered #####
-
-    out1$j_names <- j_names <- tree_model_items(irt_items = irt_items)
-    out1$J       <- J       <- length(j_names)
-
-    # out1$j_names <- j_names <- gtools::mixedsort(unique(unlist(irt_items, use.names = F)))
-    # out1$J <- J <- length(j_names)
-    #
-    # tmp1 <- grepl("[^[:alnum:]_]", j_names, perl = TRUE)
-    # if (any(tmp1)) {
-    #     stop("Variable names may only contain letters, digits, ",
-    #          "and the underscore '_'. Problem with: ",
-    #          paste(j_names[tmp1], collapse = ", "), call. = FALSE)
-    # }
-
-    # tmp1 <- paste(model_list$items, collapse = " ")
-    #
-    # out1$j_names <- j_names <- strsplit(tmp1, ";\\s*|,\\s*|\\s+")[[1]]
-    # out1$J <- J <- length(j_names)
-    #
-    # tmp1 <- grepl("[^[:alnum:]_]", j_names, perl = TRUE)
-    # if (any(tmp1)) {
-    #     stop("Variable names may only contain letters, digits, ",
-    #          "and the underscore '_': ", paste(j_names[tmp1], collapse = ", "), call. = FALSE)
-    # }
-    # irt_list <- lapply(irt_list, sort2, j_names)
-    # out1$items <- items <- sort2(unique(unlist(irt_list)), j_names)
-    # # out1$items <- items <- factor(items, levels = items)
-    #
-    # # out1$j_names <- j_names <- factor(j_names, levels = j_names)
-    # # out1$J <- J <- length(j_names)
-    # # if (J != length(unique(unlist(irt_list)))) {
-    # #     stop("Error in 'model'. The number of items in the 'IRT'-part does ",
-    # #          "not match the number of items in the 'Processes'-part.", call. = FALSE)
-    # # }
-    #
-    # flag1 <- sym_diff(j_names, items)
-    # if (length(flag1) > 0) {
-    #     if (is.null(model_list$addendum)) {
-    #         stop("Error in 'model': All variables in 'IRT' must be present in 'Items' ",
-    #              "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
-    #     } else {
-    #         flag2 <- vapply(flag1, function(x) {
-    #             any(
-    #                 stringr::str_detect(string = model_list$addendum, pattern = x))
-    #         }, FUN.VALUE = logical(1))
-    #         if (!all(flag2)) {
-    #             stop("Error in 'model': All variables in 'IRT' must be present in 'Items' ",
-    #                  "or 'Addendum' and vice versa. Problem with ",
-    #                  paste(flag1[!flag2], collapse = ", "), ".", call. = FALSE)
-    #         }
-    #     }
-    # }
+    tree_model_items(e1 = e1)
 
     ##### Subtree #####
 
-    intermediate <- tree_model_subtree(model_list = model_list,
-                                       s_names = s_names)
-
-    out1$subtree  <- subtree  <- intermediate$subtree
-    out1$p_names  <- p_names <- intermediate$p_name
-    out1$P        <- P       <- length(p_names)
-
-    # if (!is.null(model_list$subtree)) {
-    #     subtree1 <- vapply(model_list$subtree,
-    #                        function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
-    #                        FUN.VALUE = character(2))
-    #     subtree2 <- subtree1[1, ]
-    #     subtree3 <- vapply(subtree1[2, ],
-    #                        gsub, pattern = "\\s*[+]\\s*", replacement = "|",
-    #                        FUN.VALUE = "")
-    #     subtree <- data.frame(trait = subtree2, facet = subtree3, row.names = NULL)
-    # } else {
-    #     # subtree2 <- character()
-    #     subtree <- data.frame()
-    # }
-    # # tmp1 <- lv_names
-    # tmp1 <- s_names
-    # for (ii in seq_len(nrow(subtree))) {
-    #     tmp1 <- gsub(subtree[ii, 2], subtree[ii, 1], tmp1)
-    # }
-    # # out1$p_names <- p_names <- factor(unique(tmp1), levels = unique(tmp1))
-    # out1$p_names <- p_names <- unique(tmp1)
-    # out1$P <- P <- length(p_names)
-    #
-    # out1$subtree <- subtree
-
-    ##### Labels for Items and Processes #####
-
-    if (7 < sum(c(max(nchar(p_names)),
-                  max(nchar(j_names))))) {
-        p_names_new <- paste0(LETTERS[1:P], substr(p_names, 1, 2))
-        if (P > 26) {
-            stop("Fatal error, please contact package maintainer. ",
-                 "Renaming of names of processes only implemented for < 27 processes.")
-        }
-        if (7 < sum(c(max(nchar(p_names_new)),
-                      max(nchar(j_names))))) {
-            tmp1 <- floor(log10(J)) + 1
-            tmp2 <- gsub("\\d+", "", j_names)
-            tmp2[tmp2 == ""] <- "V"
-            j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1), 1:J)
-        }
-    }
+    tree_model_subtree(model_list = model_list, e1 = e1)
 
     ##### Addendum #####
 
-    if (!is.null(model_list$addendum)) {
-        out1$addendum <- model_list$addendum
+    tree_model_addendum(model_list, e1)
+
+    ##### Labels for Items and Processes #####
+
+    # Mplus allows names of max 8 characters.
+    # Thus, data provided by user exceeding this limit have to be recoded.
+    # Additionally, in the creation of the pseudoitems, names of LVs and names
+    # of items are concatenated making the names even longer.
+    # Therefore, if names are too long, the LVs are renamed. If names are still
+    # too long, the items are renamed as well. This is done in a new model_list
+    # 'model_list_new', which is subsequently processed to get everything right
+    # such as the equations/expressions and the parts passed to Mplus.
+
+    if (e1$class == "tree") {
+        flag1 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
+                           max(nchar(e1$j_names))))
+    } else if (e1$class == "grm") {
+        flag1 <- 8 < max(nchar(e1$lv_names))
     }
 
-    # names of MPT-parameters
-    if (class == "tree") {
-        tmp1 <- lapply(out1$equations[2, ],
-                       function(x) all.vars(as.formula(paste0("~", x))))
-        mpt_names <- unique(unlist(tmp1))
+    model_list_new <- model_list
 
-        flag1 <- sym_diff(p_names, mpt_names)
-        if (length(flag1) > 0) {
-            stop("Error in 'model': All parameters in 'Equations' must be present in 'IRT' ",
-                 "combined with 'Subtree 'and vice versa. Problem with ",
-                 paste(flag1, collapse = ", "), ".", call. = FALSE)
+    ### Create New Names for LVs ###
+
+    if (flag1) {
+        if (e1$S > 26) {
+            stop("Fatal error, please contact package maintainer. ",
+                 "Renaming of names of processes only implemented for < 27 processes.")
+        }
+
+        lv_names_new <- e1$lv_names
+        p_names_new <- e1$p_names
+        for (ii in seq_len(nrow(e1$subtree))) {
+            lv_names_new <- gsub(e1$subtree[ii, 2], e1$subtree[ii, 1], lv_names_new)
+        }
+        tmp1 <- factor(lv_names_new, levels = unique(lv_names_new))
+
+        for (ii in seq_along(levels(tmp1))) {
+            nsubp <- sum(tmp1 == levels(tmp1)[ii])
+            p_names_new[p_names_new == levels(tmp1)[ii]] <-
+                paste0(LETTERS[ii], substr(p_names_new[ii], 1, 2))
+            if (nsubp == 1) {
+                lv_names_new[tmp1 == levels(tmp1)[ii]] <-
+                    paste0(LETTERS[ii], substr(levels(tmp1)[ii], 1, 2))
+            } else if (nsubp > 1) {
+                lv_names_new[tmp1 == levels(tmp1)[ii]] <-
+                    paste0(LETTERS[ii],
+                           seq_len(nsubp),
+                           substr(levels(tmp1)[ii], 1, 1))
+            }
+        }
+
+        lv_names_new2 <- lv_names_new
+        names(lv_names_new2) <- paste0("(?<!\\w)", names(lv_names_new2), "(?!\\w)")
+        p_names_new2 <- p_names_new
+        names(p_names_new2) <- paste0("(?<!\\w)", names(p_names_new2), "(?!\\w)")
+
+        model_list_new$irt <-
+            stringr::str_replace_all(model_list_new$irt, lv_names_new2)
+        if (!is.null(model_list$equations)) {
+            model_list_new$equations <-
+                stringr::str_replace_all(model_list_new$equations, p_names_new2)
+        }
+        if (!is.null(model_list$subtree)) {
+            model_list_new$subtree <-
+                stringr::str_replace_all(model_list_new$subtree, p_names_new2)
+            model_list_new$subtree <-
+                stringr::str_replace_all(model_list_new$subtree, lv_names_new2)
+        }
+        if (!is.null(model_list$addendum)) {
+            model_list_new$addendum <-
+                stringr::str_replace_all(model_list_new$addendum, lv_names_new2)
         }
     }
 
-    # out1$model_list <- model_list
+    ### Create New Names for Items ###
 
-    lambda <- reshape2::melt(irt_list, value.name = "item")
-    lambda$item <- factor(lambda$item, levels = items)
-    names(lambda) <- sub("L1", "trait", names(lambda))
-    lambda$trait <- factor(lambda$trait, levels = s_names)
-    lambda$loading <- ifelse(is.na(unlist(irt5)), "*", unlist(irt5))
-    lambda <- lambda[order(lambda$trait, lambda$item), ]
-
-    tmp1 <- aggregate(loading ~ trait, data = lambda,
-                      function(x) any(grepl(x = x, pattern = "@\\d+", perl = TRUE)))
-    if (any(tmp1$loading == FALSE)) {
-        message("At least one loading for each trait must be fixed im Mplus, (e.g., @1). ",
-             "Please fix the following: ",
-             paste(tmp1[!tmp1$loading, "trait"], collapse = ", "), ".")
+    if (e1$class == "tree" & flag1) {
+        flag2 <- 7 < sum(c(max(c(nchar(p_names_new), nchar(lv_names_new))),
+                           max(nchar(e1$j_names))))
+    } else if (e1$class == "grm") {
+        flag2 <- 8 < max(nchar(e1$p_names))
+    } else {
+        flag2 <- FALSE
     }
 
-    out1$lambda <- lambda
+    if (flag2) {
 
-    # rm(list = ls()[!ls() %in% c("out1", "S", "J", "P", "model_list")])
+        tmp1 <- floor(log10(e1$J)) + 1
+        tmp2 <- gsub("\\d+", "", e1$j_names)
+        tmp2[tmp2 == ""] <- "V"
+        j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1), 1:e1$J)
 
-    # stopifnot(is.list(out1))
+        names(j_names_new) <- e1$j_names
+        j_names_new2 <- j_names_new
+        names(j_names_new2) <- paste0("(?<!\\w)", e1$j_names, "(?!\\w)")
+
+        model_list_new$irt <-
+            stringr::str_replace_all(model_list_new$irt, j_names_new2)
+        if (!is.null(model_list$addendum)) {
+            model_list_new$addendum <-
+                stringr::str_replace_all(model_list_new$addendum, j_names_new2)
+        }
+    }
+
+    ### Update Everything Based on New model_list ###
+
+    if (any(c(flag1, flag2))) {
+
+        # tree_model_irt
+        # tree_model_equations
+        # tree_model_items
+        # tree_model_subtree
+        # tree_model_addendum
+
+        tree_model_irt(model_list_new, e1)
+        tree_model_equations(model_list_new, e1)
+        # tree_model_items(model_list_new, e1)    # not necessary
+        tree_model_subtree(model_list_new, e1)
+        tree_model_addendum(model_list_new, e1)
+
+        # Update *_names seperately such that names of the character vectors are the old names
+        e1$j_names  <- j_names_new
+        e1$lv_names <- lv_names_new
+        e1$p_names  <- p_names_new
+    }
+
+    ##### Lambda Matrix #####
+
+    lambda <- reshape2::melt(e1$irt_items, value.name = "item")
+    lambda$item <- factor(lambda$item, levels = e1$j_names)
+    names(lambda) <- sub("L1", "trait", names(lambda))
+    lambda$trait <- factor(lambda$trait, levels = e1$lv_names)
+    lambda$loading <- ifelse(is.na(unlist(e1$irt_loadings)), "*", unlist(e1$irt_loadings))
+    lambda <- lambda[order(lambda$trait, lambda$item), ]
+
+    # tmp1 <- aggregate(loading ~ trait, data = lambda,
+    #                   function(x) any(grepl(x = x, pattern = "@\\d+", perl = TRUE)))
+    # if (any(tmp1$loading == FALSE)) {
+    #     message("At least one loading for each trait must be fixed im Mplus, (e.g., @1). ",
+    #          "Please fix the following: ",
+    #          paste(tmp1[!tmp1$loading, "trait"], collapse = ", "), ".")
+    # }
+
+    e1$lambda <- lambda
+
+    out1 <- as.list(e1)
+    out1 <- out1[order(names(out1))]
     class(out1) <- c("list", "tree_model")
 
-    ### Test if probabilities add to 1
+    ##### Test if probabilities add to 1 #####
+
     if (!is.null(model_list$equations)) {
-        J2 <- length(items)
-        tryCatch(gen_tree_data(model = out1, N = 1, sigma = diag(S),
-                               itempar = list(beta  = matrix(stats::rnorm(J2*P), J2, P),
-                                              alpha = matrix(stats::rnorm(J2*P), J2, P)),
-                               K = ifelse(is.null(out1$K), NULL, out1$K)),
+        tryCatch(gen_tree_data(model = out1, N = 1, sigma = diag(e1$S),
+                               itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
+                                              alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
+                               K = ifelse(is.null(e1$K), NULL, e1$K)),
                  improper_model = function(cnd) {
                      warning("Equations do not constitute a proper model because ",
                              "they do not sum to 1. ", call. = FALSE)
                  })
     }
-
-
-    # test1 <- myTryCatch(gen_tree_data(model = out1, N = 2, sigma = diag(S),
-    #                                   itempar = list(beta  = matrix(rnorm(J*P), J, P),
-    #                                                  alpha = matrix(rnorm(J*P), J, P)),
-    #                                   K = ifelse(is.null(out1$K), NULL, out1$K)))
-    # if (!is.null(test1$warning)) {
-    #     warning(conditionMessage(test1$warning), call. = F)
-    # }
-    # if (!is.null(test1$error)) {
-    #     warning("Error: ", conditionMessage(test1$error), call. = F)
-    # }
-
     return(out1)
 }
 

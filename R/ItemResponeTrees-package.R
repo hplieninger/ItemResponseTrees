@@ -16,6 +16,9 @@
 #'
 #' @importFrom stats setNames aggregate as.formula na.omit rmultinom cov2cor
 #' @importFrom utils capture.output
+#' @importFrom rlang .data
 #'
 # @keywords internal
 "_PACKAGE"
+
+if (getRversion() >= "2.15.1")  utils::globalVariables(c("."))
