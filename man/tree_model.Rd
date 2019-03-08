@@ -7,7 +7,7 @@
 tree_model(model = NULL)
 }
 \arguments{
-\item{model}{Character string with a specific structure as described below.}
+\item{model}{String with a specific structure as described below.}
 }
 \value{
 List of class \code{tree_model}. It contains the information

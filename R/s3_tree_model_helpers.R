@@ -3,14 +3,14 @@ tree_model_irt <- function(model_list = NULL, e1 = new.env()) {
     irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
     missing_sc <- stringr::str_count(irt0, "(?i)\\s+BY\\s+") > 1
     if (any(missing_sc)) {
-        stop("Error in model: Every definition in section 'IRT' must end with a ';'. ",
+        stop("Problem in model: Every definition in section 'IRT' must end with a ';'. ",
              "Problem with:\n", clps("\nS", irt0[missing_sc]), call. = FALSE)
     }
 
     tmp1 <- strsplit(paste(model_list$irt, collapse = " "), "(?i)\\s+BY\\s+")[[1]]
     missing_BY <- stringr::str_count(tmp1, ";") > 1
     if (any(missing_BY)) {
-        stop("Error in model: Every definition in section 'IRT' must contain the keyword 'BY'. ",
+        stop("Problem in model: Every definition in section 'IRT' must contain the keyword 'BY'. ",
              "Problem with:\n", clps("\n", tmp1[missing_BY]), call. = FALSE)
     }
 
@@ -73,7 +73,7 @@ tree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 #
 #     flag1 <- sym_diff(s_names, e1$lv_names)
 #     if (length(flag1) > 0) {
-#         stop("Error in 'model': All processes in 'IRT' must be present in 'Processes' ",
+#         stop("Problem in 'model': All processes in 'IRT' must be present in 'Processes' ",
 #              "and vice versa. Problem with ", paste(flag1, collapse = ", "), ".", call. = FALSE)
 #     }
 #     # return(s_names)
@@ -125,7 +125,7 @@ tree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
 
         flag1 <- sym_diff(rlang::env_get(e1, "p_names"), mpt_names)
         if (length(flag1) > 0) {
-            stop("Error in 'model': All parameters in 'Equations' must be present in 'IRT' ",
+            stop("Problem in 'model': All parameters in 'Equations' must be present in 'IRT' ",
                  "combined with 'Subtree 'and vice versa. Problem with ",
                  paste(flag1, collapse = ", "), ".", call. = FALSE)
         }
@@ -135,6 +135,27 @@ tree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
 tree_model_addendum <- function(model_list = NULL, e1 = new.env()) {
     if (!is.null(model_list$addendum)) {
         e1$addendum <- model_list$addendum
+    } else {
+        return(invisible(NULL))
+    }
+}
+
+tree_model_constraints <- function(model_list = NULL, e1 = new.env()) {
+    if (!is.null(model_list$constraints)) {
+        tmp1 <- paste0("^(", clps("|", e1$lv_names),
+                       ")=(", clps("|", e1$lv_names), ")$")
+        tmp2 <- vapply(model_list$constraints, gsub,
+                                 pattern = "\\s+",
+                                 replacement = "", FUN.VALUE = character(1))
+        if (any(!stringr::str_detect(tmp2, tmp1))) {
+            stop("Problem in model: Constraints must be specified in the form of: ",
+                 "Name_of_LV = Name_of_LV")
+        }
+        names(tmp2) <- NULL
+        e1$constraints <-
+            unlist(
+                lapply(strsplit(tmp2, "="),
+                       function(x) {y <- x[1]; names(y) <- x[2]; y}))
     } else {
         return(invisible(NULL))
     }

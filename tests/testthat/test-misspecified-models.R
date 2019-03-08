@@ -47,3 +47,21 @@ dat <- setNames(data.frame(matrix(1:4, 10, 6)), paste0("x", 1:6))
 test_that("Mismatch of categories between model and data throws error", {
     expect_error(fit_tree_mirt(dat, m2))
 })
+
+m3 <- "
+IRT:
+a BY X1, X2;
+b BY X1, X2;
+
+Equations:
+1 = (1-a)
+2 = (a)*(1-b)
+3 = a*bb
+
+Class:
+Tree
+"
+
+test_that("Mismatch of names between IRT and Equations throws error", {
+    expect_error(tree_model(m3))
+})

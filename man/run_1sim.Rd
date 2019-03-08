@@ -6,8 +6,7 @@
 \usage{
 run_1sim(gen_model = NULL, fit_model = gen_model, N = NULL,
   sigma = NULL, link = c("probit", "logit"), itempar = NULL,
-  backend = c("mirt", "mplus"), dir = NULL, R = 1,
-  save_rdata = FALSE, ...)
+  backend = c("mirt", "mplus"), dir = NULL, save_rdata = FALSE, ...)
 }
 \arguments{
 \item{gen_model}{A description of the user-specified model that is used to
@@ -24,7 +23,7 @@ to \code{\link[MASS]{mvrnorm}}. Note that the order of the person
 parameters is taken from the section Processes in the \code{model} (see
 \code{\link{tree_model}}).}
 
-\item{link}{Character string, passed to argument 'LINK' in Mplus. Specifies
+\item{link}{String, passed to argument 'LINK' in Mplus. Specifies
 the link function.}
 
 \item{itempar}{Either a list or a function that returns a list. The list has
@@ -33,11 +32,11 @@ matrix of item parameters. Note theat the order of items (rows) is taken from th
 section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link{tree_model}}).}
 
-\item{backend}{Character string specifying wheter to use mirt or Mplus for
+\item{backend}{String specifying wheter to use mirt or Mplus for
 estimation.}
 
-\item{dir}{Character string of path name, where the Mplus files should be
-stored and run; the default corresponds to the working directory.}
+\item{dir}{String, path name where the Mplus files should be
+stored and run; the default corresponds to the working directory}
 
 \item{save_rdata}{Logical indicating whether to save the results to an RData
 file.}

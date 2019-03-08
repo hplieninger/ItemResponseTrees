@@ -141,7 +141,7 @@
 #'   e WITH t@0;
 #'   m WITH t@0;}
 #'
-#' @param model Character string with a specific structure as described below.
+#' @param model String with a specific structure as described below.
 #' @return List of class \code{tree_model}. It contains the information
 #'   extracted from parsing \code{model}.
 #' @examples
@@ -191,7 +191,8 @@ tree_model <- function(model = NULL) {
                        # "processes" = NULL,
                        "subtree" = NULL,
                        # "items" = NULL,
-                       "class" = NULL, addendum = NULL)
+                       "class" = NULL, "addendum" = NULL,
+                       "constraints" = NULL)
     # Check Headings in 'model'
     headings <-
         na.omit(
@@ -278,6 +279,10 @@ tree_model <- function(model = NULL) {
 
     tree_model_addendum(model_list, e1)
 
+    ##### Constraints #####
+
+    tree_model_constraints(model_list, e1)
+
     ##### Labels for Items and Processes #####
 
     # Mplus allows names of max 8 characters.
@@ -289,18 +294,52 @@ tree_model <- function(model = NULL) {
     # 'model_list_new', which is subsequently processed to get everything right
     # such as the equations/expressions and the parts passed to Mplus.
 
+    model_list_new <- model_list
+
+    ### Create New Names for Items ###
+
     if (e1$class == "tree") {
         flag1 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
                            max(nchar(e1$j_names))))
     } else if (e1$class == "grm") {
-        flag1 <- 8 < max(nchar(e1$lv_names))
+        flag1 <- 8 < max(nchar(e1$j_names))
     }
 
-    model_list_new <- model_list
+    if (flag1) {
+
+        tmp1 <- floor(log10(e1$J)) + 1
+        tmp2 <- gsub("\\d+", "", e1$j_names)
+        tmp2[tmp2 == ""] <- "V"
+        j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1),
+                              # 1:e1$J,
+                              formatC(1:e1$J, width = tmp1, format = "d", flag = "0"))
+
+        names(j_names_new) <- e1$j_names
+        j_names_new2 <- j_names_new
+        names(j_names_new2) <- paste0("(?<!\\w)", e1$j_names, "(?!\\w)")
+
+        model_list_new$irt <-
+            stringr::str_replace_all(model_list_new$irt, j_names_new2)
+        if (!is.null(model_list$addendum)) {
+            model_list_new$addendum <-
+                stringr::str_replace_all(model_list_new$addendum, j_names_new2)
+        }
+    } else {
+        j_names_new <- e1$j_names
+    }
 
     ### Create New Names for LVs ###
 
-    if (flag1) {
+    if (e1$class == "tree") {
+        # flag2 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
+        #                    max(nchar(e1$j_names))))
+        flag2 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
+                           max(nchar(j_names_new))))
+    } else if (e1$class == "grm") {
+        flag2 <- 8 < max(nchar(e1$lv_names))
+    }
+
+    if (flag2) {
         if (e1$S > 26) {
             stop("Fatal error, please contact package maintainer. ",
                  "Renaming of names of processes only implemented for < 27 processes.")
@@ -349,37 +388,42 @@ tree_model <- function(model = NULL) {
             model_list_new$addendum <-
                 stringr::str_replace_all(model_list_new$addendum, lv_names_new2)
         }
-    }
-
-    ### Create New Names for Items ###
-
-    if (e1$class == "tree" & flag1) {
-        flag2 <- 7 < sum(c(max(c(nchar(p_names_new), nchar(lv_names_new))),
-                           max(nchar(e1$j_names))))
-    } else if (e1$class == "grm") {
-        flag2 <- 8 < max(nchar(e1$p_names))
-    } else {
-        flag2 <- FALSE
-    }
-
-    if (flag2) {
-
-        tmp1 <- floor(log10(e1$J)) + 1
-        tmp2 <- gsub("\\d+", "", e1$j_names)
-        tmp2[tmp2 == ""] <- "V"
-        j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1), 1:e1$J)
-
-        names(j_names_new) <- e1$j_names
-        j_names_new2 <- j_names_new
-        names(j_names_new2) <- paste0("(?<!\\w)", e1$j_names, "(?!\\w)")
-
-        model_list_new$irt <-
-            stringr::str_replace_all(model_list_new$irt, j_names_new2)
-        if (!is.null(model_list$addendum)) {
-            model_list_new$addendum <-
-                stringr::str_replace_all(model_list_new$addendum, j_names_new2)
+        if (!is.null(model_list$constraints)) {
+            model_list_new$constraints <-
+                stringr::str_replace_all(model_list_new$constraints, lv_names_new2)
         }
+    } else {
+        lv_names_new <- e1$lv_names
+        p_names_new  <- e1$p_names
     }
+
+    # ### Create New Names for Items ###
+    #
+    # if (e1$class == "tree" & flag1) {
+    #     flag2 <- 7 < sum(c(max(c(nchar(p_names_new), nchar(lv_names_new))),
+    #                        max(nchar(e1$j_names))))
+    # } else if (e1$class == "grm") {
+    #     flag2 <- 8 < max(nchar(e1$j_names))
+    # }
+    #
+    # if (flag2) {
+    #
+    #     tmp1 <- floor(log10(e1$J)) + 1
+    #     tmp2 <- gsub("\\d+", "", e1$j_names)
+    #     tmp2[tmp2 == ""] <- "V"
+    #     j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1), 1:e1$J)
+    #
+    #     names(j_names_new) <- e1$j_names
+    #     j_names_new2 <- j_names_new
+    #     names(j_names_new2) <- paste0("(?<!\\w)", e1$j_names, "(?!\\w)")
+    #
+    #     model_list_new$irt <-
+    #         stringr::str_replace_all(model_list_new$irt, j_names_new2)
+    #     if (!is.null(model_list$addendum)) {
+    #         model_list_new$addendum <-
+    #             stringr::str_replace_all(model_list_new$addendum, j_names_new2)
+    #     }
+    # }
 
     ### Update Everything Based on New model_list ###
 
@@ -390,12 +434,14 @@ tree_model <- function(model = NULL) {
         # tree_model_items
         # tree_model_subtree
         # tree_model_addendum
+        # tree_model_constraints
 
         tree_model_irt(model_list_new, e1)
         tree_model_equations(model_list_new, e1)
         # tree_model_items(model_list_new, e1)    # not necessary
         tree_model_subtree(model_list_new, e1)
         tree_model_addendum(model_list_new, e1)
+        tree_model_constraints(model_list_new, e1)
 
         # Update *_names seperately such that names of the character vectors are the old names
         e1$j_names  <- j_names_new

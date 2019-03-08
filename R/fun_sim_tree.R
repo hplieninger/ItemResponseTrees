@@ -10,7 +10,7 @@
 #'   the data. See \code{\link{tree_model}} for more information.
 #' @param save_rdata Logical indicating whether to save the results to an RData
 #'   file.
-#' @param backend Character string specifying wheter to use mirt or Mplus for
+#' @param backend String specifying wheter to use mirt or Mplus for
 #'   estimation.
 #' @param ... Other parameters passed to \code{\link{fit_tree_mplus}}.
 #' @inheritParams gen_tree_data
@@ -34,7 +34,7 @@ run_1sim <- function(gen_model = NULL,
                      itempar = NULL,
                      backend = c("mirt", "mplus"),
                      dir = NULL,
-                     R = 1,
+                     # R = 1,
                      save_rdata = FALSE,
                      ...) {
 
@@ -121,6 +121,7 @@ run_1sim <- function(gen_model = NULL,
 #' process is repeated \code{R} times, and the argument \code{plan} allows to
 #' run the simulation in parallel.
 #'
+#' @param R Number of replications
 #' @param plan Parameter passed as argument \code{strategy} to
 #'   \code{\link[future]{plan}}. May be set to, for example, \code{multisession}
 #'   in order to run the simulations in parallel.

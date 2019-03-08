@@ -5,13 +5,18 @@
 \title{Retrieve Estimates From Mplus}
 \usage{
 extract_mplus_output(results = NULL, model = NULL, class = c("tree",
-  "grm"))
+  "grm"), .errors2messages = FALSE)
 }
 \arguments{
 \item{results}{A list as returned from \code{\link[MplusAutomation]{readModels}}}
 
 \item{model}{A description of the user-specified model. See
 \code{\link{tree_model}} for more information.}
+
+\item{class}{String specifying which class of model was fit}
+
+\item{.errors2messages}{Logical indicating whether errors should be converted
+to messages}
 }
 \value{
 A list of parameter estimates, model fit information

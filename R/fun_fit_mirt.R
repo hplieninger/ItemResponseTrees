@@ -2,8 +2,8 @@
 #'
 #' This function takes a data frame and a model string and runs the model in mirt.
 #'
-#' @param link Character string specifying the link function. Only \code{logit}
-#'   is implemented in mirt.
+#' @param link String specifying the link function. Only \code{logit} is
+#'   implemented in mirt.
 #' @param rm_mirt_internal Logical. \code{\link[mirt]{mirt}} returns a lot of
 #'   information including two functions that can take up a huge amount of space
 #'   (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
@@ -20,7 +20,7 @@
 fit_tree_mirt <- function(data = NULL,
                           model = NULL,
                           dir = ".",
-                          R = 1,
+                          # R = 1,
                           link = "logit",
                           SE = TRUE,
                           verbose = FALSE,

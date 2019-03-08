@@ -25,7 +25,7 @@ matrix of item parameters. Note theat the order of items (rows) is taken from th
 section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link{tree_model}}).}
 
-\item{link}{Character string, passed to argument 'LINK' in Mplus. Specifies
+\item{link}{String, passed to argument 'LINK' in Mplus. Specifies
 the link function.}
 
 \item{K}{Integer, number of categories. Needed only not defined by the

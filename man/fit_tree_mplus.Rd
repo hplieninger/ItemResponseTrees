@@ -18,17 +18,17 @@ fit_tree_mplus(data = NULL, model = NULL, dir = ".",
 \item{model}{A description of the user-specified model. See
 \code{\link{tree_model}} for more information.}
 
-\item{dir}{Character string of path name, where the Mplus files should be
-stored and run; the default corresponds to the working directory.}
+\item{dir}{String, path name where the Mplus files should be
+stored and run; the default corresponds to the working directory}
 
-\item{file_name}{Character string, file name of the data file and the Mplus files.}
+\item{file_name}{String, file name of the data file and the Mplus files}
 
 \item{integration_points}{Integer, passed to argument 'INTEGRATION' in Mplus.
 Number of integration points for numerical integration.}
 
-\item{estimator}{Character string, passed to argument 'ESTIMATOR' in Mplus.}
+\item{estimator}{String, passed to argument 'ESTIMATOR' in Mplus.}
 
-\item{link}{Character string, passed to argument 'LINK' in Mplus. Specifies
+\item{link}{String, passed to argument 'LINK' in Mplus. Specifies
 the link function.}
 
 \item{inp_rm}{Logical, whether the Mplus input file should be removed on exit.}

@@ -4,9 +4,9 @@
 \alias{fit_tree_mirt}
 \title{Fit an IR-Tree Model using mirt}
 \usage{
-fit_tree_mirt(data = NULL, model = NULL, dir = ".", R = 1,
-  link = "logit", SE = TRUE, verbose = FALSE, run = TRUE,
-  rm_mirt_internal = TRUE, ...)
+fit_tree_mirt(data = NULL, model = NULL, dir = ".", link = "logit",
+  SE = TRUE, verbose = FALSE, run = TRUE, rm_mirt_internal = TRUE,
+  ...)
 }
 \arguments{
 \item{data}{Data frame containing only the items.}
@@ -14,11 +14,11 @@ fit_tree_mirt(data = NULL, model = NULL, dir = ".", R = 1,
 \item{model}{A description of the user-specified model. See
 \code{\link{tree_model}} for more information.}
 
-\item{dir}{Character string of path name, where the Mplus files should be
-stored and run; the default corresponds to the working directory.}
+\item{dir}{String, path name where the Mplus files should be
+stored and run; the default corresponds to the working directory}
 
-\item{link}{Character string specifying the link function. Only \code{logit}
-is implemented in mirt.}
+\item{link}{String specifying the link function. Only \code{logit} is
+implemented in mirt.}
 
 \item{SE}{logical; estimate the standard errors by computing the parameter information matrix?
 See \code{SE.type} for the type of estimates available}

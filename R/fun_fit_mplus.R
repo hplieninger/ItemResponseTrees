@@ -5,14 +5,14 @@
 #' @param data Data frame containing only the items.
 #' @param model A description of the user-specified model. See
 #'   \code{\link{tree_model}} for more information.
-#' @param dir Character string of path name, where the Mplus files should be
-#'   stored and run; the default corresponds to the working directory.
-#' @param file_name Character string, file name of the data file and the Mplus files.
+#' @param dir String, path name where the Mplus files should be
+#'   stored and run; the default corresponds to the working directory
+#' @param file_name String, file name of the data file and the Mplus files
 # @param R Integer used to index the file names.
 #' @param integration_points Integer, passed to argument 'INTEGRATION' in Mplus.
 #'   Number of integration points for numerical integration.
-#' @param estimator Character string, passed to argument 'ESTIMATOR' in Mplus.
-#' @param link Character string, passed to argument 'LINK' in Mplus. Specifies
+#' @param estimator String, passed to argument 'ESTIMATOR' in Mplus.
+#' @param link String, passed to argument 'LINK' in Mplus. Specifies
 #'   the link function.
 #' @param inp_rm Logical, whether the Mplus input file should be removed on exit.
 #' @param out_rm Logical, whether the Mplus output file should be removed on exit.
@@ -275,11 +275,11 @@ fit_tree_mplus <- function(data = NULL,
 #' inputs from the model and the data set and returns an object of class
 #' \code{\link[MplusAutomation]{mplusObject}}.
 #'
-#' @param lambda Matrix as returned from \code{\link{fit_tree_mplus}}.
+# @param lambda Matrix as returned from \code{\link{fit_tree_mplus}}.
 #' @param pseudoitems Data frame as returned from \code{\link{recode_data}}.
-#' @param data_file Character string naming the full file path of the data set.
-#' @param fsco_file Character string naming the file used by Mplus to store the factor scores.
-#' @param addendum Character string as returned from \code{\link{tree_model}}.
+#' @param data_file String, the full file path of the data set.
+#' @param fsco_file String, the file used by Mplus to store the factor scores.
+# @param addendum String as returned from \code{\link{tree_model}}.
 #' @inheritParams fit_tree_mplus
 # @importMethodsFrom MplusAutomation update
 #' @return A list of of class \code{\link[MplusAutomation]{mplusObject}}
@@ -305,6 +305,23 @@ write_mplus_input <- function(model = model,
     lambda <- model$lambda
     # lambda <- lambda[order(lambda$trait, lambda$item), ]
 
+    ### Apply Constraints ###
+
+    if (!is.null(model$constraints)) {
+        lambda$trait <- factor(lambda$trait,
+                               levels = levels(lambda$trait),
+                               labels = stringr::str_replace_all(
+                                   levels(lambda$trait),
+                                   model$constraints))
+
+        tmp1 <- model$constraints
+        names(tmp1) <- paste0("(?<!\\w)", names(tmp1), "(?!\\w)")
+
+        model$addendum <- stringr::str_replace_all(model$addendum, tmp1)
+    }
+
+    ##### Mplus MODEL Statement #####
+
     lambda$new_name <- attr(pseudoitems, "pseudoitem_names")
     lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
 
@@ -324,6 +341,15 @@ write_mplus_input <- function(model = model,
           ";")
     })
 
+    mplus3 <- paste(
+        lapply(
+            lapply(c(mplus2, model$addendum),
+                   strwrap, width = 89, indent = 2, exdent = 4),
+            paste, collapse = "\n"),
+        collapse = "\n")
+
+    ##### Mplus MODEL CONSTRAINT Statement #####
+
     model_constr0 <-
         vapply(seq_along(mplus1), function(x) {
             if (any(mplus1[[x]]$loading != "*")) {
@@ -333,7 +359,7 @@ write_mplus_input <- function(model = model,
                        glue::glue_collapse(glue::glue("{mplus1[[x]]$label}"),
                                            sep = " + "),
                        " - {nrow(mplus1[[x]])};")
-            }, FUN.VALUE = "")
+        }, FUN.VALUE = "")
 
     model_constr <- paste(
         lapply(
@@ -341,13 +367,11 @@ write_mplus_input <- function(model = model,
                    strwrap, width = 89, indent = 2, exdent = 4),
             paste, collapse = "\n"),
         collapse = "\n")
+    if (model_constr == "") {
+        model_constr <- NULL
+    }
 
-    mplus3 <- paste(
-        lapply(
-            lapply(c(mplus2, model$addendum),
-                   strwrap, width = 89, indent = 2, exdent = 4),
-            paste, collapse = "\n"),
-        collapse = "\n")
+    ##### Mplus ANALYSIS Statement #####
 
     helper1 <- "_-_"
     if (length(analysis_list) > 0) {
@@ -365,12 +389,20 @@ write_mplus_input <- function(model = model,
                            analysis2,
                            .sep = helper1)
     ANALYSIS <- strsplit(ANALYSIS, helper1, fixed = TRUE)[[1]]
+
+    ##### Mplus SAVEDATA Statement #####
+
     if (save_fscores) {
         SAVEDATA <- c(glue::glue("FILE = {fsco_file};"),
                       glue::glue("SAVE = FSCORES;"))
     } else {
         SAVEDATA <- NULL
     }
+
+    ##### Mplus VARIABLE Statement #####
+
+    # NB: USEVARIABLES is automatically generated using 'mplusObject(autov = T)'
+    # NB: mplusObject(usevariables) != USEVARIABLES in Mplus
 
     tmp1 <- names(pseudoitems)
     tmp1 <- tmp1[!tmp1 %in% model$j_names]
@@ -386,6 +418,8 @@ write_mplus_input <- function(model = model,
                 width = 89, indent = 0, exdent = 5),
             collapse = "\n")
 
+    ##### Combine All Mplus Statements #####
+
     mplus_input <- MplusAutomation::mplusObject(
         TITLE = NULL,
         # DATA = NULL,
@@ -393,7 +427,6 @@ write_mplus_input <- function(model = model,
         # ANALYSIS = NULL,
         ANALYSIS = ANALYSIS,
         MODEL = mplus3,
-        # MODELCONSTRAINT = NULL,
         OUTPUT = "STDYX TECH1 TECH4 TECH8;",
         SAVEDATA = SAVEDATA,
         # PLOT = NULL,
@@ -420,6 +453,9 @@ write_mplus_input <- function(model = model,
 #' convenient way.
 #'
 #' @param results A list as returned from \code{\link[MplusAutomation]{readModels}}
+#' @param class String specifying which class of model was fit
+#' @param .errors2messages Logical indicating whether errors should be converted
+#'   to messages
 #' @inheritParams fit_tree_mplus
 #' @return A list of parameter estimates, model fit information
 #'   (\code{summaries}), \code{warnings}, \code{errors}.
@@ -511,7 +547,7 @@ extract_mplus_output <- function(results = NULL,
         alphapar    <- unstd[grep("[.]BY$", unstd$paramHeader), , drop = FALSE]
         betapar     <- unstd[unstd$paramHeader == "Thresholds", , drop = FALSE]
     }
-    alphapar$param <- factor(alphapar$param, levels = alphapar$param)
+    alphapar$param <- factor(alphapar$param, levels = unique(alphapar$param))
     rownames(alphapar) <- NULL
     rownames(betapar) <- NULL
 
@@ -558,7 +594,7 @@ extract_mplus_output <- function(results = NULL,
          tmp4 <- reshape2::recast(tmp2, item + variable ~ threshold, id.var = c("item", "threshold"))
          tmp5 <- split(tmp4, tmp4$variable)
          tmp0 <- lapply(tmp5, dplyr::select, -.data$variable)
-         lapply(tmp0, function(x) {rownames(x) <- NULL; x})
+         tmp0 <- lapply(tmp0, function(x) {rownames(x) <- NULL; x})
          itempar$beta <- tmp0$est
          itempar$beta_se <- tmp0$se
 
