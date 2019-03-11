@@ -56,7 +56,7 @@ tree_model_equations <- function(model_list = NULL, e1 = new.env()) {
     }
 
     e1$equations <- vapply(
-        model_list$equations,
+        gsub("\\s+", "", model_list$equations),
         function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
         FUN.VALUE = character(2), USE.NAMES = FALSE)
 

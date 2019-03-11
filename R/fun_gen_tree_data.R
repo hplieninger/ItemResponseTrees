@@ -257,13 +257,16 @@ recode_data <- function(model = NULL,
     mapping_matrix <- cbind(cate = 1:K, mapping_matrix)
 
     for (ii in seq_along(p_names)) {
-        pseudoitem <- ifelse(sapply(equations[2,], grepl, pattern = p_names[ii], perl = TRUE),
+        pseudoitem <- ifelse(vapply(equations[2, ], grepl, pattern = p_names[ii], perl = TRUE,
+                                    FUN.VALUE = logical(1)),
                              no = NA,
-                             yes = ifelse(sapply(equations[2, ],
+                             yes = ifelse(vapply(equations[2, ],
                                                  grepl,
-                                                 pattern = paste0("(?<![-])", p_names[ii]),
-                                                 perl = TRUE),
+                                                 pattern = paste0("(?<!-)", p_names[ii]),
+                                                 perl = TRUE,
+                                                 FUN.VALUE = logical(1)),
                                           yes = 1L, no = 0L))
+
         mapping_matrix[, p_names[ii]] <- pseudoitem
     }
 
