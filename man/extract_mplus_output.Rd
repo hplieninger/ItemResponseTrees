@@ -4,8 +4,8 @@
 \alias{extract_mplus_output}
 \title{Retrieve Estimates From Mplus}
 \usage{
-extract_mplus_output(results = NULL, model = NULL, class = c("tree",
-  "grm"), .errors2messages = FALSE)
+extract_mplus_output(results = NULL, model = NULL, class = NULL,
+  .errors2messages = FALSE)
 }
 \arguments{
 \item{results}{A list as returned from \code{\link[MplusAutomation]{readModels}}}

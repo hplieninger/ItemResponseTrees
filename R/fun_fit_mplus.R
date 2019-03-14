@@ -61,6 +61,7 @@ fit_tree_mplus <- function(data = NULL,
 
     link <- match.arg(link)
 
+    checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
     checkmate::assert_directory_exists(dir)
     checkmate::assert_list(analysis_list,  types = "character",
                            names = "unique")
@@ -74,15 +75,30 @@ fit_tree_mplus <- function(data = NULL,
               # , list(...)
     )
 
-    checkmate::assert_data_frame(data,
-                                 # types = "numeric",
-                                 all.missing = FALSE, min.rows = 1, min.cols = model$J)
+    checkmate::assert_character(model$covariates, min.chars = 1,
+                                pattern = "^[[:alpha:]][[:alnum:]_]*$",
+                                any.missing = FALSE, unique = TRUE,
+                                null.ok = TRUE, .var.name = "Addendum in model")
+    checkmate::assert_set_equal(names(data),
+                                c(names(model$j_names), model$covariates))
+    check_nchar <- function(x, max.chars = 8, any.missing = TRUE) {
+        if (any(nchar(x, allowNA = any.missing) > max.chars)) {
+            paste("All elements must have at most", max.chars, "characters")
+        } else {
+            TRUE
+        }
+    }
+    assert_nchar <- checkmate::makeAssertionFunction(check_nchar)
+    assert_nchar(model$j_names, 8)
+    assert_nchar(model$covariates, 8)
+    # checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = model$J)
+    checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1,
+                                 ncols = model$J + length(model$covariates))
     checkmate::assert_data_frame(data[, names(model$j_names)], types = "integerish",
                                  ncols = model$J)
-    # checkmate::assert_set_equal(names(data), y = levels(j_names))
-    checkmate::assert_subset(names(model$j_names), choices = names(data))
+    # checkmate::assert_subset(names(model$j_names), choices = names(data))
 
-    args$model$j_names <- model$j_names <- sort2(model$j_names, names(data))
+    args$model$j_names <- model$j_names <- sort2(model$j_names, names(data), TRUE)
     model$lambda$item <- factor(model$lambda$item, levels = model$j_names)
     # CAVE: The following line is super important. It is the only safeguard that
     # assures that the items in the 'MODEL'-statement of the mplus input are in
@@ -92,7 +108,8 @@ fit_tree_mplus <- function(data = NULL,
     # whilst reading in the output is very cumbersome.
     args$model$lambda <- model$lambda <- model$lambda[order(model$lambda$trait, model$lambda$item), ]
 
-    # pseudoitems <- recode_data(model = model, data = data)
+    ##### Pseudoitems #####
+
     if (model$class == "tree") {
         categ_dat <- unique(na.omit(unlist(data[, names(model$j_names)], use.names = FALSE)))
         categ_mod <- as.integer(names(model$expr))
@@ -107,7 +124,7 @@ fit_tree_mplus <- function(data = NULL,
         tmp1 <- model$j_names
         names(tmp1) <- paste0("^", names(tmp1), "$")
         names(pseudoitems) <- stringr::str_replace_all(names(pseudoitems), tmp1)
-        attr(pseudoitems, "pseudoitem_names") <- model$j_names
+        # attr(pseudoitems, "pseudoitem_names") <- model$j_names
     }
 
     # data_file <- sprintf("mplus_tree_%05d_data.txt", R)
@@ -136,6 +153,8 @@ fit_tree_mplus <- function(data = NULL,
         }
     }, add = TRUE)
 
+    ##### Mplus Input #####
+
     tmp1 <- suppressMessages(
         write_mplus_input(
             model        = model,
@@ -156,15 +175,17 @@ fit_tree_mplus <- function(data = NULL,
 
     checkmate::assert_class(mplus_input, "mplusObject")
 
+    ##### Mplus Title #####
+
     if (model$class == "tree") {
-        tmp1 <- attr(pseudoitems, "mapping_matrix")
+        tmp1 <- model$mapping_matrix
         tmp1 <- tmp1[, !is.element(colnames(tmp1), "cate"), drop = FALSE]
 
-        tmp2 <- sapply(seq_len(ncol(tmp1)),
+        tmp2 <- vapply(seq_len(ncol(tmp1)),
                        function(x) {
                            paste0("  pseudoitem", x, ":  ",
                                   clps(, ifelse(is.na(tmp1[, x]), "-", tmp1[, x])))
-                           })
+                           }, FUN.VALUE = character(1))
     } else if (model$class == "grm") {
         tmp2 <- NULL
     }
@@ -189,9 +210,7 @@ fit_tree_mplus <- function(data = NULL,
     #     TITLE = TITLE)
     mplus_input$TITLE <- TITLE
 
-    # mplus_input <- MplusAutomation::createSyntax(filename = file.path(dir, data_file))
-
-    ##### Mplus stuff #####
+    ##### Mplus #####
 
     # MplusAutomation::createSyntax()
     # MplusAutomation::prepareMplusData()
@@ -221,10 +240,11 @@ fit_tree_mplus <- function(data = NULL,
                                            logFile = NULL)
             ))
 
-        invisible(
-            capture.output(
-                res <- MplusAutomation::readModels(file.path(dir, outp_file))
-                ))
+        # invisible(
+        #     capture.output(
+                res <- MplusAutomation::readModels(file.path(dir, outp_file),
+                                                   quiet = TRUE)
+                # ))
 
         if (.warnings2messages) {
             # This is useful for testing with testthat because Mplus
@@ -236,35 +256,21 @@ fit_tree_mplus <- function(data = NULL,
         } else {
             # This is the default for user-level usage
             mywarn <- function(...) {
-                warning(...)
+                warning(..., call. = FALSE)
             }
         }
 
         wrn1 <- res$warnings
         if (length(wrn1) > 0) {
-            sapply(wrn1, function(x) mywarn("Mplus error: ", clps(, x), call. = FALSE))
+            sapply(wrn1, function(x) mywarn("Mplus error: ", clps(, x)))
         }
         err1 <- res$errors
         if (length(err1) > 0) {
-            sapply(err1, function(x) mywarn("Mplus error: ", clps(, x), call. = FALSE))
+            sapply(err1, function(x) mywarn("Mplus error: ", clps(, x)))
         }
     } else {
         res <- NULL
     }
-
-    # invisible(
-    #     capture.output(
-    #         res <-
-    #             suppressMessages(
-    #                 MplusAutomation::mplusModeler(
-    #                     mplus_input,
-    #                     dataout = data_file,
-    #                     # dataout = file.path(dir, data_file),
-    #                     modelout = file.path(dir, inpu_file),
-    #                     run = run,
-    #                     check = FALSE,
-    #                     writeData = "always",
-    #                     hashfilename = FALSE))))
 
     invisible(list(mplus = res, args = args))
 }
@@ -305,7 +311,7 @@ write_mplus_input <- function(model = model,
     lambda <- model$lambda
     # lambda <- lambda[order(lambda$trait, lambda$item), ]
 
-    ### Apply Constraints ###
+    ##### Apply Constraints #####
 
     if (!is.null(model$constraints)) {
         lambda$trait <- factor(lambda$trait,
@@ -320,12 +326,12 @@ write_mplus_input <- function(model = model,
         model$addendum <- stringr::str_replace_all(model$addendum, tmp1)
     }
 
-    ##### Mplus MODEL Statement #####
+    ##### MODEL Statement #####
 
-    lambda$new_name <- attr(pseudoitems, "pseudoitem_names")
-    lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
-
-    lambda$label <- paste0("a", 1:nrow(lambda))
+    # lambda$new_name <- attr(pseudoitems, "pseudoitem_names")
+    # lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
+    #
+    # lambda$label <- paste0("a", 1:nrow(lambda))
 
     mplus1 <- split(lambda, lambda$trait)
 
@@ -348,7 +354,7 @@ write_mplus_input <- function(model = model,
             paste, collapse = "\n"),
         collapse = "\n")
 
-    ##### Mplus MODEL CONSTRAINT Statement #####
+    ##### MODEL CONSTRAINT Statement #####
 
     model_constr0 <-
         vapply(seq_along(mplus1), function(x) {
@@ -371,7 +377,7 @@ write_mplus_input <- function(model = model,
         model_constr <- NULL
     }
 
-    ##### Mplus ANALYSIS Statement #####
+    ##### ANALYSIS Statement #####
 
     helper1 <- "_-_"
     if (length(analysis_list) > 0) {
@@ -390,7 +396,7 @@ write_mplus_input <- function(model = model,
                            .sep = helper1)
     ANALYSIS <- strsplit(ANALYSIS, helper1, fixed = TRUE)[[1]]
 
-    ##### Mplus SAVEDATA Statement #####
+    ##### SAVEDATA Statement #####
 
     if (save_fscores) {
         SAVEDATA <- c(glue::glue("FILE = {fsco_file};"),
@@ -399,26 +405,42 @@ write_mplus_input <- function(model = model,
         SAVEDATA <- NULL
     }
 
-    ##### Mplus VARIABLE Statement #####
+    ##### VARIABLE Statement #####
 
     # NB: USEVARIABLES is automatically generated using 'mplusObject(autov = T)'
     # NB: mplusObject(usevariables) != USEVARIABLES in Mplus
 
     tmp1 <- names(pseudoitems)
-    tmp1 <- tmp1[!tmp1 %in% model$j_names]
+    tmp1 <- tmp1[!tmp1 %in% names(model$j_names)]
 
     mp_cat_vars <-
         paste(
             strwrap(
                 paste0("CATEGORICAL = ",
-                       paste(attr(pseudoitems,
-                                  "pseudoitem_names"), collapse = " "),
+                       # paste(attr(pseudoitems,
+                       #            "pseudoitem_names"), collapse = " "),
+                       clps(" ", lambda$new_name),
                        ";"
                        , "\n\nUSEVARIABLES = ", clps(" ", tmp1), ";"),
                 width = 89, indent = 0, exdent = 5),
             collapse = "\n")
 
-    ##### Combine All Mplus Statements #####
+    ##### Combine All Statements #####
+
+    # # if keep is TRUE in recode_data(), then the 'pseudoitems' also contain the
+    # # original items for completeness/debugging/transparency. However, they must
+    # # not occur under USEVARIABLES and are therefore excluded in 'rdata'.
+    # # Applies not to GRM.
+    #
+    # if (model$class == "tree") {
+    #     rdata <- pseudoitems[, !names(pseudoitems) %in% names(model$j_names)]
+    # } else if (model$class == "grm") {
+    #     rdata <- pseudoitems
+    # }
+    # # internal sanity check for debugging
+    # checkmate::assert_data_frame(rdata, all.missing = FALSE,
+    #                              min.cols = nrow(lambda),
+    #                              col.names = "unique")
 
     mplus_input <- MplusAutomation::mplusObject(
         TITLE = NULL,
@@ -432,9 +454,11 @@ write_mplus_input <- function(model = model,
         # PLOT = NULL,
         # usevariables = names(pseudoitems),
         rdata = pseudoitems,
-        autov = TRUE,
+        # autov = TRUE,
+        autov = FALSE,
         MODELCONSTRAINT = model_constr
     )
+    mplus_input$usevariables <- names(pseudoitems)
 
     # mplus_input <- MplusAutomation:::update.mplusObject(
     # mplus_input <- MplusAutomation::update(
@@ -463,10 +487,14 @@ write_mplus_input <- function(model = model,
 #' @export
 extract_mplus_output <- function(results = NULL,
                                  model = NULL,
-                                 class = c("tree", "grm"),
+                                 class = NULL,
                                  .errors2messages = FALSE) {
 
     checkmate::assert_class(results, "mplus.model")
+
+    if (!is.null(model)) {
+        model <- tree_model(model)
+    }
 
     tmp1 <- vapply(results$errors, function(x) {
         any(stringr::str_detect(x,
@@ -480,19 +508,33 @@ extract_mplus_output <- function(results = NULL,
             stop("Mplus error: ", clps(" ", unlist(results$errors[cumsum(tmp1) > 0])), call. = FALSE)
         }
     }
-    if (!is.null(model)) {
-        model <- tree_model(model)
-        e2 <- list2env(model)
-    } else {
-        e2 <- new.env()
-        tmp1 <- strsplit(clps(" ", trimws(results$input$model)), "(?<=;)", perl = TRUE)[[1]]
-        tmp_list <- list(irt = tmp1)
-        tmp_list$irt <- tmp_list$irt[grepl("\\s+by\\s+", tmp_list$irt, ignore.case = T)]
-        tree_model_irt(tmp_list, e2)
-        e2$class <- match.arg(class)
-    }
+    # if (!is.null(model)) {
+    #     model <- tree_model(model)
+    #     e2 <- list2env(model)
+    # } else {
+    #     e2 <- new.env()
+    #     # tmp1 <- strsplit(clps(" ", trimws(results$input$model)), "(?<=;)", perl = TRUE)[[1]]
+    #     # tmp_list <- list(irt = tmp1)
+    #     # tmp_list$irt <- tmp_list$irt[grepl("\\s+by\\s+", tmp_list$irt, ignore.case = T)]
+    #     # tree_model_irt(tmp_list, e2)
+    #     e2$class <- match.arg(class)
+    #
+    #     e2$lv_names <- as.character(
+    #         na.omit(
+    #             stringr::str_extract(results$input$model, "\\w+(?=\\s*BY)")))
+    # }
 
-    # results <- res$fit$mplus
+    e2 <- new.env()
+    e2$lv_names <-
+        as.character(
+            na.omit(
+                stringr::str_extract(results$input$model, "\\w+(?=\\s*BY)")))
+    if (!is.null(model)) {
+        e2$class <- model$class
+    } else {
+        checkmate::assert_choice(class, choices = c("tree", "grm"))
+        e2$class <- class
+    }
 
     unstd <- results[["parameters"]][["unstandardized"]]
     unstd[unstd$est_se == 999, "se"] <- NA
@@ -502,37 +544,43 @@ extract_mplus_output <- function(results = NULL,
 
         fscores <- results[["savedata"]]
 
-        # lv_names <- unstd[unstd$paramHeader == "Variances", "param"]
-        # lv_names <- model$p_names
+        # tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
+        # fscore_cols1 <- grepl(tmp1, names(fscores), ignore.case = TRUE)
+        # tmp2 <- paste0("^", e2$lv_names, "_SE$", collapse = "|")
+        # fscore_cols2 <- grepl(tmp2, names(fscores), ignore.case = TRUE)
+        #
+        # personpar_est <- fscores[, fscore_cols1, drop = FALSE]
+        # personpar_se  <- fscores[, fscore_cols2, drop = FALSE]
+        # colnames(personpar_est) <- tolower(names(personpar_est))
+        # colnames(personpar_se)  <- tolower(names(personpar_se))
 
-        tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
-        fscore_cols1 <- grepl(tmp1, names(fscores), ignore.case = TRUE)
-        tmp2 <- paste0("^", e2$lv_names, "_SE$", collapse = "|")
-        fscore_cols2 <- grepl(tmp2, names(fscores), ignore.case = TRUE)
-
+        fscore_cols1 <- is.element(toupper(names(fscores)),
+                                   toupper(e2$lv_names))
+        fscore_cols2 <- is.element(toupper(names(fscores)),
+                                   toupper(paste0(e2$lv_names, "_SE")))
         personpar_est <- fscores[, fscore_cols1, drop = FALSE]
         personpar_se  <- fscores[, fscore_cols2, drop = FALSE]
-        colnames(personpar_est) <- tolower(names(personpar_est))
-        colnames(personpar_se)  <- tolower(names(personpar_se))
 
     } else {
         personpar_est <- NULL
         personpar_se  <- NULL
     }
 
-    lambda <- e2$lambda
-
     if (!(is.null(results[["tech4"]][["latCovEst"]]))) {
 
         sigma  <- results[["tech4"]][["latCovEst"]]
         cormat <- results[["tech4"]][["latCorEst"]]
 
-        tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
-        tmp2 <- grepl(tmp1, colnames(sigma), ignore.case = TRUE)
-        if (sum(tmp2) == e2$S) {
-            sigma  <-  sigma[tmp2, tmp2, drop = FALSE]
-            cormat <- cormat[tmp2, tmp2, drop = FALSE]
+        if (!is.null(e2$lv_names)) {
+            sigma  <-  sigma[toupper(e2$lv_names), toupper(e2$lv_names), drop = FALSE]
+            cormat <- cormat[toupper(e2$lv_names), toupper(e2$lv_names), drop = FALSE]
         }
+        # tmp1 <- paste0("^", e2$lv_names, "$", collapse = "|")
+        # tmp2 <- grepl(tmp1, colnames(sigma), ignore.case = TRUE)
+        # if (sum(tmp2) == e2$S) {
+        #     sigma  <-  sigma[tmp2, tmp2, drop = FALSE]
+        #     cormat <- cormat[tmp2, tmp2, drop = FALSE]
+        # }
 
     } else {
         sigma  <- NULL
@@ -540,9 +588,9 @@ extract_mplus_output <- function(results = NULL,
     }
 
 
-    if (!is.null(lambda$new_name)) {
-        alphapar    <- unstd[tolower(unstd$param) %in%        tolower(lambda$new_name), , drop = FALSE]
-        betapar     <- unstd[tolower(unstd$param) %in% paste0(tolower(lambda$new_name), "$1"), , drop = FALSE]
+    if (!is.null(e2$lambda$new_name)) {
+        alphapar    <- unstd[tolower(unstd$param) %in%        tolower(e2$lambda$new_name), , drop = FALSE]
+        betapar     <- unstd[tolower(unstd$param) %in% paste0(tolower(e2$lambda$new_name), "$1"), , drop = FALSE]
     } else {
         alphapar    <- unstd[grep("[.]BY$", unstd$paramHeader), , drop = FALSE]
         betapar     <- unstd[unstd$paramHeader == "Thresholds", , drop = FALSE]
@@ -553,35 +601,28 @@ extract_mplus_output <- function(results = NULL,
 
     itempar <- list()
 
-
-
     if (e2$class == "tree") {
 
-        tmp_pattern <- paste0("(?i)(?<=[",
-                              clps(",", e2$lv_names),
-                              "])_")
-        tmp1 <- reshape2::colsplit(betapar$param,
-                           tmp_pattern,
-                           # "(?<=[A,b,a,B])_",
-                           c("trait", "item"))
-        tmp2 <- reshape2::colsplit(tmp1$item, "\\$", c("item", "threshold"))
-        betapar <- cbind(betapar, tmp1[, "trait", drop = FALSE], tmp2)
-        betapar$trait <- factor(betapar$trait, levels = unique(betapar$trait))
-        betapar$item <- factor(betapar$item, levels = unique(betapar$item))
+        # tmp_pattern <- paste0("(?i)(?<=[",
+        #                       clps(",", e2$lv_names),
+        #                       "])_")
+        tmp1 <- reshape2::colsplit(betapar$param, "_|\\$",
+                                   c("trait", "item", "threshold"))
 
-        # tmp1 <- cbind(lambda[, c("item", "trait")], betapar[, c("est", "se")])
+        # tmp2 <- reshape2::colsplit(tmp1$item, "\\$", c("item", "threshold"))
+        betapar <- cbind(betapar, tmp1)
+        betapar$trait <- factor(betapar$trait, levels = unique(betapar$trait))
+        betapar$item  <- factor(betapar$item, levels = unique(betapar$item))
+
+        # tmp1 <- cbind(e2$lambda[, c("item", "trait")], betapar[, c("est", "se")])
         itempar$beta    <- reshape2::dcast(betapar, item ~ trait, value.var = "est")
         itempar$beta_se <- reshape2::dcast(betapar, item ~ trait, value.var = "se")
 
-        tmp3 <- reshape2::colsplit(alphapar$param,
-                                   tmp_pattern,
-                                   # "(?<=[A,b,a,B])_",
+        tmp3 <- reshape2::colsplit(alphapar$param, "_",
                                    c("trait", "item"))
         alphapar <- cbind(alphapar, tmp3)
         alphapar$trait <- factor(alphapar$trait, levels = unique(alphapar$trait))
-        alphapar$item <- factor(alphapar$item, levels = unique(alphapar$item))
-
-        # tmp1 <- cbind(lambda[, c("item", "trait")], alphapar[, c("est", "se")])
+        alphapar$item  <- factor(alphapar$item, levels = unique(alphapar$item))
         itempar$alpha    <- reshape2::dcast(alphapar, item ~ trait, value.var = "est")
         itempar$alpha_se <- reshape2::dcast(alphapar, item ~ trait, value.var = "se")
 

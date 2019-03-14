@@ -37,37 +37,19 @@ gen_tree_data <- function(model = NULL,
               # , list(...)
     )
 
-    # args <- list(model = model,
-    #              model2 = model2,
-    #              N = N,
-    #              # sigma = sigma,
-    #              # itempar = itempar,
-    #              link = link)
-
     link <- switch(link,
                    probit = setNames("pnorm", link),
                    logit  = setNames("plogis", link))
 
-    # if (is.null(model2)) {
-    #     model2 <- tree_model(model = model)
-    # }
     if (!inherits(model, "tree_model")) {
         model <- tree_model(model = model)
     }
 
-    # if (any(ls() %in% names(model))) {
-    #     stop("Internal error, please contact mantainer.")
-    # }
-    # list2env(model[names(model) != "string"], envir = environment())
-
     S <- model$S
-    # s_names <- model$s_names
     J <- model$J
-    # J2 <- length(model$items)
     j_names <- model$j_names
     P <- model$P
     p_names <- model$p_names
-    # K <- model$K
     if (is.null(model$K)) {
         checkmate::qassert(K, "X1[2,)")
     } else {
@@ -90,7 +72,6 @@ gen_tree_data <- function(model = NULL,
 
     if (is.function(itempar)) {
         FUN <- match.fun(itempar)
-        # environment(FUN) <- environment()
         args$itempar_fun <- FUN
         itempar <- FUN()
     }
@@ -110,7 +91,6 @@ gen_tree_data <- function(model = NULL,
 
     beta_names  <- paste0("beta",  1:P)
     alpha_names <- paste0("alpha", 1:P)
-    # theta_names <- paste0("theta", 1:S)
     theta_names <- paste0("theta", 1:P)
 
     betas  <- data.frame(item = factor(j_names, levels = j_names),
@@ -150,23 +130,17 @@ gen_tree_data <- function(model = NULL,
         levels(dat5$trait) <- tmpx
     }
 
-    # dat5$trait <- factor(dat5$trait, levels = levels(dat5$trait),
-    #                      labels = paste0(levels(dat5$trait), "i"))
     dat5$trait <- factor(dat5$trait, levels = levels(dat5$trait),
                          labels = theta_names)
 
-    dat6 <- reshape2::dcast(dat5, pers + item + cate ~ trait, value.var = "value")
+    # dat6 <- reshape2::dcast(dat5, pers + item + cate ~ trait, value.var = "value")
+    dat6 <- tidyr::spread(dplyr::select(dat5, pers, item, cate, trait, value), trait, value)
 
     # Add item parameters and calculate probabilities
 
     dat7 <- dplyr::left_join(dat6, betas, by = "item")
     dat7 <- dplyr::left_join(dat7, alphas, by = "item")
 
-    # for (ii in seq_len(P)) {
-    #     dat7[, as.character(p_names[ii])] <- do.call(link,
-    #                                    list(dat7[, paste0(p_names[ii], "i")] -
-    #                                             dat7[, paste0(p_names[ii], "j")]))
-    # }
     for (ii in seq_len(P)) {
         dat7[, as.character(p_names[ii])] <- do.call(link,
                                                      list(dat7[, alpha_names[ii]]*(
@@ -184,12 +158,10 @@ gen_tree_data <- function(model = NULL,
 
     prob_item_sum <- aggregate(prob ~ pers + item, data = probs, sum)$prob
     if (!isTRUE(all.equal(prob_item_sum, rep(1, N*J)))) {
-        # stop("Probabilities do not sum to 1 within each person-item combination. ",
-        #      "Make sure to provide model equations that define a proper IR-tree model", call. = FALSE)
         rlang::abort(
             paste("Probabilities do not sum to 1 within each person-item combination.",
                   "Make sure to provide model equations that define a proper IR-tree model"),
-            type = "improper_model")
+            .subclass = "improper_model")
     }
 
     dat10 <- aggregate(prob ~ pers + item,
@@ -230,77 +202,63 @@ recode_data <- function(model = NULL,
     # }
     # list2env(model[names(model) != "string"], envir = environment())
 
-    # S <- model$S
-    # s_names <- model$s_names
-    J <- model$J
-    # J2 <- length(model$items)
+    # J <- model$J
     j_names <- model$j_names
-    P <- model$P
+    # P <- model$P
     p_names <- model$p_names
-    K <- model$K
-    # lambda <- model$lambda
-    # subtree <- model$subtree
-    # expr <- model$expr
-    equations <- model$equations
+    # K <- model$K
+    # equations <- model$equations
+    mapping_matrix <- model$mapping_matrix
 
-    # checkmate::assert_data_frame(data,
-    #                              # types = "numeric",
-    #                              all.missing = FALSE, min.rows = 1, min.cols = J)
-    # checkmate::assert_data_frame(data[, j_names], types = "integerish",
-    #                              ncols = J)
-    # # checkmate::assert_set_equal(names(data), y = levels(j_names))
-    # checkmate::assert_subset(j_names, choices = names(data))
+    # data: polytomous items in wide format
+    # PIs1: binary pseudoitems in wide format
+    #
+    # dat2: reshape data to long format
+    # dat3: original responses 1,2,3,... are in column 'cate'. This is
+    # left_joined with the mapping matrix such that the original polytomous
+    # response is recoded into P binary pseudoitems.
+    # dat4: pseudoitems P are wide, reshape to long format
+    # PIs1: cast the pseudoitems back to wide format; this data frame has P*J columns
+    # PIs2: cbind pseudoitems and original polytomous responses
 
-    ### mapping matrix for pseudoitems ###
-
-    mapping_matrix <- matrix(NA, K, P, dimnames = list(NULL, p_names))
-    mapping_matrix <- cbind(cate = 1:K, mapping_matrix)
-
-    for (ii in seq_along(p_names)) {
-        pseudoitem <- ifelse(vapply(equations[2, ], grepl, pattern = p_names[ii], perl = TRUE,
-                                    FUN.VALUE = logical(1)),
-                             no = NA,
-                             yes = ifelse(vapply(equations[2, ],
-                                                 grepl,
-                                                 pattern = paste0("(?<!-)", p_names[ii]),
-                                                 perl = TRUE,
-                                                 FUN.VALUE = logical(1)),
-                                          yes = 1L, no = 0L))
-
-        mapping_matrix[, p_names[ii]] <- pseudoitem
-    }
-
-    dat10 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, j_names]),
+    dat2 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, names(j_names)]),
                             id.vars = "pers",
                             variable.name = "item",
                             value.name = "cate")
-    dat10$item <- factor(dat10$item, levels = j_names)
+    dat2$item <- factor(dat2$item, levels = names(j_names), labels = j_names)
 
-    dat11 <- dplyr::left_join(dat10, data.frame(mapping_matrix), by = "cate")
-    # dat11 <- dplyr::left_join(dat10, data.frame(mapping_matrix), by = c("prob" = "cate"))
+    dat3 <- dplyr::left_join(dat2, data.frame(mapping_matrix), by = "cate")
 
-    dat12 <- reshape2::melt(dat11, id.vars = c("pers", "item"), measure.vars = p_names)
+    dat4 <- reshape2::melt(dat3, id.vars = c("pers", "item"), measure.vars = p_names)
 
-    X2 <- reshape2::dcast(dat12, pers ~ variable + item, value.var = "value")[, -1]
+    # dat5 <- split(dat4, dat4$variable)
+    #
+    # for (ii in seq_along(dat5)) {
+    #     dat5[[ii]] <- dplyr::filter(dat5[[ii]], item %in%
+    #                                  names(model$irt_items[[names(dat5)[ii]]]))
+    # }
+    # dat6 <- dplyr::bind_rows(dat5)
 
-    # Make names no longer than 8 chars for Mplus
-    names(X2) <- substr(names(X2), 1, 8)
-    ii <- 7
-    while (length(unique(names(X2))) != ncol(X2)) {
-        tmp1 <- make.unique(substr(names(X2), 1, ii), sep = "_")
-        names(X2) <- substr(tmp1, 1, 8)
-        ii <- ii - 1
-    }
+    PIs1 <- reshape2::dcast(dat4, pers ~ variable + item, value.var = "value")[, -1]
+
+    # # Make names no longer than 8 chars for Mplus
+    # names(PIs1) <- substr(names(PIs1), 1, 8)
+    # ii <- 7
+    # while (length(unique(tolower(names(PIs1)))) != ncol(PIs1)) {
+    #     tmp1 <- make.unique(substr(names(PIs1), 1, ii), sep = "_")
+    #     names(PIs1) <- substr(tmp1, 1, 8)
+    #     ii <- ii - 1
+    # }
 
     if (keep) {
-        X3 <- cbind(X2, data)
+        PIs2 <- cbind(PIs1, data)
     } else {
-        X3 <- cbind(X2, data[, !names(data) %in% j_names, drop = FALSE])
+        PIs2 <- cbind(PIs1, data[, !names(data) %in% names(j_names), drop = FALSE])
     }
 
-    attr(X3, "mapping_matrix") <- mapping_matrix
+    # attr(PIs2, "mapping_matrix") <- mapping_matrix
 
-    attr(X3, "pseudoitem_names") <- names(X2)
+    # attr(PIs2, "pseudoitem_names") <- names(PIs1)
 
-    return(X3)
+    return(PIs2)
 }

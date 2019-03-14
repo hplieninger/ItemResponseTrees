@@ -4,24 +4,33 @@
 #' \code{tree_model} turns a user-defined model string into a list that
 #' represents the full model as needed by the package.
 #'
+#' @section Model:
+#'
+#' \enumerate{
+#'   \item The \code{model} string must contain at least the sections IRT, Class, and (if class is tree) Equations.
+#'   \item Section headings must contain on a seperate line ending with a colon (:).
+#'   \item The model may contain empty lines and comments, which begin with \code{#}.
+#'   \item Line breaks are only allowed in section IRT.
+#' }
+#'
 #' @section IRT:
 #'
 #'   The \code{model} must contain a section with heading IRT. Therein, the IRT
 #'   structure of the model is described in a way resembling the MODEL part of
-#'   an Mplus input file. It has a structure of \code{LV BY item@1 item*}, where
-#'   \code{LV} is the name of the latent variable/parameter/process, \code{item}
-#'   is the name of the observed variable in the data set and this is followed
-#'   by the loading. The loading may either be fixed (e.g., to 1) using
-#'   \code{@1} or it may be set free using \code{*}.
+#'   an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
+#'   where \code{LV} is the name of the latent variable/parameter/process,
+#'   \code{item} is the name of the observed variable in the data set and this
+#'   is followed by the loading. The loading may either be fixed (e.g., to 1)
+#'   using \code{@1} or it may be set free using \code{*}.
 #'
 #'   Each measurement model (i.e., the LV and its items) must appear on a
 #'   seperate line ending with a semicolon. Items must be seperated by
-#'   whitespace. Linebreaks are allowed.
+#'   commas. Linebreaks are allowed.
 #'
 #'   \preformatted{
 #'   ## Example
 #'   IRT:
-#'   t  BY x1@1, x2*, x3*, x4*, x5*, x6*;
+#'   t  BY x1, x2, x3, x4, x5, x6;
 #'   e  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 #'   m  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
 #'
@@ -33,7 +42,7 @@
 #'   They have a structure similar to \code{Cat = p1*(1-p2)}, where \code{Cat}
 #'   is any observed response category in the data set.
 #'   The names of the parameters must be equal to those of the latent variables
-#'   in the section IRT.
+#'   in the section IRT (combined with Subtree if specified).
 #'
 #'   The equations may contain only products and not sums.
 #'   That is, it is not possible to estimate genuine mixture models as, for
@@ -126,6 +135,28 @@
 #'   Class:
 #'   Tree}
 #'
+#' @section Constraints:
+#'
+#'   The \code{model} may contain a section with heading Constraints to specify
+#'   equality constraints of latent variables.
+#'   For example, in a sequential model as proposed by Tutz as well as Verhelst,
+#'   one would specify two processes for a 3-point item. The first process would
+#'   correspond to a pseudoitem of \code{0-1-1} and the second process to a
+#'   pseudoitem of \code{NA-0-1}.
+#'   However, the latent variables corresponding to these processes would
+#'   typically be assumed to be equal and need thus be constrained accordingly.
+#'
+#'   Each line in this section has a structure of \code{LV1 = LV2}, where
+#'   \code{LV1} and \code{LV2} are the names of the latent variables used in
+#'   section IRT.
+#'   Use one line for each definition.
+#'
+#'   \preformatted{
+#'   ## Example
+#'   Constraints:
+#'   LV1 = LV2
+#'   LV1 = LV3}
+#'
 #' @section Addendum:
 #'
 #'   The \code{model} may contain a section with heading Addendum if
@@ -196,8 +227,9 @@ tree_model <- function(model = NULL) {
     # Check Headings in 'model'
     headings <-
         na.omit(
-            stringr::str_extract(model2,
-                                 paste0("(?i)^", names(model_list), ".*", collapse = "|")))
+            stringr::str_extract(tolower(model2),
+                                 paste0(# "(?i)^",
+                                        names(model_list), ".*", collapse = "|")))
     # No duplicated headings
     if (any(
         duplicated(
@@ -219,7 +251,7 @@ tree_model <- function(model = NULL) {
     }
 
     # Only headings may end with a colon
-    tmp1 <- setdiff(na.omit(stringr::str_extract(model2, ".*\\:$")), headings)
+    tmp1 <- setdiff(na.omit(stringr::str_extract(tolower(model2), ".*\\:$")), headings)
     if (length(tmp1) > 0) {
         stop("Problem in 'model': Only headings may end with a colon (:). Problem with:\n",
              clps("; ", "'", tmp1, "'", sep = ""),
@@ -231,7 +263,8 @@ tree_model <- function(model = NULL) {
     flag <- integer()
 
     for (ii in seq_along(model_list)) {
-        tmp1 <- grepl(paste0("^", names(model_list)[ii], ":$"), model2, ignore.case = TRUE)
+        # tmp1 <- grepl(paste0("^", names(model_list)[ii], ":$"), model2, ignore.case = TRUE)
+        tmp1 <- is.element(tolower(model2), paste0(names(model_list)[ii], ":"))
         if (any(tmp1, na.rm = TRUE)) {
             model_list[[ii]] <- model2[(1 + which(tmp1)):(posx[1 + which(posx == which(tmp1))] - 1)]
         } else {
@@ -240,30 +273,28 @@ tree_model <- function(model = NULL) {
     }
     model_list[flag] <- NULL
 
-        if (is.null(model_list$class)) {
-        stop("Argument 'model' must contain a part with heading 'Class'.", call. = FALSE)
-    }
+    # if (is.null(model_list$class)) {
+    #     stop("Argument 'model' must contain a part with heading 'Class'.", call. = FALSE)
+    # }
 
     ##### Class #####
 
-    e1$class <-
-        match.arg(
-            tolower(
-                stringr::str_extract(model_list$class, "\\w+")),
-            choices = c("tree", "grm"))
+    e1$class <- tolower(stringr::str_extract(model_list$class, "\\w+"))
+    checkmate::assert_choice(e1$class, choices = c("tree", "grm"), .var.name = "Class")
+
+    ##### IRT #####
 
     if (is.null(model_list$irt)) {
         stop("Argument 'model' must contain a part with heading 'IRT'.", call. = FALSE)
     }
-    if (is.null(model_list$equations) & e1$class == "tree") {
-        stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
-    }
-
-    ##### IRT #####
 
     tree_model_irt(model_list = model_list, e1 = e1)
 
     ##### Equations #####
+
+    if (is.null(model_list$equations) & e1$class == "tree") {
+        stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
+    }
 
     tree_model_equations(model_list = model_list, e1 = e1)
 
@@ -274,6 +305,10 @@ tree_model <- function(model = NULL) {
     ##### Subtree #####
 
     tree_model_subtree(model_list = model_list, e1 = e1)
+
+    ##### Mapping Matrix #####
+
+    tree_model_mapping(e1 = e1)
 
     ##### Addendum #####
 
@@ -296,7 +331,7 @@ tree_model <- function(model = NULL) {
 
     model_list_new <- model_list
 
-    ### Create New Names for Items ###
+    ##### _Create New Names for Items #####
 
     if (e1$class == "tree") {
         flag1 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
@@ -308,9 +343,14 @@ tree_model <- function(model = NULL) {
     if (flag1) {
 
         tmp1 <- floor(log10(e1$J)) + 1
-        tmp2 <- gsub("\\d+", "", e1$j_names)
+        tmp2 <- gsub("\\d+$", "", e1$j_names)
         tmp2[tmp2 == ""] <- "V"
-        j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1),
+        tmp3 <- 8
+        if (e1$class == "tree") {
+            tmp3 <- 7 - min(c(3,
+                              max(c(nchar(e1$p_names), nchar(e1$lv_names)))))
+        }
+        j_names_new <- paste0(substr(tmp2, 1, tmp3 - tmp1),
                               # 1:e1$J,
                               formatC(1:e1$J, width = tmp1, format = "d", flag = "0"))
 
@@ -328,7 +368,7 @@ tree_model <- function(model = NULL) {
         j_names_new <- e1$j_names
     }
 
-    ### Create New Names for LVs ###
+    ##### _Create New Names for LVs #####
 
     if (e1$class == "tree") {
         # flag2 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
@@ -355,7 +395,11 @@ tree_model <- function(model = NULL) {
         for (ii in seq_along(levels(tmp1))) {
             nsubp <- sum(tmp1 == levels(tmp1)[ii])
             p_names_new[p_names_new == levels(tmp1)[ii]] <-
-                paste0(LETTERS[ii], substr(p_names_new[ii], 1, 2))
+                # paste0(LETTERS[ii], substr(p_names_new[ii], 1, 2))
+                paste0(LETTERS[ii],
+                       substr(p_names_new[p_names_new == levels(tmp1)[ii]],
+                              1, 2))
+
             if (nsubp == 1) {
                 lv_names_new[tmp1 == levels(tmp1)[ii]] <-
                     paste0(LETTERS[ii], substr(levels(tmp1)[ii], 1, 2))
@@ -425,7 +469,7 @@ tree_model <- function(model = NULL) {
     #     }
     # }
 
-    ### Update Everything Based on New model_list ###
+    ##### _Update Everything Based on New model_list #####
 
     if (any(c(flag1, flag2))) {
 
@@ -442,11 +486,18 @@ tree_model <- function(model = NULL) {
         tree_model_subtree(model_list_new, e1)
         tree_model_addendum(model_list_new, e1)
         tree_model_constraints(model_list_new, e1)
+        tree_model_mapping(e1 = e1)
 
         # Update *_names seperately such that names of the character vectors are the old names
         e1$j_names  <- j_names_new
         e1$lv_names <- lv_names_new
         e1$p_names  <- p_names_new
+        tmp1 <- setNames(names(j_names_new), nm = j_names_new)
+        e1$irt_items <- lapply(e1$irt_items, function(x) {
+            names(x) <- stringr::str_replace_all(names(x), tmp1)
+            x
+        })
+        e1$covariates <- setdiff(e1$covariates, c(e1$j_names, e1$lv_names))
     }
 
     ##### Lambda Matrix #####
@@ -456,7 +507,34 @@ tree_model <- function(model = NULL) {
     names(lambda) <- sub("L1", "trait", names(lambda))
     lambda$trait <- factor(lambda$trait, levels = e1$lv_names)
     lambda$loading <- ifelse(is.na(unlist(e1$irt_loadings)), "*", unlist(e1$irt_loadings))
-    lambda <- lambda[order(lambda$trait, lambda$item), ]
+
+    # lambda$trait <- factor(lambda$trait,
+    #                        levels = levels(lambda$trait),
+    #                        labels = stringr::str_replace_all(
+    #                            levels(lambda$trait),
+    #                            e1$constraints))
+
+    lambda$p <- lambda$trait
+    if (nrow(e1$subtree) > 0) {
+        tmp1 <- as.character(e1$subtree$trait)
+        names(tmp1) <- e1$subtree$facet
+        levels(lambda$p) <- stringr::str_replace_all(levels(lambda$trait), tmp1)
+    }
+    lambda$p <- factor(lambda$p, levels = e1$p_names)
+
+    lambda <- lambda[order(lambda$p, lambda$trait, lambda$item), ]
+    lambda$trait <- factor(lambda$trait, levels = unique(lambda$trait))
+
+    if (e1$class == "tree") {
+        lambda$new_name <- glue::glue_data(lambda, "{p}_{item}")
+    } else if (e1$class == "grm") {
+        lambda$new_name <- glue::glue_data(lambda, "{item}")
+    }
+    lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
+
+    lambda$label <- paste0("a", 1:nrow(lambda))
+
+    e1$lv_names <- sort2(e1$lv_names, levels(lambda$trait))
 
     # tmp1 <- aggregate(loading ~ trait, data = lambda,
     #                   function(x) any(grepl(x = x, pattern = "@\\d+", perl = TRUE)))
@@ -480,8 +558,10 @@ tree_model <- function(model = NULL) {
                                               alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
                                K = ifelse(is.null(e1$K), NULL, e1$K)),
                  improper_model = function(cnd) {
-                     warning("Equations do not constitute a proper model because ",
-                             "they do not sum to 1. ", call. = FALSE)
+                     rlang::warn(
+                         paste("Equations do not constitute a proper model because",
+                               "they do not sum to 1. "),
+                         .subclass = "improper_model")
                  })
     }
     return(out1)

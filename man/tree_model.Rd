@@ -18,25 +18,36 @@ The ItemResponseTree model syntax describes an IR-tree model. The function
 \code{tree_model} turns a user-defined model string into a list that
 represents the full model as needed by the package.
 }
+\section{Model}{
+
+
+\enumerate{
+\item The \code{model} string must contain at least the sections IRT, Class, and (if class is tree) Equations.
+\item Section headings must contain on a seperate line ending with a colon (:).
+\item The model may contain empty lines and comments, which begin with \code{#}.
+\item Line breaks are only allowed in section IRT.
+}
+}
+
 \section{IRT}{
 
 
 The \code{model} must contain a section with heading IRT. Therein, the IRT
 structure of the model is described in a way resembling the MODEL part of
-an Mplus input file. It has a structure of \code{LV BY item@1 item*}, where
-\code{LV} is the name of the latent variable/parameter/process, \code{item}
-is the name of the observed variable in the data set and this is followed
-by the loading. The loading may either be fixed (e.g., to 1) using
-\code{@1} or it may be set free using \code{*}.
+an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
+where \code{LV} is the name of the latent variable/parameter/process,
+\code{item} is the name of the observed variable in the data set and this
+is followed by the loading. The loading may either be fixed (e.g., to 1)
+using \code{@1} or it may be set free using \code{*}.
 
 Each measurement model (i.e., the LV and its items) must appear on a
 seperate line ending with a semicolon. Items must be seperated by
-whitespace. Linebreaks are allowed.
+commas. Linebreaks are allowed.
 
 \preformatted{
   ## Example
   IRT:
-  t  BY x1@1, x2*, x3*, x4*, x5*, x6*;
+  t  BY x1, x2, x3, x4, x5, x6;
   e  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
   m  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
 }
@@ -50,7 +61,7 @@ Therein, the model equations are described.
 They have a structure similar to \code{Cat = p1*(1-p2)}, where \code{Cat}
 is any observed response category in the data set.
 The names of the parameters must be equal to those of the latent variables
-in the section IRT.
+in the section IRT (combined with Subtree if specified).
 
 The equations may contain only products and not sums.
 That is, it is not possible to estimate genuine mixture models as, for
@@ -110,6 +121,30 @@ Currently, may be either \code{Tree} or \code{GRM} (graded response model).
   ## Example
   Class:
   Tree}
+}
+
+\section{Constraints}{
+
+
+The \code{model} may contain a section with heading Constraints to specify
+equality constraints of latent variables.
+For example, in a sequential model as proposed by Tutz as well as Verhelst,
+one would specify two processes for a 3-point item. The first process would
+correspond to a pseudoitem of \code{0-1-1} and the second process to a
+pseudoitem of \code{NA-0-1}.
+However, the latent variables corresponding to these processes would
+typically be assumed to be equal and need thus be constrained accordingly.
+
+Each line in this section has a structure of \code{LV1 = LV2}, where
+\code{LV1} and \code{LV2} are the names of the latent variables used in
+section IRT.
+Use one line for each definition.
+
+\preformatted{
+  ## Example
+  Constraints:
+  LV1 = LV2
+  LV1 = LV3}
 }
 
 \section{Addendum}{

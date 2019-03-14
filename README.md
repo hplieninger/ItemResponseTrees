@@ -58,5 +58,5 @@ Tree
 "
 model1 <- tree_model(m1)
 res1   <- fit_tree_mplus(data = df, model = model1)
-sum1   <- extract_mplus_output(res1, model = model1)
+sum1   <- extract_mplus_output(res1$mplus, model = model1)
 ```

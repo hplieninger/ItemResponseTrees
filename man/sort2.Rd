@@ -4,12 +4,17 @@
 \alias{sort2}
 \title{Sort a Vector Based on a Second Vector}
 \usage{
-sort2(x = NULL, y = NULL)
+sort2(x = NULL, y = NULL, x_names = FALSE, subset = TRUE)
 }
 \arguments{
 \item{x}{vector that should be sorted}
 
 \item{y}{vector providing the sort order}
+
+\item{x_names}{Logical. If \code{TRUE}, \code{x} is sorted but not on
+\code{x} but on \code{names(x)}.}
+
+\item{subset}{Logical. If \code{TRUE}, \code{x} must be a subset of \code{y}.}
 }
 \value{
 sorted \code{x}

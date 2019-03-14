@@ -58,10 +58,28 @@ sym_diff <- function(x, y) {
 #'   the order provided in \code{y}.
 #' @param x vector that should be sorted
 #' @param y vector providing the sort order
+#' @param x_names Logical. If \code{TRUE}, \code{x} is sorted but not on
+#'   \code{x} but on \code{names(x)}.
+#' @param subset Logical. If \code{TRUE}, \code{x} must be a subset of \code{y}.
 #' @return sorted \code{x}
 #' @references https://stackoverflow.com/a/2117080
 #' @author George Dontas (https://stackoverflow.com/users/170792)
 #' @keywords internal
-sort2 <- function(x = NULL, y = NULL) {
-    x[order(match(x, y))]
+sort2 <- function(x = NULL, y = NULL, x_names = FALSE, subset = TRUE) {
+    if (!checkmate::test_character(y, min.len = 1, null.ok = FALSE)) {
+        return(x)
+    }
+    checkmate::assert_character(y,
+                                min.len = ifelse(subset, length(unique(x)), 1),
+                                unique = TRUE)
+    if (x_names) {
+        checkmate::assert_character(x, min.chars = 1, any.missing = FALSE,
+                                    names = "unique")
+        if (subset) checkmate::assert_subset(names(x), y)
+        x[order(match(names(x), y))]
+    } else {
+        checkmate::assert_character(x, min.chars = 1, any.missing = FALSE)
+        if (subset) checkmate::assert_subset(x, y)
+        x[order(match(x, y))]
+    }
 }
