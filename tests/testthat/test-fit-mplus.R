@@ -107,6 +107,8 @@ test_that("fit_tree_mplus() works for GRM", {
 })
 
 test_that("extract_mplus_output() works for Tree", {
+    skip_if_not(MplusAutomation::mplusAvailable() == 0)
+    
     expect_equal(summ1a, summ1b)
     expect_equal(summ1a, summ1c)
 
@@ -133,6 +135,8 @@ test_that("extract_mplus_output() works for Tree", {
 
 
 test_that("extract_mplus_output() works for GRM", {
+    skip_if_not(MplusAutomation::mplusAvailable() == 0)
+    
     expect_equal(summ2a, summ2b)
     expect_equal(summ2a, summ2c)
 
