@@ -6,3 +6,15 @@ cache: packages
 
 after_success:
   - Rscript -e 'covr::codecov()'
+
+r_binary_packages:
+  - checkmate
+  - MASS
+  - dplyr
+  - reshape2
+  - glue
+  - stringr
+  - mirt
+  - rlang
+  - gtools
+  - tidyr
