@@ -18,3 +18,8 @@ r_binary_packages:
   - rlang
   - gtools
   - tidyr
+  - future
+  - listenv
+  - progress
+  - testthat
+  - covr
