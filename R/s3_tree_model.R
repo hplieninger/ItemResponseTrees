@@ -273,28 +273,24 @@ tree_model <- function(model = NULL) {
     }
     model_list[flag] <- NULL
 
-    # if (is.null(model_list$class)) {
-    #     stop("Argument 'model' must contain a part with heading 'Class'.", call. = FALSE)
-    # }
+    if (is.null(model_list$irt)) {
+        stop("Argument 'model' must contain a part with heading 'IRT'.", call. = FALSE)
+    }
 
     ##### Class #####
 
     e1$class <- tolower(stringr::str_extract(model_list$class, "\\w+"))
     checkmate::assert_choice(e1$class, choices = c("tree", "grm"), .var.name = "Class")
 
-    ##### IRT #####
-
-    if (is.null(model_list$irt)) {
-        stop("Argument 'model' must contain a part with heading 'IRT'.", call. = FALSE)
+    if (e1$class == "tree" & is.null(model_list$equations)) {
+        stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
     }
+
+    ##### IRT #####
 
     tree_model_irt(model_list = model_list, e1 = e1)
 
     ##### Equations #####
-
-    if (is.null(model_list$equations) & e1$class == "tree") {
-        stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
-    }
 
     tree_model_equations(model_list = model_list, e1 = e1)
 
@@ -550,7 +546,7 @@ tree_model <- function(model = NULL) {
     out1 <- out1[order(names(out1))]
     class(out1) <- c("list", "tree_model")
 
-    ##### Test if probabilities add to 1 #####
+    ##### Test if probabilities sum to 1 #####
 
     if (!is.null(model_list$equations)) {
         tryCatch(gen_tree_data(model = out1, N = 1, sigma = diag(e1$S),

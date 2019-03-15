@@ -41,9 +41,7 @@ gen_tree_data <- function(model = NULL,
                    probit = setNames("pnorm", link),
                    logit  = setNames("plogis", link))
 
-    if (!inherits(model, "tree_model")) {
-        model <- tree_model(model = model)
-    }
+    model <- tree_model(model = model)
 
     S <- model$S
     J <- model$J
@@ -189,25 +187,13 @@ gen_tree_data <- function(model = NULL,
 # @import reshape2
 # @import dplyr
 recode_data <- function(model = NULL,
-                        # model2 = NULL,
                         data = NULL,
                         keep = FALSE) {
 
-    if (!inherits(model, "tree_model")) {
-        model <- tree_model(model = model)
-    }
+    model <- tree_model(model = model)
 
-    # if (any(ls() %in% names(model))) {
-    #     stop("Internal error, please contact mantainer.")
-    # }
-    # list2env(model[names(model) != "string"], envir = environment())
-
-    # J <- model$J
     j_names <- model$j_names
-    # P <- model$P
     p_names <- model$p_names
-    # K <- model$K
-    # equations <- model$equations
     mapping_matrix <- model$mapping_matrix
 
     # data: polytomous items in wide format

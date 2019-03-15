@@ -29,11 +29,7 @@ fit_tree_mirt <- function(data = NULL,
                           ...
                           ) {
 
-    if (!inherits(model, "tree_model")) {
-        model <- tree_model(model = model)
-    }
-    # checkmate::assert_data_frame(data, types = "integerish",
-    #                              all.missing = FALSE, ncols = model$J)
+    model <- tree_model(model = model)
     checkmate::assert_data_frame(data,
                                  # types = "numeric",
                                  all.missing = FALSE, min.rows = 1, min.cols = model$J)
@@ -112,10 +108,10 @@ fit_tree_mirt <- function(data = NULL,
                        verbose  = verbose,
                        ...))
         if (!is.null(res$warning)) {
-            warning(conditionMessage(res$warning), call. = F)
+            warning(conditionMessage(res$warning), call. = FALSE)
         }
         if (!is.null(res$error)) {
-            warning("Error: ", conditionMessage(res$error), call. = F)
+            warning("Error: ", conditionMessage(res$error), call. = FALSE)
         }
     } else {
         res <- list(value = NULL)
@@ -172,10 +168,7 @@ fit_tree_mirt <- function(data = NULL,
 write_mirt_input <- function(model = NULL,
                              data = NULL) {
 
-    if (!inherits(model, "tree_model")) {
-        model <- tree_model(model = model)
-        class <- model$class
-    }
+    model <- tree_model(model = model)
 
     checkmate::assert_data_frame(data, types = "integerish", any.missing = TRUE,
                                  all.missing = FALSE, ncols = (model$P)*model$J)
@@ -333,7 +326,7 @@ extract_mirt_output <- function(results = NULL,
                                 method = "MAP",
                                 ...) {
 
-    if (!inherits(model, "tree_model")) {
+    if (!is.null(model)) {
         model <- tree_model(model)
     }
 

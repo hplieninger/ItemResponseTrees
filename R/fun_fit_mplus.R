@@ -28,12 +28,12 @@
 #' @inheritParams MplusAutomation::runModels
 #' @inheritParams MplusAutomation::prepareMplusData
 #' @return List with two elements. \code{Mplus} contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. \code{args} contains the input specifications.
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+# @examples
+# \dontrun{
+# if(interactive()){
+#  #EXAMPLE1
+#  }
+# }
 #' @export
 # @import checkmate
 # @import glue
@@ -67,9 +67,7 @@ fit_tree_mplus <- function(data = NULL,
                            names = "unique")
     checkmate::qassertr(analysis_list, "S1")
 
-    if (!inherits(model, "tree_model")) {
-        model <- tree_model(model = model)
-    }
+    model <- tree_model(model = model)
 
     args <- c(as.list(environment())
               # , list(...)

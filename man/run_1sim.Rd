@@ -53,13 +53,6 @@ This function generates data from \code{gen_model}, subsequently fits the
 \code{fit_model} in Mplus, and returns the results or saves them to an
 external RData file.
 }
-\examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}
 \seealso{
 \code{\link{fit_tree_mplus}}, \code{\link{gen_tree_data}}
 }

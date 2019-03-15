@@ -19,12 +19,12 @@
 #'   \code{gen_args} contains arguments used to generate the data, and
 #'   \code{sim_args} contains arguments used to fit the model.
 #' @seealso \code{\link{fit_tree_mplus}}, \code{\link{gen_tree_data}}
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+# @examples
+# \dontrun{
+# if(interactive()){
+#  #EXAMPLE1
+#  }
+# }
 #' @export
 run_1sim <- function(gen_model = NULL,
                      fit_model = gen_model,
@@ -40,13 +40,9 @@ run_1sim <- function(gen_model = NULL,
 
     backend <- match.arg(backend)
 
-    if (!inherits(gen_model, "tree_model")) {
-        gen_model <- tree_model(gen_model)
-    }
+    gen_model <- tree_model(gen_model)
 
-    if (!inherits(fit_model, "tree_model")) {
-        fit_model <- tree_model(fit_model)
-    }
+    fit_model <- tree_model(fit_model)
 
     # fit_model <- force(fit_model)
     #
@@ -129,12 +125,12 @@ run_1sim <- function(gen_model = NULL,
 #' @param ... Other parameters passed \code{\link{run_1sim}}.
 #' @inheritParams run_1sim
 #' @return XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+# @examples
+# \dontrun{
+# if(interactive()){
+#  #EXAMPLE1
+#  }
+# }
 #' @export
 run_sim <- function(R = 1,
                     plan = NULL,

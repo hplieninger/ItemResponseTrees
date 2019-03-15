@@ -57,10 +57,3 @@ model and fits a possibly different model to that data set. Herein, this
 process is repeated \code{R} times, and the argument \code{plan} allows to
 run the simulation in parallel.
 }
-\examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}

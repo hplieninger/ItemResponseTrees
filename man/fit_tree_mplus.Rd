@@ -71,10 +71,3 @@ List with two elements. \code{Mplus} contains the Mplus output read into R via \
 \description{
 This function takes a data frame and a model string and runs the model in Mplus.
 }
-\examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
-}

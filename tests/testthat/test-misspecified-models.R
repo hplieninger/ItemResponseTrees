@@ -66,7 +66,7 @@ test_that("Mismatch of names between IRT and Equations throws error", {
     expect_error(tree_model(m3))
 })
 
-m4a <- "
+m4 <- "
 IRT:
 a BY X1, X2;
 Equations:
@@ -76,17 +76,21 @@ Class:
 TREE
 "
 
-m4b <- sub("IRT:", "IRT", m4a)
-m4c <- sub("IRT:", "ITR:", m4a)
-m4d <- gsub("Equations|TREE", "GRM", m4a)
-m4e <- gsub("Equations:", "", m4a)
-m4f <- gsub("TREE", "tre", m4a)
-m4g <- paste0(m4a, "cLass:", collapse = "\n")
-m4h <- gsub("X1", "x-1", m4a)
-m4i <- gsub("X1, X2", "X1 X2", m4a)
-m4j <- gsub("BY", "bye", m4a)
+l4 <- vector("list", length = 0)
 
-m5a <- "
+l4 <- c(l4, sub("IRT:", "IRT", m4))
+l4 <- c(l4, sub("IRT:", "ITR:", m4))
+l4 <- c(l4, gsub("Equations|TREE", "GRM", m4))
+l4 <- c(l4, gsub("Equations:", "", m4))
+l4 <- c(l4, gsub("TREE", "tre", m4))
+l4 <- c(l4, paste0(m4, "cLass:", collapse = "\n"))
+l4 <- c(l4, gsub("X1", "x-1", m4))
+l4 <- c(l4, gsub("X1, X2", "X1 X2", m4))
+l4 <- c(l4, gsub("BY", "bye", m4))
+l4 <- c(l4, gsub("BY", "bye", m4))
+l4 <- c(l4, sub("IRT:", "ITR", m4))
+
+l4 <- c(l4, "
 IRT:
 a BY X1, X2
 b BY X1, X2;
@@ -96,17 +100,11 @@ Equations:
 3 = a*b
 Class:
 Tree
-"
+")
 
 test_that("Misspecified model throws error", {
-    expect_error(tree_model(m5a))
-    expect_error(tree_model(m4c))
-    expect_error(tree_model(m4d))
-    expect_error(tree_model(m4e))
-    expect_error(tree_model(m4f))
-    expect_error(tree_model(m4g))
-    expect_error(tree_model(m4h))
-    expect_error(tree_model(m4i))
-    expect_error(tree_model(m4j))
-    expect_error(tree_model(m5a))
+    for (ii in seq_along(l4)) {
+        expect_error(tree_model(l4[[ii]]), info = paste0("Problem in l4[[", ii, "]]."))
+    }
 })
+
