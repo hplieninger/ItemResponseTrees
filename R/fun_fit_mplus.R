@@ -607,14 +607,10 @@ extract_mplus_output <- function(results = NULL,
 
     if (e2$class == "tree") {
 
-        # tmp_pattern <- paste0("(?i)(?<=[",
-        #                       clps(",", e2$lv_names),
-        #                       "])_")
-        tmp1 <- reshape2::colsplit(betapar$param, "_|\\$",
-                                   c("trait", "item", "threshold"))
-
-        # tmp2 <- reshape2::colsplit(tmp1$item, "\\$", c("item", "threshold"))
-        betapar <- cbind(betapar, tmp1)
+        betapar <- tidyr::separate(betapar, "param", c("traititem", "threshold"),
+                                   sep = "\\$", extra = "merge")
+        betapar <- tidyr::separate(betapar, "traititem", c("trait", "item"),
+                                   sep = "_", extra = "merge", fill = "right")
         betapar$trait <- factor(betapar$trait, levels = unique(betapar$trait))
         betapar$item  <- factor(betapar$item, levels = unique(betapar$item))
 
@@ -622,9 +618,8 @@ extract_mplus_output <- function(results = NULL,
         itempar$beta    <- reshape2::dcast(betapar, item ~ trait, value.var = "est")
         itempar$beta_se <- reshape2::dcast(betapar, item ~ trait, value.var = "se")
 
-        tmp3 <- reshape2::colsplit(alphapar$param, "_",
-                                   c("trait", "item"))
-        alphapar <- cbind(alphapar, tmp3)
+        alphapar <- tidyr::separate(alphapar, "param", c("trait", "item"),
+                                    sep = "_", extra = "merge", fill = "right")
         alphapar$trait <- factor(alphapar$trait, levels = unique(alphapar$trait))
         alphapar$item  <- factor(alphapar$item, levels = unique(alphapar$item))
         itempar$alpha    <- reshape2::dcast(alphapar, item ~ trait, value.var = "est")
