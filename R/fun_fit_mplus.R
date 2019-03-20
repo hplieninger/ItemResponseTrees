@@ -411,6 +411,12 @@ write_mplus_input <- function(model = model,
     tmp1 <- names(pseudoitems)
     tmp1 <- tmp1[!tmp1 %in% names(model$j_names)]
 
+    if (model$class == "grm") {
+        tmp1 <- names(pseudoitems)
+    } else if (model$class == "tree") {
+        tmp1 <- setdiff(names(pseudoitems), names(model$j_names))
+    }
+
     mp_cat_vars <-
         paste(
             strwrap(

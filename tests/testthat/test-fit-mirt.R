@@ -1,4 +1,4 @@
-context("test-fit-mirt.R")
+context("mirt: Simple models")
 
 m1 <- "
 # Comment
