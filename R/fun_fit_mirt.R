@@ -33,12 +33,12 @@ fit_tree_mirt <- function(data = NULL,
     checkmate::assert_data_frame(data,
                                  # types = "numeric",
                                  all.missing = FALSE, min.rows = 1, min.cols = model$J)
-    checkmate::assert_data_frame(data[, model$j_names], types = "integerish",
+    checkmate::assert_data_frame(data[, names(model$j_names)], types = "integerish",
                                  ncols = model$J)
     # checkmate::assert_set_equal(names(data), y = levels(j_names))
-    checkmate::assert_subset(model$j_names, choices = names(data))
+    checkmate::assert_subset(names(model$j_names), choices = names(data))
 
-    model$j_names <- sort2(model$j_names, names(data))
+    model$j_names <- sort2(model$j_names, names(data), x_names = TRUE)
     model$lambda$item <- factor(model$lambda$item, levels = model$j_names)
     model$lambda <- model$lambda[order(model$lambda$item, model$lambda$trait), ]
 
@@ -313,7 +313,7 @@ write_mirt_input <- function(model = NULL,
 #' @param results An object of class \code{\link[mirt]{SingleGroupClass-class}}
 #'   as returned from \code{\link{fit_tree_mirt}}.
 #' @param ... Further arguments passed to \code{\link[mirt]{fscores}}
-#' @inheritParams fit_tree_mplus
+#' @inheritParams extract_mplus_output
 #' @inheritParams mirt::fscores
 #' @return A list of parameter estimates and model fit information.
 # @examples
@@ -324,15 +324,28 @@ write_mirt_input <- function(model = NULL,
 extract_mirt_output <- function(results = NULL,
                                 model = NULL,
                                 method = "MAP",
+                                class = NULL,
                                 ...) {
+
+    checkmate::assert_class(results, "SingleGroupClass")
 
     if (!is.null(model)) {
         model <- tree_model(model)
     }
 
+    e2 <- new.env()
+    # e2$lv_names <-
+
+    if (!is.null(model)) {
+        e2$class <- model$class
+    } else {
+        checkmate::assert_choice(class, choices = c("tree", "grm"))
+        e2$class <- class
+    }
+
     # fscores <- mirt::fscores(results, method = method, ...)
 
-    lambda <- model$lambda
+    # lambda <- model$lambda
 
     # lv_names <- unstd[unstd$paramHeader == "Variances", "param"]
 
@@ -341,37 +354,40 @@ extract_mirt_output <- function(results = NULL,
     sigma <- cf$cov
     sigma[upper.tri(sigma)] <- t(sigma)[upper.tri(sigma)]
 
-    # sig1 <- cf$GroupPars[, grep("^COV_", colnames(cf$GroupPars))]
-    # sigma <- matrix(NA, model$S, model$S)
-    # sigma[lower.tri(sigma, TRUE)] <- sig1
-    # sigma[upper.tri(sigma)] <- t(sigma)[upper.tri(sigma)]
-
     cormat <- cov2cor(sigma)
 
-    personpar_est <- mirt::fscores(results, method = method, ...)
-    # personpar_se  <-
-    colnames(personpar_est) <- model$lv_names
-    # colnames(personpar_se)  <- model$s_names
+    personpar_est <- as.data.frame(mirt::fscores(results, method = method, ...))
 
     itempar <- list()
 
-    if (model$class == "tree") {
-        betapar <- cf$items[, "d"]
-        tmp1 <- cbind(lambda[, c("item", "trait")], "est" = betapar)
-        itempar$beta <- reshape2::dcast(tmp1, item ~ trait, value.var = "est")[, -1]
+    if (e2$class == "tree") {
+        betapar <- data.frame(param = rownames(cf$items),
+                              est = cf$items[, "d"])
+        tmp1 <- tidyr::separate(betapar, "param", c("time", "item"), sep = "_")
+        itempar$beta <- reshape(tmp1, direction = "wide", idvar = "item")
+        names(itempar$beta) <- sub("^est[.]", "", names(itempar$beta))
 
-        tmp1 <- cf$items[, grepl("a\\d+", colnames(cf$items))]
-
-        if (sum(tmp1 == 0) == model$J * model$P) {
-            tmp2 <- cbind(lambda[, c("item", "trait")], "est" = tmp1[tmp1 != 0])
-            itempar$alpha <- reshape2::dcast(tmp2, item ~ trait, value.var = "est")[, -1]
-        } else {
-            itempar$alpha <- tmp1
+        alphapar <- data.frame(param = rownames(cf$items),
+                               cf$items[, grepl("a\\d+", colnames(cf$items))])
+        tmp1 <- tidyr::separate(alphapar, "param", c("time", "item"), sep = "_")
+        tmp1$est <- NA
+        for (ii in seq_along(unique(tmp1$time))) {
+            tmp1[tmp1$time == unique(tmp1$time)[ii], "est"] <-
+                tmp1[tmp1$time == unique(tmp1$time)[ii], 2 + ii]
         }
-    } else if (model$class == "grm") {
-        betapar <- cf$items[, grepl("^d\\d+", colnames(cf$items))]
+        itempar$alpha <- reshape(dplyr::select(tmp1, .data$time, .data$item, .data$est),
+                                direction = "wide", idvar = "item")
+        names(itempar$alpha) <- sub("^est[.]", "", names(itempar$alpha))
 
-        itempar$alpha <- cf$items[, grepl("a\\d+", colnames(cf$items))]
+    } else if (e2$class == "grm") {
+        itempar$beta <- data.frame(
+            param = rownames(cf$items),
+            cf$items[, grepl("^d\\d+", colnames(cf$items)), drop = FALSE])
+
+        itempar$alpha <- data.frame(
+            param = rownames(cf$items),
+            cf$items[, grepl("a\\d+", colnames(cf$items)), drop = FALSE])
+        itempar <- lapply(itempar, `rownames<-`, NULL)
     }
 
     summaries <- mirt::anova(results)

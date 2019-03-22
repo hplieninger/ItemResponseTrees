@@ -5,7 +5,7 @@
 \title{Retrieve Estimates From mirt}
 \usage{
 extract_mirt_output(results = NULL, model = NULL, method = "MAP",
-  ...)
+  class = NULL, ...)
 }
 \arguments{
 \item{results}{An object of class \code{\link[mirt]{SingleGroupClass-class}}
@@ -26,6 +26,8 @@ as returned from \code{\link{fit_tree_mirt}}.}
     \item \code{"classify"} for the posteriori classification probabilities (only
       applicable when the input model was of class \code{MixtureClass})
  }}
+
+\item{class}{String specifying which class of model was fit}
 
 \item{...}{Further arguments passed to \code{\link[mirt]{fscores}}}
 }
