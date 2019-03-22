@@ -13,19 +13,19 @@ Imports:
     MplusAutomation (>= 0.7),
     MASS,
     dplyr,
-    reshape2,
     glue,
     stringr,
     mirt,
     rlang,
     gtools,
     tidyr
-Suggests: 
+Suggests:
+    covr,
     future,
     listenv,
     progress,
-    testthat,
-    covr
+    reshape2,
+    testthat
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

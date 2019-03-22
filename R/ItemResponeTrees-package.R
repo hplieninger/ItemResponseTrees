@@ -14,7 +14,7 @@
 #' @aliases ItemResponseTrees
 #' @author Hansjoerg Plieninger
 #'
-#' @importFrom stats setNames aggregate as.formula na.omit rmultinom cov2cor
+#' @importFrom stats setNames aggregate as.formula na.omit rmultinom cov2cor reshape
 #' @importFrom utils capture.output
 #' @importFrom rlang .data
 #'

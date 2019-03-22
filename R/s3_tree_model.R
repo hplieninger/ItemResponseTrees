@@ -498,17 +498,20 @@ tree_model <- function(model = NULL) {
 
     ##### Lambda Matrix #####
 
-    lambda <- reshape2::melt(e1$irt_items, value.name = "item")
+    # lambda <- reshape2::melt(e1$irt_items, value.name = "item")
+    lambda <- dplyr::bind_rows(
+        lapply(
+            seq_along(e1$irt_items),
+            function(x) {
+                data.frame(
+                    item = e1$irt_items[[x]],
+                    trait = names(e1$irt_items)[x],
+                    row.names = NULL, stringsAsFactors = FALSE)
+                }))
     lambda$item <- factor(lambda$item, levels = e1$j_names)
-    names(lambda) <- sub("L1", "trait", names(lambda))
+    # names(lambda) <- sub("L1", "trait", names(lambda))
     lambda$trait <- factor(lambda$trait, levels = e1$lv_names)
     lambda$loading <- ifelse(is.na(unlist(e1$irt_loadings)), "*", unlist(e1$irt_loadings))
-
-    # lambda$trait <- factor(lambda$trait,
-    #                        levels = levels(lambda$trait),
-    #                        labels = stringr::str_replace_all(
-    #                            levels(lambda$trait),
-    #                            e1$constraints))
 
     lambda$p <- lambda$trait
     if (nrow(e1$subtree) > 0) {

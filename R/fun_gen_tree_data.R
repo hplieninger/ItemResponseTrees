@@ -119,7 +119,15 @@ gen_tree_data <- function(model = NULL,
     # Apply subtree-structure such that each item loads on the correct theta,
     # e.g., if t = t1 + t2
 
-    dat3 <- reshape2::melt(dat2, id.vars = c("pers", "item", "cate"), variable.name = "trait")
+    # dat3 <- reshape2::melt(dat2, id.vars = c("pers", "item", "cate"), variable.name = "trait")
+    # tidyr::pivot_long(dat2, -c("pers", "item", "cate"), names_to = "trait")
+    dat3 <- reshape(dat2, direction = "long",
+                    idvar = c("pers", "item", "cate"),
+                    varying = list(which(!is.element(names(dat2), c("pers", "item", "cate")))),
+                    times = setdiff(names(dat2), c("pers", "item", "cate")),
+                    timevar = "trait", v.names = "value")
+    dat3$trait <- factor(dat3$trait, unique(dat3$trait))
+    rownames(dat3) <- NULL
 
     dat5 <- dplyr::inner_join(dat3, lambda, by = c("item", "trait"))
 
@@ -132,7 +140,15 @@ gen_tree_data <- function(model = NULL,
                          labels = theta_names)
 
     # dat6 <- reshape2::dcast(dat5, pers + item + cate ~ trait, value.var = "value")
-    dat6 <- tidyr::spread(dplyr::select(dat5, pers, item, cate, trait, value), trait, value)
+    # dat6 <- tidyr::spread(dplyr::select(dat5, pers, item, cate, trait, value),
+    #                       trait, value)
+    dat6 <- reshape(
+        dplyr::select(dat5, .data$pers, .data$item, .data$cate, .data$trait, .data$value),
+        direction = "wide",
+        idvar = c("pers", "item", "cate"),
+        v.names = "value",
+        timevar = "trait")
+    names(dat6) <- sub("^value[.]", "", names(dat6))
 
     # Add item parameters and calculate probabilities
 
@@ -141,18 +157,18 @@ gen_tree_data <- function(model = NULL,
 
     for (ii in seq_len(P)) {
         dat7[, as.character(p_names[ii])] <- do.call(link,
-                                                     list(dat7[, alpha_names[ii]]*(
-                                                         dat7[, theta_names[ii]] -
-                                                             dat7[, beta_names[ii]])))
+                                                     list(dplyr::pull(dat7, alpha_names[ii])*(
+                                                          dplyr::pull(dat7, theta_names[ii]) -
+                                                          dplyr::pull(dat7, beta_names[ii]))))
     }
 
     dat8 <- split(dat7, dat7$cate)
 
     for (ii in seq_along(dat8)) {
-        dat8[[ii]] <- within(dat8[[ii]], prob <- eval(expr[[names(dat8)[ii]]]))
+        dat8[[ii]] <- within(dat8[[ii]], "prob" <- eval(expr[[names(dat8)[ii]]]))
     }
 
-    probs <- unsplit(dat8, dat7$cate)
+    probs <- dplyr::bind_rows(dat8)
 
     prob_item_sum <- aggregate(prob ~ pers + item, data = probs, sum)$prob
     if (!isTRUE(all.equal(prob_item_sum, rep(1, N*J)))) {
@@ -166,7 +182,11 @@ gen_tree_data <- function(model = NULL,
                        data = probs,
                        function(x) which(rmultinom(n = 1, size = 1, prob = x) == 1))
 
-    X <- reshape2::dcast(dat10, pers ~ item, value.var = "prob")[, -1]
+    # X <- reshape2::dcast(dat10, pers ~ item, value.var = "prob")[, -1]
+    # tidyr::pivot_wide(dat10, names_from = "item", values_from = "prob")
+    X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
+    X <- dplyr::select(X, -.data$pers)
+    names(X) <- sub("^prob[.]", "", names(X))
 
     return(list(data = X, args = args))
 
@@ -207,15 +227,30 @@ recode_data <- function(model = NULL,
     # PIs1: cast the pseudoitems back to wide format; this data frame has P*J columns
     # PIs2: cbind pseudoitems and original polytomous responses
 
-    dat2 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, names(j_names)]),
-                            id.vars = "pers",
-                            variable.name = "item",
-                            value.name = "cate")
+    # dat2 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, names(j_names)]),
+    #                         id.vars = "pers",
+    #                         variable.name = "item",
+    #                         value.name = "cate")
+    # dat2$item <- factor(dat2$item, levels = names(j_names), labels = j_names)
+    tmp1 <- data.frame(pers = seq_len(nrow(data)), data[, names(j_names)])
+    dat2 <- reshape(tmp1, direction = "long",
+                    idvar = "pers",
+                    varying = list(which(names(tmp1) != "pers")),
+                    times = names(data[, names(j_names)]),
+                    timevar = "item", v.names = "cate")
     dat2$item <- factor(dat2$item, levels = names(j_names), labels = j_names)
+    rownames(dat2) <- NULL
 
     dat3 <- dplyr::left_join(dat2, data.frame(mapping_matrix), by = "cate")
 
-    dat4 <- reshape2::melt(dat3, id.vars = c("pers", "item"), measure.vars = p_names)
+    # dat4 <- reshape2::melt(dat3, id.vars = c("pers", "item"), measure.vars = p_names)
+    dat4 <- reshape(dat3, direction = "long",
+                    idvar = c("pers", "item"),
+                    drop = "cate",
+                    varying = list(which(!is.element(names(dat3), c("pers", "item", "cate")))),
+                    times = setdiff(names(dat3), c("pers", "item", "cate")),
+                    timevar = "variable", v.names = "value")
+    rownames(dat4) <- NULL
 
     # dat5 <- split(dat4, dat4$variable)
     #
@@ -225,7 +260,11 @@ recode_data <- function(model = NULL,
     # }
     # dat6 <- dplyr::bind_rows(dat5)
 
-    PIs1 <- reshape2::dcast(dat4, pers ~ variable + item, value.var = "value")[, -1]
+    # PIs1 <- reshape2::dcast(dat4, pers ~ variable + item, value.var = "value")[, -1]
+    tmp1 <- tidyr::unite(dat4, "time", c("variable", "item"))
+    tmp2 <- reshape(tmp1, direction = "wide", idvar = "pers")
+    PIs1 <- dplyr::select(tmp2, -.data$pers)
+    names(PIs1) <- sub("^value[.]", "", names(PIs1))
 
     # # Make names no longer than 8 chars for Mplus
     # names(PIs1) <- substr(names(PIs1), 1, 8)
