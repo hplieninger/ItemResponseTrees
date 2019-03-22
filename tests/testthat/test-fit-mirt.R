@@ -20,7 +20,7 @@ Tree
 m2 <- "
 IRT:
 # a BY Comfort, Work, Future, Benefit;
-a BY Work, Comfort, Future, Benefitvar;
+a BY Work@1, Comfort@1, Future@1, Benefitvar;
 # a BY Comfort, Work, Benefitvar, Future;
 
 Class:
@@ -57,7 +57,7 @@ res1 <- fit_tree_mirt(data = X$data,
                      SE = FALSE,
                      method = "QMCEM",
                      quadpts = 1000)
-summ1 <- extract_mirt_output(res1$mirt, class = model1$class)
+summ1 <- extract_mirt_output(res1$mirt, model = model1)
 
 res2 <- fit_tree_mirt(data = ScienceNew,
                       model = model2,
@@ -70,7 +70,8 @@ res2 <- fit_tree_mirt(data = ScienceNew,
 #                       method = "QMCEM",
 #                       quadpts = 1000)
 res2x <- mirt::mirt(ScienceNew, 1, "graded", SE = FALSE,
-                    method = "QMCEM", quadpts = 1000, verbose = FALSE)
+                    method = "QMCEM", quadpts = 1000, verbose = FALSE,
+                    constrain = list(c(1, 5, 9)))
 
 summ2 <- extract_mirt_output(res2$mirt, class = model2$class)
 
