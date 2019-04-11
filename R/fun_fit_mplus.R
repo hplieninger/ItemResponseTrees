@@ -77,8 +77,16 @@ fit_tree_mplus <- function(data = NULL,
                                 pattern = "^[[:alpha:]][[:alnum:]_]*$",
                                 any.missing = FALSE, unique = TRUE,
                                 null.ok = TRUE, .var.name = "Addendum in model")
-    checkmate::assert_set_equal(names(data),
-                                c(names(model$j_names), model$covariates))
+    checkmate::assert_subset(x = c(names(model$j_names), model$covariates),
+                             choices = names(data),
+                             empty.ok = FALSE)
+    tmp1 <- checkmate::check_set_equal(names(data),
+                                       c(names(model$j_names), model$covariates))
+    if (tmp1 != TRUE) {
+        rlang::warn(paste0("Assertion on 'names(data)' is suspicious: ",
+                           sub("Must", "Expected to", tmp1)),
+                    .subclass = "data_has_add_vars")
+    }
     check_nchar <- function(x, max.chars = 8, any.missing = TRUE) {
         if (any(nchar(x, allowNA = any.missing) > max.chars)) {
             paste("All elements must have at most", max.chars, "characters")
@@ -91,7 +99,7 @@ fit_tree_mplus <- function(data = NULL,
     assert_nchar(model$covariates, 8)
     # checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = model$J)
     checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1,
-                                 ncols = model$J + length(model$covariates))
+                                 min.cols = model$J + length(model$covariates))
     checkmate::assert_data_frame(data[, names(model$j_names)], types = "integerish",
                                  ncols = model$J)
     # checkmate::assert_subset(names(model$j_names), choices = names(data))
@@ -408,13 +416,10 @@ write_mplus_input <- function(model = model,
     # NB: USEVARIABLES is automatically generated using 'mplusObject(autov = T)'
     # NB: mplusObject(usevariables) != USEVARIABLES in Mplus
 
-    tmp1 <- names(pseudoitems)
-    tmp1 <- tmp1[!tmp1 %in% names(model$j_names)]
-
     if (model$class == "grm") {
         tmp1 <- names(pseudoitems)
     } else if (model$class == "tree") {
-        tmp1 <- setdiff(names(pseudoitems), names(model$j_names))
+        tmp1 <- c(intersect(names(pseudoitems), lambda$new_name), model$covariates)
     }
 
     mp_cat_vars <-
