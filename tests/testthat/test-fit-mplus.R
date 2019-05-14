@@ -1,5 +1,3 @@
-context("Mplus: Simple models")
-
 ##### Models #####
 
 m1 <- "
@@ -87,11 +85,18 @@ data(Science, package = "mirt")
 ScienceNew <- Science
 names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 
+# counts <- ScienceNew %>%
+#     purrr::map_dfr(~table(factor(., levels = 1:4))) %>%
+#     dplyr::mutate(category = 1:4) %>%
+#     reshape2::melt(value.name = "count", id.vars = "category")
+# counts$variable <- toupper(as.character(counts$variable))
+
 counts <- ScienceNew %>%
-    purrr::map_dfr(~table(factor(., levels = 1:4))) %>%
-    dplyr::mutate(category = 1:4) %>%
-    reshape2::melt(value.name = "count", id.vars = "category")
-counts$variable <- toupper(as.character(counts$variable))
+    lapply(function(x) data.frame(table(factor(x, 1:4)))) %>%
+    tibble::enframe(name = "variable") %>%
+    tidyr::unnest(-variable) %>%
+    dplyr::transmute(category = as.integer(Var1),
+                     variable = toupper(variable), count = Freq)
 
 ##### Fit #####
 
@@ -172,7 +177,7 @@ test_that("fit_tree_mplus() works for GRM", {
                                  any.missing = FALSE,
                                  nrows = 17, ncols = 6)
     expect_equal(res2$mplus$sampstat$proportions.counts[, "count"],
-                 counts[, "count"], check.attributes = FALSE)
+                 counts[, "count", drop = TRUE], check.attributes = FALSE)
 })
 
 test_that("extract_mplus_output() works for Tree", {

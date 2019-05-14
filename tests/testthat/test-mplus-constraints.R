@@ -1,12 +1,17 @@
-context("Mplus: Constraints + Subtree + Names")
-
 ##### Data #####
 
 if (requireNamespace("lme4", quietly = TRUE)) {
     data(VerbAgg, package = "lme4")
 
-    dat_1 <- dplyr::mutate_at(VerbAgg, "resp", as.integer)
-    dat_1 <- reshape2::dcast(dat_1, id + Anger + Gender ~ item, value.var = "resp")
+    dat_1 <- VerbAgg %>%
+        dplyr::mutate_at("resp", as.integer) %>%
+        reshape(direction = "wide",
+                idvar = c("id", "Anger", "Gender"),
+                timevar = "item", v.names = "resp",
+                drop = c("btype", "situ", "mode", "r2"))
+    names(dat_1) <- sub("^resp[.]", "", names(dat_1))
+    # dat_1 <- dplyr::mutate_at(VerbAgg, "resp", as.integer)
+    # dat_1 <- reshape2::dcast(dat_1, id + Anger + Gender ~ item, value.var = "resp")
     dat_1x <- dat_1
 
     names(dat_1x)[names(dat_1x) == "S4wantCurse"] <- "S4WantCurse"

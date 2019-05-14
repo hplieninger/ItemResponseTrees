@@ -24,8 +24,11 @@ Suggests:
     future,
     listenv,
     progress,
-    reshape2,
-    testthat
+    testthat,
+    lme4,
+    truncnorm,
+    magrittr,
+    tibble
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

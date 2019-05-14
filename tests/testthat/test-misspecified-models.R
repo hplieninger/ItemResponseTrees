@@ -1,5 +1,3 @@
-context("Misspecified models")
-
 m1 <- "
 IRT:
 t1 BY X1@1, x2@1, X3@1;

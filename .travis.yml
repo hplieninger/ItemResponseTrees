@@ -3,9 +3,7 @@
 language: R
 sudo: false
 cache: packages
-
-after_success:
-  - Rscript -e 'covr::codecov()'
+r_check_args: --no-manual
 
 r_binary_packages:
   - checkmate
@@ -23,3 +21,13 @@ r_binary_packages:
   - progress
   - testthat
   - covr
+  - tibble
+  - lme4
+  - truncnorm
+  - magrittr
+
+after_success:
+  - Rscript -e 'covr::codecov()'
+
+after_failure:
+  - cat mpt2irt.Rcheck/00*

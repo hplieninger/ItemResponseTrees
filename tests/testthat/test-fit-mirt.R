@@ -1,5 +1,3 @@
-context("mirt: Simple models")
-
 ##### Models #####
 
 m1 <- "
