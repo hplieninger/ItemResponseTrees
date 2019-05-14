@@ -30,4 +30,4 @@ after_success:
   - Rscript -e 'covr::codecov()'
 
 after_failure:
-  - cat mpt2irt.Rcheck/00*
+  - cat ItemResponseTrees.Rcheck/00*
