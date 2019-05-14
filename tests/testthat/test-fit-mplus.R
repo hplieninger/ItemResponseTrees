@@ -94,7 +94,7 @@ names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 counts <- ScienceNew %>%
     lapply(function(x) data.frame(table(factor(x, 1:4)))) %>%
     tibble::enframe(name = "variable") %>%
-    tidyr::unnest(-variable) %>%
+    tidyr::unnest(value) %>%
     dplyr::transmute(category = as.integer(Var1),
                      variable = toupper(variable), count = Freq)
 
