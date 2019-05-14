@@ -545,8 +545,18 @@ extract_mplus_output <- function(results = NULL,
         e2$class <- class
     }
 
+    # replace 999 with NA
+    # results$parameters <- purrr::modify(results$parameters, function(d) {
+    #     purrr::modify_at(d, c("se", "est_se", "pval"), ~ifelse(d$pval == 999, NA, .x))
+    # })
+    results$parameters <- lapply(results$parameters, function(x) {
+        x$se <- ifelse(x$pval == 999, NA, x$se)
+        x$est_se <- ifelse(x$pval == 999, NA, x$est_se)
+        x$pval <- ifelse(x$pval == 999, NA, x$pval)
+        return(x)
+    })
+
     unstd <- results[["parameters"]][["unstandardized"]]
-    unstd[unstd$est_se == 999, "se"] <- NA
     class(unstd) <- "data.frame"
 
     if (!(is.null(results[["savedata"]]) | length(results[["savedata"]]) == 0)) {
@@ -705,14 +715,15 @@ extract_mplus_output <- function(results = NULL,
     }
 
     out <- list(
-        person    = list(personpar_est = personpar_est,
-                         personpar_se  = personpar_se),
-        item      = itempar,
-        sigma     = sigma,
-        cormat    = cormat,
-        summaries = results$summaries,
-        warnings  = results$warnings,
-        errors    = results$errors
+        person     = list(personpar_est = personpar_est,
+                          personpar_se  = personpar_se),
+        item       = itempar,
+        sigma      = sigma,
+        cormat     = cormat,
+        summaries  = results$summaries,
+        warnings   = results$warnings,
+        errors     = results$errors,
+        parameters = results$parameters
     )
 
     return(out)
