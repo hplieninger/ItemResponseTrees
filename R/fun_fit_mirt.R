@@ -9,7 +9,7 @@
 #'   (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
 #'   two functions are removed from the output if \code{rm_mirt_internal =
 #'   TRUE}.
-#' ... Other arguments passed to \code{\link[mirt]{mirt}}.
+#' @param ... Other arguments passed to \code{\link[mirt]{mirt}}.
 #' @inheritParams fit_tree_mplus
 #' @inheritParams mirt::mirt
 #' @return List with two elements. \code{mirt} contains the mirt output, namely
@@ -28,6 +28,8 @@ fit_tree_mirt <- function(data = NULL,
                           rm_mirt_internal = TRUE,
                           ...
                           ) {
+
+    ellipsis::check_dots_used()
 
     model <- tree_model(model = model)
     checkmate::assert_data_frame(data,

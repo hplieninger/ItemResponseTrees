@@ -23,6 +23,7 @@
 #'   ANALYSIS. For example: \code{analysis_list = list(MITERATIONS = "1000")}.
 # @param processors Integer, passed to argument 'PROCESSORS' in Mplus.
 #' @param run Logical, whether to indeed run Mplus.
+#' @param ... Additional parameters passed to \code{\link[MplusAutomation]{runModels}}.
 #' @param .warnings2messages Logial, whether Mplus errors and warnings should be
 #'   signaled as warnings (the default) or messages.
 #' @inheritParams MplusAutomation::runModels
@@ -57,7 +58,10 @@ fit_tree_mplus <- function(data = NULL,
                            showOutput = FALSE,
                            replaceOutfile = "always",
                            overwrite = FALSE,
+                           ...,
                            .warnings2messages = FALSE) {
+
+    ellipsis::check_dots_used()
 
     link <- match.arg(link)
 
@@ -243,7 +247,8 @@ fit_tree_mplus <- function(data = NULL,
                 MplusAutomation::runModels(file.path(dir, inpu_file),
                                            replaceOutfile = replaceOutfile,
                                            showOutput = showOutput,
-                                           logFile = NULL)
+                                           logFile = NULL,
+                                           ...)
             ))
 
         # invisible(

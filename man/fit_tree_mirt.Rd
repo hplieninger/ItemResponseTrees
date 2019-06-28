@@ -32,10 +32,9 @@ after each iteration cycle? Default is TRUE}
 information including two functions that can take up a huge amount of space
 (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
 two functions are removed from the output if \code{rm_mirt_internal =
-  TRUE}.
-... Other arguments passed to \code{\link[mirt]{mirt}}.}
+  TRUE}.}
 
-\item{...}{additional arguments to be passed}
+\item{...}{Other arguments passed to \code{\link[mirt]{mirt}}.}
 }
 \value{
 List with two elements. \code{mirt} contains the mirt output, namely

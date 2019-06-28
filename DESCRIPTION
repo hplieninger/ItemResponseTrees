@@ -18,7 +18,8 @@ Imports:
     mirt,
     rlang,
     gtools,
-    tidyr
+    tidyr,
+    ellipsis
 Suggests:
     covr,
     future,

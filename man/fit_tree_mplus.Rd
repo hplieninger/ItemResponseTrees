@@ -10,7 +10,7 @@ fit_tree_mplus(data = NULL, model = NULL, dir = ".",
   out_rm = FALSE, fsc_rm = FALSE, dat_rm = FALSE,
   save_fscores = TRUE, analysis_list = list(), run = TRUE,
   showOutput = FALSE, replaceOutfile = "always", overwrite = FALSE,
-  .warnings2messages = FALSE)
+  ..., .warnings2messages = FALSE)
 }
 \arguments{
 \item{data}{Data frame containing only the items.}
@@ -61,6 +61,8 @@ data and input (if present) files should be overwritten.
 Defaults to \code{TRUE} to be consistent with prior behavior.
 If \code{FALSE} and the file to write the data to already exists,
 it will throw an error.}
+
+\item{...}{Additional parameters passed to \code{\link[MplusAutomation]{runModels}}.}
 
 \item{.warnings2messages}{Logial, whether Mplus errors and warnings should be
 signaled as warnings (the default) or messages.}
