@@ -4,15 +4,15 @@
 #' @inheritDotParams base::paste
 #' @keywords internal
 clps <- function(collapse = " ", ..., sep = " ") {
-    ellipsis::check_dots_empty()
+    ellipsis::check_dots_used()
     paste(..., sep = sep, collapse = collapse)
 }
 
 #' Custom tryCatch() that also returns the value of the expression
 #'
 #' @param expr expression to be evaluated
-#' @return list with three elements, namely, \code{value} giving the value of
-#'   \code{expr}, \code{warning} giving any warning messages, and \code{error}
+#' @return list with three elements, namely, `value` giving the value of
+#'   `expr`, `warning` giving any warning messages, and `error`
 #'   giving any error messages.
 #' @references https://stackoverflow.com/a/4952908; https://stackoverflow.com/a/24569739
 #' @author https://stackoverflow.com/users/2161065
@@ -55,14 +55,14 @@ sym_diff <- function(x, y) {
 }
 
 #' @title Sort a Vector Based on a Second Vector
-#' @description This function takes a vector \code{x} and returns \code{x} in
-#'   the order provided in \code{y}.
+#' @description This function takes a vector `x` and returns `x` in
+#'   the order provided in `y`.
 #' @param x vector that should be sorted
 #' @param y vector providing the sort order
-#' @param x_names Logical. If \code{TRUE}, \code{x} is sorted but not on
-#'   \code{x} but on \code{names(x)}.
-#' @param subset Logical. If \code{TRUE}, \code{x} must be a subset of \code{y}.
-#' @return sorted \code{x}
+#' @param x_names Logical. If `TRUE`, `x` is sorted but not on
+#'   `x` but on \code{names(x)}.
+#' @param subset Logical. If `TRUE`, `x` must be a subset of `y`.
+#' @return sorted `x`
 #' @references https://stackoverflow.com/a/2117080
 #' @author George Dontas (https://stackoverflow.com/users/170792)
 #' @keywords internal
