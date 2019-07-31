@@ -251,11 +251,8 @@ fit_tree_mplus <- function(data = NULL,
                                            ...)
             ))
 
-        # invisible(
-        #     capture.output(
-                res <- MplusAutomation::readModels(file.path(dir, outp_file),
-                                                   quiet = TRUE)
-                # ))
+        res <- MplusAutomation::readModels(file.path(dir, outp_file),
+                                           quiet = TRUE)
 
         if (.warnings2messages) {
             # This is useful for testing with testthat because Mplus
@@ -271,9 +268,13 @@ fit_tree_mplus <- function(data = NULL,
             }
         }
 
+        outfiletext <- readLines(outp_file)
+        tmp1 <- extract_mplus_warning(outfiletext)
+        res$warnings <- c(res$warnings, tmp1)
+
         wrn1 <- res$warnings
         if (length(wrn1) > 0) {
-            sapply(wrn1, function(x) mywarn("Mplus error: ", clps(, x)))
+            sapply(wrn1, function(x) mywarn("Mplus warning: ", clps(, x)))
         }
         err1 <- res$errors
         if (length(err1) > 0) {
@@ -732,4 +733,15 @@ extract_mplus_output <- function(results = NULL,
     )
 
     return(out)
+}
+
+extract_mplus_warning <- function(outfiletext) {
+    tmp1 <- grep("ONE OR MORE PARAMETERS WERE FIXED TO AVOID SINGULARITY OF THE",
+                 outfiletext)
+    if (length(tmp1) == 0) {
+        return(list(0))
+    }
+    tmp2 <- which("" == outfiletext[tmp1:length(outfiletext)])[1] - 2
+    tmp3 <- trimws(outfiletext[tmp1:(tmp1 + tmp2)])
+    return(list(tmp3))
 }
