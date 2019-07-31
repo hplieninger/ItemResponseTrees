@@ -649,48 +649,48 @@ extract_mplus_output <- function(results = NULL,
 
     } else if (e2$class == "grm") {
 
-         tmp1 <- tidyr::separate(betapar, "param", c("item", "threshold"),
-                                 sep = "\\$")
+        tmp1 <- tidyr::separate(betapar, "param", c("item", "threshold"),
+                                sep = "\\$")
 
-         # itempar$beta    <- tidyr::spread(
-         #     dplyr::select(tmp1, .data$item, .data$threshold, .data$est),
-         #     .data$threshold, .data$est)
-         itempar$beta <- reshape(
-             dplyr::select(tmp1, .data$item, .data$threshold, .data$est),
-             direction = "wide",
-             idvar = "item",
-             timevar = "threshold"
-         )
-         names(itempar$beta) <- sub("^est[.]", "b", names(itempar$beta))
+        # itempar$beta    <- tidyr::spread(
+        #     dplyr::select(tmp1, .data$item, .data$threshold, .data$est),
+        #     .data$threshold, .data$est)
+        itempar$beta <- reshape(
+            dplyr::select(tmp1, .data$item, .data$threshold, .data$est),
+            direction = "wide",
+            idvar = "item",
+            timevar = "threshold"
+        )
+        names(itempar$beta) <- sub("^est[.]", "b", names(itempar$beta))
 
-         # itempar$beta_se <- tidyr::spread(
-         #     dplyr::select(tmp1, .data$item, .data$threshold, .data$se),
-         #     .data$threshold, .data$se)
-         itempar$beta_se <- reshape(
-             dplyr::select(tmp1, .data$item, .data$threshold, .data$se),
-             direction = "wide",
-             idvar = "item",
-             timevar = "threshold"
-         )
-         names(itempar$beta_se) <- sub("^se[.]", "b", names(itempar$beta_se))
+        # itempar$beta_se <- tidyr::spread(
+        #     dplyr::select(tmp1, .data$item, .data$threshold, .data$se),
+        #     .data$threshold, .data$se)
+        itempar$beta_se <- reshape(
+            dplyr::select(tmp1, .data$item, .data$threshold, .data$se),
+            direction = "wide",
+            idvar = "item",
+            timevar = "threshold"
+        )
+        names(itempar$beta_se) <- sub("^se[.]", "b", names(itempar$beta_se))
 
 
-         # tmp2 <- dplyr::select(tmp1, -.data$est_se, -.data$pval, -.data$paramHeader, -.data$param)
-         # tmp2$item <- factor(tmp2$item, levels = unique(tmp2$item))
-         # tmp4 <- reshape2::recast(tmp2, item + variable ~ threshold, id.var = c("item", "threshold"))
-         # tmp5 <- split(tmp4, tmp4$variable)
-         # tmp0 <- lapply(tmp5, dplyr::select, -.data$variable)
-         # tmp0 <- lapply(tmp0, function(x) {rownames(x) <- NULL; x})
-         # itempar$beta <- tmp0$est
-         # itempar$beta_se <- tmp0$se
+        # tmp2 <- dplyr::select(tmp1, -.data$est_se, -.data$pval, -.data$paramHeader, -.data$param)
+        # tmp2$item <- factor(tmp2$item, levels = unique(tmp2$item))
+        # tmp4 <- reshape2::recast(tmp2, item + variable ~ threshold, id.var = c("item", "threshold"))
+        # tmp5 <- split(tmp4, tmp4$variable)
+        # tmp0 <- lapply(tmp5, dplyr::select, -.data$variable)
+        # tmp0 <- lapply(tmp0, function(x) {rownames(x) <- NULL; x})
+        # itempar$beta <- tmp0$est
+        # itempar$beta_se <- tmp0$se
 
-         itempar$alpha <- dplyr::select(alphapar, item = .data$param, .data$est)
-         itempar$alpha_se <- dplyr::select(alphapar, item = .data$param, .data$se)
+        itempar$alpha <- dplyr::select(alphapar, item = .data$param, .data$est)
+        itempar$alpha_se <- dplyr::select(alphapar, item = .data$param, .data$se)
 
-         itempar <- lapply(itempar, function(x) {
-             x$item <- factor(x$item, unique(alphapar$param))
-             x[order(x$item), ]
-             })
+        itempar <- lapply(itempar, function(x) {
+            x$item <- factor(x$item, unique(alphapar$param))
+            x[order(x$item), ]
+        })
     }
 
     out <- list(
