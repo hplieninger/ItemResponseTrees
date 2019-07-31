@@ -17,6 +17,8 @@
 #' @importFrom stats setNames aggregate as.formula na.omit rmultinom cov2cor reshape
 #' @importFrom utils capture.output
 #' @importFrom rlang .data
+#' @importFrom magrittr %>%
+#' @importFrom tibble tibble
 #'
 # @keywords internal
 "_PACKAGE"
