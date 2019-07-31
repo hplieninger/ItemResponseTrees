@@ -1,4 +1,4 @@
-tree_model_irt <- function(model_list = NULL, e1 = new.env()) {
+irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
 
     irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
     missing_sc <- stringr::str_count(irt0, "(?i)\\s+BY\\s+") > 1
@@ -77,7 +77,7 @@ tree_model_irt <- function(model_list = NULL, e1 = new.env()) {
                     lv_names = lv_names)
 }
 
-tree_model_equations <- function(model_list = NULL, e1 = new.env()) {
+irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 
     if (is.null(model_list$equations)) {
         return(invisible(NULL))
@@ -99,7 +99,7 @@ tree_model_equations <- function(model_list = NULL, e1 = new.env()) {
     checkmate::assert_character(e1$equations, unique = TRUE, min.chars = 1)
 }
 
-# tree_model_dimensions <- function(model_list = NULL, e1 = new.env()) {
+# irtree_model_dimensions <- function(model_list = NULL, e1 = new.env()) {
 #
 #     tmp1 <- paste(model_list$processes, collapse = " ")
 #
@@ -113,7 +113,7 @@ tree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 #     # return(s_names)
 # }
 
-tree_model_items <- function(e1 = new.env()) {
+irtree_model_items <- function(e1 = new.env()) {
     # e1$j_names <- gtools::mixedsort(unique(unlist(e1$irt_items, use.names = F)))
     e1$j_names <- unique(unlist(e1$irt_items, use.names = F))
     names(e1$j_names) <- e1$j_names
@@ -130,7 +130,7 @@ tree_model_items <- function(e1 = new.env()) {
                                 any.missing = FALSE, names = "unique")
 }
 
-tree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
+irtree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
 
     if (!is.null(model_list$subtree)) {
         subtree1 <- vapply(model_list$subtree,
@@ -175,7 +175,7 @@ tree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
     }
 }
 
-tree_model_addendum <- function(model_list = NULL, e1 = new.env()) {
+irtree_model_addendum <- function(model_list = NULL, e1 = new.env()) {
     if (!is.null(model_list$addendum)) {
         e1$addendum <- model_list$addendum
 
@@ -204,7 +204,7 @@ tree_model_addendum <- function(model_list = NULL, e1 = new.env()) {
     }
 }
 
-tree_model_constraints <- function(model_list = NULL, e1 = new.env()) {
+irtree_model_constraints <- function(model_list = NULL, e1 = new.env()) {
     if (!is.null(model_list$constraints)) {
         tmp1 <- paste0("^(", clps("|", e1$lv_names),
                        ")=(", clps("|", e1$lv_names), ")$")
@@ -225,7 +225,7 @@ tree_model_constraints <- function(model_list = NULL, e1 = new.env()) {
     }
 }
 
-tree_model_mapping <- function(e1 = new.env()) {
+irtree_model_mapping <- function(e1 = new.env()) {
 
     if (!is.null(e1$equations)) {
 

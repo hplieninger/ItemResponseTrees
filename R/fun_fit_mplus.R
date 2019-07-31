@@ -2,9 +2,6 @@
 #'
 #' This function takes a data frame and a model string and runs the model in Mplus.
 #'
-#' @param data Data frame containing only the items.
-#' @param model A description of the user-specified model. See
-#'   \code{\link{tree_model}} for more information.
 #' @param file String naming the file (or path) of the Mplus files and the data
 #'   file. Do not provide file endings, those will be automatically appended by
 #'   the function.
@@ -17,15 +14,16 @@
 #' @param cleanup Logical, whether the Mplus files should be removed on exit.
 #' @param save_fscores Logical, wheter to save FSCORES or not.
 #' @param analysis_list Named list of strings passed to Mplus' argument
-#'   ANALYSIS. For example: \code{analysis_list = list(MITERATIONS = "1000")}.
+#'   ANALYSIS. For example: `analysis_list = list(MITERATIONS = "1000")`.
 # @param processors Integer, passed to argument 'PROCESSORS' in Mplus.
 #' @param run Logical, whether to indeed run Mplus.
 #' @param ... Additional parameters passed to \code{\link[MplusAutomation]{runModels}}.
 #' @param .warnings2messages Logial, whether Mplus errors and warnings should be
 #'   signaled as warnings (the default) or messages.
+#' @inheritParams fit.irtree_model
 #' @inheritParams MplusAutomation::runModels
 #' @inheritParams MplusAutomation::prepareMplusData
-#' @return List with two elements. \code{Mplus} contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. \code{args} contains the input specifications.
+#' @return List with two elements. `Mplus` contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. `args` contains the input specifications.
 # @examples
 # \dontrun{
 # if(interactive()){
@@ -33,51 +31,46 @@
 #  }
 # }
 #' @export
-# @import checkmate
-# @import glue
-# @import MplusAutomation
-fit_tree_mplus <- function(data = NULL,
-                           model = NULL,
-                           # R = 1,
-                           file = tempfile("irtree_"),
-                           integration_points = 15,
-                           estimator = "MLR",
-                           link = c("probit", "logit"),
-                           run = TRUE,
-                           cleanup = run,
-                           save_fscores = TRUE,
-                           # processors = 1,
-                           analysis_list = list(),
-                           showOutput = FALSE,
-                           replaceOutfile = "always",
-                           overwrite = FALSE,
-                           ...,
-                           .warnings2messages = FALSE) {
+irtree_fit_mplus <- function(object = NULL,
+                             data = NULL,
+                             file = tempfile("irtree_"),
+                             integration_points = 15,
+                             estimator = "MLR",
+                             link = c("probit", "logit"),
+                             run = TRUE,
+                             cleanup = run,
+                             save_fscores = TRUE,
+                             analysis_list = list(),
+                             verbose = interactive(),
+                             replaceOutfile = "always",
+                             overwrite = FALSE,
+                             ...,
+                             .warnings2messages = FALSE) {
 
     ellipsis::check_dots_used()
 
     link <- match.arg(link)
 
     checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+
     checkmate::assert_list(analysis_list,  types = "character",
                            names = "unique")
     checkmate::qassertr(analysis_list, "S1")
-
-    model <- tree_model(model = model)
+    checkmate::assert_class(object, "irtree_model")
 
     args <- c(as.list(environment())
               # , list(...)
     )
 
-    checkmate::assert_character(model$covariates, min.chars = 1,
+    checkmate::assert_character(object$covariates, min.chars = 1,
                                 pattern = "^[[:alpha:]][[:alnum:]_]*$",
                                 any.missing = FALSE, unique = TRUE,
-                                null.ok = TRUE, .var.name = "Addendum in model")
-    checkmate::assert_subset(x = c(names(model$j_names), model$covariates),
+                                null.ok = TRUE, .var.name = "Addendum in object")
+    checkmate::assert_subset(x = c(names(object$j_names), object$covariates),
                              choices = names(data),
                              empty.ok = FALSE)
     tmp1 <- checkmate::check_set_equal(names(data),
-                                       c(names(model$j_names), model$covariates))
+                                       c(names(object$j_names), object$covariates))
     if (tmp1 != TRUE) {
         rlang::warn(paste0("Assertion on 'names(data)' is suspicious: ",
                            sub("Must", "Expected to", tmp1)),
@@ -91,24 +84,24 @@ fit_tree_mplus <- function(data = NULL,
         }
     }
     assert_nchar <- checkmate::makeAssertionFunction(check_nchar)
-    assert_nchar(model$j_names, 8)
-    assert_nchar(model$covariates, 8)
-    # checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = model$J)
+    assert_nchar(object$j_names, 8)
+    assert_nchar(object$covariates, 8)
+    # checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = object$J)
     checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1,
-                                 min.cols = model$J + length(model$covariates))
-    checkmate::assert_data_frame(data[, names(model$j_names)], types = "integerish",
-                                 ncols = model$J)
-    # checkmate::assert_subset(names(model$j_names), choices = names(data))
+                                 min.cols = object$J + length(object$covariates))
+    checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
+                                 ncols = object$J)
+    # checkmate::assert_subset(names(object$j_names), choices = names(data))
 
-    args$model$j_names <- model$j_names <- sort2(model$j_names, names(data), TRUE)
-    model$lambda$item <- factor(model$lambda$item, levels = model$j_names)
+    args$object$j_names <- object$j_names <- sort2(object$j_names, names(data), TRUE)
+    object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     # CAVE: The following line is super important. It is the only safeguard that
     # assures that the items in the 'MODEL'-statement of the mplus input are in
     # the correct order, namely, that given by the data.
     # This in turn assures that the item thresholds in the output are in that
     # same order---and this is necessary, because otherwise checking the order
     # whilst reading in the output is very cumbersome.
-    args$model$lambda <- model$lambda <- model$lambda[order(model$lambda$trait, model$lambda$item), ]
+    args$object$lambda <- object$lambda <- object$lambda[order(object$lambda$trait, object$lambda$item), ]
 
     ##### file #####
 
@@ -138,21 +131,21 @@ fit_tree_mplus <- function(data = NULL,
 
     ##### Pseudoitems #####
 
-    if (model$class == "tree") {
-        categ_dat <- unique(na.omit(unlist(data[, names(model$j_names)], use.names = FALSE)))
-        categ_mod <- as.integer(names(model$expr))
+    if (object$class == "tree") {
+        categ_dat <- unique(na.omit(unlist(data[, names(object$j_names)], use.names = FALSE)))
+        categ_mod <- as.integer(names(object$expr))
         if (length(sym_diff(categ_dat, categ_mod)) > 0) {
             stop("'data' has categories ", clps(", ", sort(categ_dat)),
-                 " but 'model' has equations for categories ", clps(", ", categ_mod), "."
+                 " but 'object' has equations for categories ", clps(", ", categ_mod), "."
                  , call. = FALSE)
         }
-        pseudoitems <- recode_data(model = model, data = data, keep = TRUE)
-    } else if (model$class == "grm") {
+        pseudoitems <- irtree_recode(object = object, data = data, keep = TRUE)
+    } else if (object$class == "grm") {
         pseudoitems <- data
-        tmp1 <- model$j_names
+        tmp1 <- object$j_names
         names(tmp1) <- paste0("^", names(tmp1), "$")
         names(pseudoitems) <- stringr::str_replace_all(names(pseudoitems), tmp1)
-        # attr(pseudoitems, "pseudoitem_names") <- model$j_names
+        # attr(pseudoitems, "pseudoitem_names") <- object$j_names
     }
 
     ##### Mplus Input #####
@@ -173,22 +166,22 @@ fit_tree_mplus <- function(data = NULL,
             analysis_list = analysis_list))
 
     mplus_input <- tmp1$mplus_input
-    args$model$lambda <- model$lambda <- tmp1$lambda
+    args$object$lambda <- object$lambda <- tmp1$lambda
 
     checkmate::assert_class(mplus_input, "mplusObject")
 
     ##### Mplus Title #####
 
-    if (model$class == "tree") {
-        tmp1 <- model$mapping_matrix
+    if (object$class == "tree") {
+        tmp1 <- object$mapping_matrix
         tmp1 <- tmp1[, !is.element(colnames(tmp1), "cate"), drop = FALSE]
 
         tmp2 <- vapply(seq_len(ncol(tmp1)),
                        function(x) {
                            paste0("  pseudoitem", x, ":  ",
                                   clps(, ifelse(is.na(tmp1[, x]), "-", tmp1[, x])))
-                           }, FUN.VALUE = character(1))
-    } else if (model$class == "grm") {
+                       }, FUN.VALUE = character(1))
+    } else if (object$class == "grm") {
         tmp2 <- NULL
     }
 
@@ -197,9 +190,9 @@ fit_tree_mplus <- function(data = NULL,
     #
     # tmp2 <- sapply(seq_len(ncol(tmp1)), function(x) paste0("  pseudoitem", x, ":  ",
     #                                               clps(, ifelse(is.na(tmp1[, x]), "-", tmp1[, x]))))
-    tmp3 <- glue::glue("{'  '}#Parameters:  N = {nrow(data)}; J = {model$J}; K = {model$K}; \\
-                       P = {model$P}; S = {model$S};")
-    tmp4 <- substr(paste0("  Items:        ", clps(, model$j_names)), 1, 90)
+    tmp3 <- glue::glue("{'  '}#Parameters:  N = {nrow(data)}; J = {object$J}; K = {object$K}; \\
+                       P = {object$P}; S = {object$S};")
+    tmp4 <- substr(paste0("  Items:        ", clps(, object$j_names)), 1, 90)
 
     # TITLE <- paste(c(paste0("  Tree Model;   R = ", R), tmp3, tmp4, tmp2), collapse = "\n")
     TITLE <- paste(c("  Tree Model",
@@ -276,25 +269,19 @@ fit_tree_mplus <- function(data = NULL,
 
 #' Prepare an Mplus Input File
 #'
-#' This is an internal function used by \code{\link{fit_tree_mplus}}. It receives its
-#' inputs from the model and the data set and returns an object of class
+#' This is an internal function used by \code{\link{irtree_fit_mplus}}. It receives its
+#' inputs from the model object and the data set and returns an object of class
 #' \code{\link[MplusAutomation]{mplusObject}}.
 #'
-# @param lambda Matrix as returned from \code{\link{fit_tree_mplus}}.
-#' @param pseudoitems Data frame as returned from \code{\link{recode_data}}.
+#' @param pseudoitems Data frame as returned from \code{\link{irtree_recode}}.
 #' @param data_file String, the full file path of the data set.
 #' @param fsco_file String, the file name used by Mplus to store the factor scores.
-# @param addendum String as returned from \code{\link{tree_model}}.
-#' @inheritParams fit_tree_mplus
-# @importMethodsFrom MplusAutomation update
+# @param addendum String as returned from \code{\link{irtree_model}}.
+#' @inheritParams irtree_fit_mplus
 #' @return A list of of class \code{\link[MplusAutomation]{mplusObject}}
-# @examples
 #' @export
 #' @seealso MplusAutomation::mplusObject
-#'
-# @import glue
-# @import MplusAutomation
-write_mplus_input <- function(model = model,
+write_mplus_input <- function(object = object,
                               # lambda = NULL,
                               # addendum = NULL,
                               pseudoitems = NULL,
@@ -307,22 +294,22 @@ write_mplus_input <- function(model = model,
                               # processors = 1,
                               analysis_list = list()) {
 
-    lambda <- model$lambda
+    lambda <- object$lambda
     # lambda <- lambda[order(lambda$trait, lambda$item), ]
 
     ##### Apply Constraints #####
 
-    if (!is.null(model$constraints)) {
+    if (!is.null(object$constraints)) {
         lambda$trait <- factor(lambda$trait,
                                levels = levels(lambda$trait),
                                labels = stringr::str_replace_all(
                                    levels(lambda$trait),
-                                   model$constraints))
+                                   object$constraints))
 
-        tmp1 <- model$constraints
+        tmp1 <- object$constraints
         names(tmp1) <- paste0("(?<!\\w)", names(tmp1), "(?!\\w)")
 
-        model$addendum <- stringr::str_replace_all(model$addendum, tmp1)
+        object$addendum <- stringr::str_replace_all(object$addendum, tmp1)
     }
 
     ##### MODEL Statement #####
@@ -348,7 +335,7 @@ write_mplus_input <- function(model = model,
 
     mplus3 <- paste(
         lapply(
-            lapply(c(mplus2, model$addendum),
+            lapply(c(mplus2, object$addendum),
                    strwrap, width = 89, indent = 2, exdent = 4),
             paste, collapse = "\n"),
         collapse = "\n")
@@ -409,10 +396,10 @@ write_mplus_input <- function(model = model,
     # NB: USEVARIABLES is automatically generated using 'mplusObject(autov = T)'
     # NB: mplusObject(usevariables) != USEVARIABLES in Mplus
 
-    if (model$class == "grm") {
+    if (object$class == "grm") {
         tmp1 <- names(pseudoitems)
-    } else if (model$class == "tree") {
-        tmp1 <- c(intersect(names(pseudoitems), lambda$new_name), model$covariates)
+    } else if (object$class == "tree") {
+        tmp1 <- c(intersect(names(pseudoitems), lambda$new_name), object$covariates)
     }
 
     mp_cat_vars <-
@@ -429,14 +416,14 @@ write_mplus_input <- function(model = model,
 
     ##### Combine All Statements #####
 
-    # # if keep is TRUE in recode_data(), then the 'pseudoitems' also contain the
+    # # if keep is TRUE in irtree_recode(), then the 'pseudoitems' also contain the
     # # original items for completeness/debugging/transparency. However, they must
     # # not occur under USEVARIABLES and are therefore excluded in 'rdata'.
     # # Applies not to GRM.
     #
-    # if (model$class == "tree") {
-    #     rdata <- pseudoitems[, !names(pseudoitems) %in% names(model$j_names)]
-    # } else if (model$class == "grm") {
+    # if (object$class == "tree") {
+    #     rdata <- pseudoitems[, !names(pseudoitems) %in% names(object$j_names)]
+    # } else if (object$class == "grm") {
     #     rdata <- pseudoitems
     # }
     # # internal sanity check for debugging
@@ -482,20 +469,19 @@ write_mplus_input <- function(model = model,
 #' @param class String specifying which class of model was fit
 #' @param .errors2messages Logical indicating whether errors should be converted
 #'   to messages
-#' @inheritParams fit_tree_mplus
+#' @inheritParams irtree_fit_mplus
 #' @return A list of parameter estimates, model fit information
-#'   (\code{summaries}), \code{warnings}, \code{errors}.
-# @examples
+#'   (`summaries`), `warnings`, `errors`.
 #' @export
 extract_mplus_output <- function(results = NULL,
-                                 model = NULL,
+                                 object = NULL,
                                  class = NULL,
                                  .errors2messages = FALSE) {
 
     checkmate::assert_class(results, "mplus.model")
 
-    if (!is.null(model)) {
-        model <- tree_model(model)
+    if (!is.null(object)) {
+        object <- irtree_model(object)
     }
 
     tmp1 <- vapply(results$errors, function(x) {
@@ -510,29 +496,29 @@ extract_mplus_output <- function(results = NULL,
             stop("Mplus error: ", clps(" ", unlist(results$errors[cumsum(tmp1) > 0])), call. = FALSE)
         }
     }
-    # if (!is.null(model)) {
-    #     model <- tree_model(model)
-    #     e2 <- list2env(model)
+    # if (!is.null(object)) {
+    #     object <- irtree_model(object)
+    #     e2 <- list2env(object)
     # } else {
     #     e2 <- new.env()
-    #     # tmp1 <- strsplit(clps(" ", trimws(results$input$model)), "(?<=;)", perl = TRUE)[[1]]
+    #     # tmp1 <- strsplit(clps(" ", trimws(results$input$object)), "(?<=;)", perl = TRUE)[[1]]
     #     # tmp_list <- list(irt = tmp1)
     #     # tmp_list$irt <- tmp_list$irt[grepl("\\s+by\\s+", tmp_list$irt, ignore.case = T)]
-    #     # tree_model_irt(tmp_list, e2)
+    #     # irtree_model_irt(tmp_list, e2)
     #     e2$class <- match.arg(class)
     #
     #     e2$lv_names <- as.character(
     #         na.omit(
-    #             stringr::str_extract(results$input$model, "\\w+(?=\\s*BY)")))
+    #             stringr::str_extract(results$input$object, "\\w+(?=\\s*BY)")))
     # }
 
     e2 <- new.env()
     e2$lv_names <-
         as.character(
             na.omit(
-                stringr::str_extract(results$input$model, "\\w+(?=\\s*BY)")))
-    if (!is.null(model)) {
-        e2$class <- model$class
+                stringr::str_extract(results$input$object, "\\w+(?=\\s*BY)")))
+    if (!is.null(object)) {
+        e2$class <- object$class
     } else {
         checkmate::assert_choice(class, choices = c("tree", "grm"))
         e2$class <- class

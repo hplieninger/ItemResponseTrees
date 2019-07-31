@@ -1,7 +1,7 @@
 #' ItemResponseTree Model Syntax
 #'
 #' The ItemResponseTree model syntax describes an IR-tree model. The function
-#' \code{tree_model} turns a user-defined model string into a list that
+#' \code{irtree_model} turns a user-defined model string into a list that
 #' represents the full model as needed by the package.
 #'
 #' @section Model:
@@ -164,7 +164,7 @@
 #'   Any code in this section is directly pasted in the \code{MODEL} section of
 #'   the Mplus input file.
 #'   Use a semicolon at the end of each line; lines must not exceed 90 characters.
-#'   Note that the addendum is ignored in \code{\link{gen_tree_data}}.
+#'   Note that the addendum is ignored in \code{\link{irtree_sim_data}}.
 #'
 #'   \preformatted{
 #'   ## Example
@@ -173,7 +173,7 @@
 #'   m WITH t@0;}
 #'
 #' @param model String with a specific structure as described below.
-#' @return List of class \code{tree_model}. It contains the information
+#' @return List of class \code{irtree_model}. It contains the information
 #'   extracted from parsing \code{model}.
 #' @examples
 #' m1 <- "
@@ -198,11 +198,11 @@
 #' Tree
 #' "
 #'
-#' model <- tree_model(m1)
+#' model <- irtree_model(m1)
 #' @export
-tree_model <- function(model = NULL) {
+irtree_model <- function(model = NULL) {
 
-    if (inherits(model, "tree_model")) {
+    if (inherits(model, "irtree_model")) {
         return(model)
     } else {
         checkmate::assert_string(model, min.chars = 10)
@@ -288,31 +288,31 @@ tree_model <- function(model = NULL) {
 
     ##### IRT #####
 
-    tree_model_irt(model_list = model_list, e1 = e1)
+    irtree_model_irt(model_list = model_list, e1 = e1)
 
     ##### Equations #####
 
-    tree_model_equations(model_list = model_list, e1 = e1)
+    irtree_model_equations(model_list = model_list, e1 = e1)
 
     ##### Items #####
 
-    tree_model_items(e1 = e1)
+    irtree_model_items(e1 = e1)
 
     ##### Subtree #####
 
-    tree_model_subtree(model_list = model_list, e1 = e1)
+    irtree_model_subtree(model_list = model_list, e1 = e1)
 
     ##### Mapping Matrix #####
 
-    tree_model_mapping(e1 = e1)
+    irtree_model_mapping(e1 = e1)
 
     ##### Addendum #####
 
-    tree_model_addendum(model_list, e1)
+    irtree_model_addendum(model_list, e1)
 
     ##### Constraints #####
 
-    tree_model_constraints(model_list, e1)
+    irtree_model_constraints(model_list, e1)
 
     ##### Labels for Items and Processes #####
 
@@ -469,20 +469,13 @@ tree_model <- function(model = NULL) {
 
     if (any(c(flag1, flag2))) {
 
-        # tree_model_irt
-        # tree_model_equations
-        # tree_model_items
-        # tree_model_subtree
-        # tree_model_addendum
-        # tree_model_constraints
-
-        tree_model_irt(model_list_new, e1)
-        tree_model_equations(model_list_new, e1)
-        # tree_model_items(model_list_new, e1)    # not necessary
-        tree_model_subtree(model_list_new, e1)
-        tree_model_addendum(model_list_new, e1)
-        tree_model_constraints(model_list_new, e1)
-        tree_model_mapping(e1 = e1)
+        irtree_model_irt(model_list_new, e1)
+        irtree_model_equations(model_list_new, e1)
+        # irtree_model_items(model_list_new, e1)    # not necessary
+        irtree_model_subtree(model_list_new, e1)
+        irtree_model_addendum(model_list_new, e1)
+        irtree_model_constraints(model_list_new, e1)
+        irtree_model_mapping(e1 = e1)
 
         # Update *_names seperately such that names of the character vectors are the old names
         e1$j_names  <- j_names_new
@@ -547,15 +540,15 @@ tree_model <- function(model = NULL) {
 
     out1 <- as.list(e1)
     out1 <- out1[order(names(out1))]
-    class(out1) <- c("list", "tree_model")
+    class(out1) <- c("irtree_model", "list")
 
     ##### Test if probabilities sum to 1 #####
 
     if (!is.null(model_list$equations)) {
-        tryCatch(gen_tree_data(model = out1, N = 1, sigma = diag(e1$S),
-                               itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
-                                              alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
-                               K = ifelse(is.null(e1$K), NULL, e1$K)),
+        tryCatch(irtree_sim_data(object = out1, N = 1, sigma = diag(e1$S),
+                                 itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
+                                                alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
+                                 K = ifelse(is.null(e1$K), NULL, e1$K)),
                  improper_model = function(cnd) {
                      rlang::warn(
                          paste("Equations do not constitute a proper model because",
@@ -566,10 +559,7 @@ tree_model <- function(model = NULL) {
     return(out1)
 }
 
-# @param x Object of class \code{tree_model}.
-# @inheritDotParams base::print
-# @describeIn tree_model Print method for class tree_model
 #' @export
-print.tree_model <- function(x, ...) {
+print.irtree_model <- function(x, ...) {
     cat(x$string, ...)
 }

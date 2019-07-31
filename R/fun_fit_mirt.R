@@ -1,79 +1,74 @@
-#' Fit an IR-Tree Model using mirt
+#' Fit an IR-Tree Model using mirt.
 #'
-#' This function takes a data frame and a model string and runs the model in mirt.
+#' This function takes a `data` frame and a model `object` and runs the model in mirt.
 #'
-#' @param link String specifying the link function. Only \code{logit} is
+#' @param link String specifying the link function. Only `logit` is
 #'   implemented in mirt.
-#' @param rm_mirt_internal Logical. \code{\link[mirt]{mirt}} returns a lot of
+#' @param rm_mirt_internal Logical. [mirt::mirt()] returns a lot of
 #'   information including two functions that can take up a huge amount of space
 #'   (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
 #'   two functions are removed from the output if \code{rm_mirt_internal =
 #'   TRUE}.
-#' @param ... Other arguments passed to \code{\link[mirt]{mirt}}.
-#' @inheritParams fit_tree_mplus
+#' @param ... Other arguments passed to [mirt::mirt()].
+#' @inheritParams fit.irtree_model
 #' @inheritParams mirt::mirt
-#' @return List with two elements. \code{mirt} contains the mirt output, namely
-#'   an object of class \code{\link[mirt]{SingleGroupClass-class}} . \code{args}
+#' @return List with two elements. `mirt` contains the mirt output, namely
+#'   an object of class \code{\link[mirt]{SingleGroupClass-class}} . `args`
 #'   contains the input specifications.
 # @examples
 #' @export
-fit_tree_mirt <- function(data = NULL,
-                          model = NULL,
-                          dir = ".",
-                          # R = 1,
-                          link = "logit",
-                          SE = TRUE,
-                          verbose = FALSE,
-                          run = TRUE,
-                          rm_mirt_internal = TRUE,
-                          ...
-                          ) {
+irtree_fit_mirt <- function(object = NULL,
+                            data = NULL,
+                            link = "logit",
+                            SE = TRUE,
+                            verbose = interactive(),
+                            rm_mirt_internal = TRUE,
+                            ...
+) {
 
     ellipsis::check_dots_used()
 
-    model <- tree_model(model = model)
+    object <- irtree_model(object)
     checkmate::assert_data_frame(data,
                                  # types = "numeric",
-                                 all.missing = FALSE, min.rows = 1, min.cols = model$J)
-    checkmate::assert_data_frame(data[, names(model$j_names)], types = "integerish",
-                                 ncols = model$J)
+                                 all.missing = FALSE, min.rows = 1, min.cols = object$J)
+    checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
+                                 ncols = object$J)
     # checkmate::assert_set_equal(names(data), y = levels(j_names))
-    checkmate::assert_subset(names(model$j_names), choices = names(data))
+    checkmate::assert_subset(names(object$j_names), choices = names(data))
 
-    model$j_names <- sort2(model$j_names, names(data), x_names = TRUE)
-    model$lambda$item <- factor(model$lambda$item, levels = model$j_names)
-    model$lambda <- model$lambda[order(model$lambda$item, model$lambda$trait), ]
+    object$j_names <- sort2(object$j_names, names(data), x_names = TRUE)
+    object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
+    object$lambda <- object$lambda[order(object$lambda$item, object$lambda$trait), ]
 
     # SE <- force(SE)
     # verbose <- force(verbose)
 
     link <- match.arg(link)
 
-    checkmate::assert_directory_exists(dir)
-
     args <- c(as.list(environment())
               # , list(...)
     )
 
-    if (model$class == "tree") {
+    if (object$class == "tree") {
         # categ_dat <- as.integer(names(table(as.matrix(data))))
         categ_dat <- unique(unlist(data, use.names = FALSE))
-        categ_mod <- as.integer(names(model$expr))
+        categ_mod <- as.integer(names(object$expr))
         if (length(sym_diff(categ_dat, categ_mod)) > 0) {
             stop("'data' has categories ", clps(", ", sort(categ_dat)),
-                 " but 'model' has equations for categories ", clps(", ", categ_mod), "."
+                 " but 'object' has equations for categories ", clps(", ", categ_mod), "."
                  , call. = FALSE)
         }
-        pseudoitems <- recode_data(model = model, data = data)
-    } else if (model$class == "grm") {
+        pseudoitems <- irtree_recode(object = object, data = data)
+    } else if (object$class == "grm") {
         pseudoitems <- data
     }
 
-    # lambda <- model$lambda
+    # lambda <- object$lambda
     #
     # lambda <- lambda[order(lambda$trait, lambda$item), ]
     # lambda$new_name <- names(pseudoitems)
-    # args$model$lambda <- model$lambda <- lambda
+    # args$object$lambda <- object$lambda <- lambda
     #
     # mirt1 <- split(lambda, lambda$trait)
     #
@@ -86,21 +81,21 @@ fit_tree_mirt <- function(data = NULL,
     #
     # itemtype <- ifelse(lambda$loading == "@1", "Rasch", "2PL")
     #
-    # tmp1 <- vapply(model$s_names,
+    # tmp1 <- vapply(object$s_names,
     #                function(x) paste(rep(x, 2), collapse = "*"),
     #                FUN.VALUE = "",
     #                USE.NAMES = FALSE)
-    # tmp2 <- clps("*", model$s_names)
+    # tmp2 <- clps("*", object$s_names)
     # mirt3 <- paste0("COV = ", clps(", ", c(tmp1, tmp2)))
     #
     # string1 <- paste(c(mirt2, mirt3), collapse = "\n")
     # cat(string1)
     #
-    # mirt_string <- mirt.model(string1, itemnames = names(pseudoitems))
+    # mirt_string <- mirt.object(string1, itemnames = names(pseudoitems))
 
-    mirt_input <- write_mirt_input(model = model, data = pseudoitems)
+    mirt_input <- write_mirt_input(object = object, data = pseudoitems)
 
-    if (run) {
+    if (TRUE) {
         res <- myTryCatch(
             mirt::mirt(data     = pseudoitems,
                        model    = mirt_input$mirt_string,
@@ -119,33 +114,6 @@ fit_tree_mirt <- function(data = NULL,
         res <- list(value = NULL)
     }
 
-    # tmp1 <- attr(pseudoitems, "mapping_matrix")
-    # tmp1 <- tmp1[, !is.element(colnames(tmp1), "cate"), drop = FALSE]
-    # tmp2 <- sapply(seq_len(ncol(tmp1)), function(x) paste0("  pseudoitem", x, ":  ",
-    #                                               clps(, ifelse(is.na(tmp1[, x]), "-", tmp1[, x]))))
-    # tmp3 <- glue::glue("{'  '}#Parameters:  N = {nrow(data)}; J = {model$J}; K = {model$K}; \\
-    #                    P = {model$P}; S = {model$S};")
-    # tmp4 <- paste0("  Items:        ", clps(, model$j_names))
-    # TITLE <- paste(c(paste0("  Tree Model;   R = ", R), tmp3, tmp4, tmp2), collapse = "\n")
-
-    # if (run) {
-    #     invisible(
-    #         capture.output(
-    #             res <- mirt::mirt
-    #         ))
-    #
-    #     wrn1 <- res$warnings
-    #     if (length(wrn1) > 0) {
-    #         sapply(wrn1, function(x) warning("Mplus error: ", clps(, x), call. = FALSE))
-    #     }
-    #     err1 <- res$errors
-    #     if (length(err1) > 0) {
-    #         sapply(err1, function(x) warning("Mplus error: ", clps(, x), call. = FALSE))
-    #     }
-    # } else {
-    #     res <- NULL
-    # }
-
     if (rm_mirt_internal) {
         res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@den <- function() {}
         res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@safe_den <- function() {}
@@ -156,31 +124,31 @@ fit_tree_mirt <- function(data = NULL,
 
 #' Prepare a mirt Model
 #'
-#' This is an internal function used by \code{\link{fit_tree_mirt}}. It receives its
-#' inputs from the model and the data set and returns a
+#' This is an internal function used by \code{\link{irtree_fit_mirt}}. It receives its
+#' inputs from the model object and the data set and returns a
 #' \code{\link[mirt]{mirt.model}} object.
 #'
-#' @inheritParams fit_tree_mirt
-#' @return A list with four elements. \code{mirt_string} is the
-#'   \code{\link[mirt]{mirt.model}} object; \code{itemtype} and \code{values}
-#'   are used as arguments for \code{\link[mirt]{mirt}}; \code{lambda} is the
-#'   modified lambda matrix from the \code{model}-argument.
+#' @inheritParams irtree_fit_mirt
+#' @return A list with four elements. `mirt_string` is the
+#'   \code{\link[mirt]{mirt.model}} object; `itemtype` and `values`
+#'   are used as arguments for \code{\link[mirt]{mirt}}; `lambda` is the
+#'   modified lambda matrix from the `object`-argument.
 # @examples
 #' @export
-write_mirt_input <- function(model = NULL,
+write_mirt_input <- function(object = NULL,
                              data = NULL) {
 
-    model <- tree_model(model = model)
+    object <- irtree_model(object)
 
     checkmate::assert_data_frame(data, types = "integerish", any.missing = TRUE,
-                                 all.missing = FALSE, ncols = (model$P)*model$J)
+                                 all.missing = FALSE, ncols = (object$P)*object$J)
 
-    lambda <- model$lambda
+    lambda <- object$lambda
 
     lambda <- lambda[order(lambda$trait, lambda$item), ]
     lambda$new_name <- names(data)
 
-    # args$model$lambda <- model$lambda <- lambda
+    # args$object$lambda <- object$lambda <- lambda
 
     mirt1 <- split(lambda, lambda$trait)
 
@@ -192,7 +160,7 @@ write_mirt_input <- function(model = NULL,
     }, FUN.VALUE = "")
 
     mirt3 <- NULL
-    if (model$class == "tree") {
+    if (object$class == "tree") {
         # if (all(lambda$loading == "*")) {
         #     itemtype <- "2PL"
         # } else if (all(lambda$loading == "@1")) {
@@ -201,7 +169,7 @@ write_mirt_input <- function(model = NULL,
         #     itemtype <- "2PL"
         # }
         itemtype <- ifelse(lambda$loading == "@1", "Rasch", "2PL")
-    } else if (model$class == "grm") {
+    } else if (object$class == "grm") {
         itemtype <- "graded"
         if (!all(lambda$loading == "*")) {
             tmp0 <- lambda[lambda$loading != "*", ]
@@ -222,7 +190,7 @@ write_mirt_input <- function(model = NULL,
                          pars = "values")
 
     # Free all covariances
-    tmp1 <- expand.grid(seq_len(model$S), seq_len(model$S))
+    tmp1 <- expand.grid(seq_len(object$S), seq_len(object$S))
     cov_names <- apply(tmp1[tmp1$Var1 > tmp1$Var2, ],
                        1,
                        function(x) paste0("COV_",
@@ -242,8 +210,8 @@ write_mirt_input <- function(model = NULL,
 
     # if (length(unique(lambda$loading)) > 1) {
     #     tmp1 <- data.frame(
-    #         item  = gl(model$J, k = model$S, labels = model$j_names),
-    #         trait = gl(model$S, k = 1, labels = model$s_names)
+    #         item  = gl(object$J, k = object$S, labels = object$j_names),
+    #         trait = gl(object$S, k = 1, labels = object$s_names)
     #     )
     #
     #     lambda2 <- dplyr::left_join(tmp1, lambda, by = c("item", "trait"))
@@ -256,21 +224,21 @@ write_mirt_input <- function(model = NULL,
     #     values[grepl("^a\\d+", values$name), "value"] <- lambda2$value
     # }
 
-    # itemtype <- switch(model$class,
+    # itemtype <- switch(object$class,
     #     tree = "2PL",
     #     grm  = "graded",
     #     NULL
     # )
 
-    # if (model$class == "tree") {
+    # if (object$class == "tree") {
     #     itemtype <- ifelse(lambda$loading == "@1", "Rasch", "2PL")
-    # } else if (model$class == "grm") {
+    # } else if (object$class == "grm") {
     #     itemtype <- "graded"
     # }
 
     # tmp1 <- data.frame(
-    #     item  = gl(model$J, k = model$S, labels = model$j_names),
-    #     trait = gl(model$S, k = 1, labels = model$s_names)
+    #     item  = gl(object$J, k = object$S, labels = object$j_names),
+    #     trait = gl(object$S, k = 1, labels = object$s_names)
     # )
     #
     # lambda2 <- dplyr::left_join(tmp1, lambda, by = c("item", "trait"))
@@ -280,7 +248,7 @@ write_mirt_input <- function(model = NULL,
     # lambda2$value[!is.na(lambda2$loading)] <- 1
     #
     # values <- mirt(data = data,
-    #                model = mirt_string,
+    #                object = mirt_string,
     #                itemtype = itemtype,
     #                pars = "values")
     #
@@ -288,11 +256,11 @@ write_mirt_input <- function(model = NULL,
     # values[grepl("^a\\d+", values$name), "est"]   <- lambda2$est
     # values[grepl("^a\\d+", values$name), "value"] <- lambda2$value
 
-    # tmp1 <- vapply(model$s_names,
+    # tmp1 <- vapply(object$s_names,
     #                function(x) paste(rep(x, 2), collapse = "*"),
     #                FUN.VALUE = "",
     #                USE.NAMES = FALSE)
-    # tmp2 <- clps("*", model$s_names)
+    # tmp2 <- clps("*", object$s_names)
     # mirt3 <- paste0("COV = ", clps(", ", c(tmp1, tmp2)))
     #
     # string1 <- paste(c(mirt2, mirt3), collapse = "\n")
@@ -313,7 +281,7 @@ write_mirt_input <- function(model = NULL,
 #' parameter estimates in a convenient way.
 #'
 #' @param results An object of class \code{\link[mirt]{SingleGroupClass-class}}
-#'   as returned from \code{\link{fit_tree_mirt}}.
+#'   as returned from \code{\link{irtree_fit_mirt}}.
 #' @param ... Further arguments passed to \code{\link[mirt]{fscores}}
 #' @inheritParams extract_mplus_output
 #' @inheritParams mirt::fscores
@@ -324,22 +292,22 @@ write_mirt_input <- function(model = NULL,
 # @importMethodsFrom mirt fscores
 #' @export
 extract_mirt_output <- function(results = NULL,
-                                model = NULL,
+                                object = NULL,
                                 method = "MAP",
                                 class = NULL,
                                 ...) {
 
     checkmate::assert_class(results, "SingleGroupClass")
 
-    if (!is.null(model)) {
-        model <- tree_model(model)
+    if (!is.null(object)) {
+        object <- irtree_model(object)
     }
 
     e2 <- new.env()
     # e2$lv_names <-
 
-    if (!is.null(model)) {
-        e2$class <- model$class
+    if (!is.null(object)) {
+        e2$class <- object$class
     } else {
         checkmate::assert_choice(class, choices = c("tree", "grm"))
         e2$class <- class
@@ -347,7 +315,7 @@ extract_mirt_output <- function(results = NULL,
 
     # fscores <- mirt::fscores(results, method = method, ...)
 
-    # lambda <- model$lambda
+    # lambda <- object$lambda
 
     # lv_names <- unstd[unstd$paramHeader == "Variances", "param"]
 

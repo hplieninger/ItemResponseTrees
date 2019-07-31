@@ -5,31 +5,27 @@
 #' @param N Integer, the number of persons.
 #' @param sigma Either a matrix or a function that returns a matrix. This matrix
 #'   is the variance-covariance matrix of the person parameters that is passed
-#'   to \code{\link[MASS]{mvrnorm}}. Note that the order of the person
-#'   parameters is taken from the section Processes in the \code{model} (see
-#'   \code{\link{tree_model}}).
+#'   to [MASS::mvrnorm()]. Note that the order of the person
+#'   parameters is taken from the section Processes in the model `object` (see
+#'   [irtree_model()]).
 #' @param itempar Either a list or a function that returns a list. The list has
-#'   an element \code{beta} and an element \code{alpha}. Each of these is a
+#'   an element `beta` and an element `alpha`. Each of these is a
 #'   matrix of item parameters. Note theat the order of items (rows) is taken from the
 #'   section Items and the order of processes (columns) is taken from the
-#'   section Processes in the \code{model} (see \code{\link{tree_model}}).
+#'   section Processes in the `model` (see \code{\link{irtree_model}}).
+#' @param link Character. Link function to use.
 #' @param K Integer, number of categories. Needed only not defined by the
-#'   equations in \code{model}.
-#' @inheritParams fit_tree_mplus
-#' @return A list with element \code{X} containing the data and an
-#'   element \code{args} containing the true parameter values etc.
-# @examples
+#'   equations in `model`.
+#' @inheritParams fit.irtree_model
+#' @return A list with element `X` containing the data and an
+#'   element `args` containing the true parameter values etc.
 #' @export
-# @import MASS
-# @import dplyr
-# @import reshape2
-
-gen_tree_data <- function(model = NULL,
-                          N = NULL,
-                          sigma = NULL,
-                          itempar = NULL,
-                          link = c("probit", "logit"),
-                          K = NULL) {
+irtree_sim_data <- function(object = NULL,
+                            N = NULL,
+                            sigma = NULL,
+                            itempar = NULL,
+                            link = c("probit", "logit"),
+                            K = NULL) {
 
     link <- match.arg(link)
 
@@ -41,22 +37,22 @@ gen_tree_data <- function(model = NULL,
                    probit = setNames("pnorm", link),
                    logit  = setNames("plogis", link))
 
-    model <- tree_model(model = model)
+    object <- irtree_model(object)
 
-    S <- model$S
-    J <- model$J
-    j_names <- model$j_names
-    P <- model$P
-    p_names <- model$p_names
-    if (is.null(model$K)) {
+    S <- object$S
+    J <- object$J
+    j_names <- object$j_names
+    P <- object$P
+    p_names <- object$p_names
+    if (is.null(object$K)) {
         checkmate::qassert(K, "X1[2,)")
     } else {
-        checkmate::qassert(model$K, "X1[2,)")
-        K <- model$K
+        checkmate::qassert(object$K, "X1[2,)")
+        K <- object$K
     }
-    lambda <- model$lambda
-    subtree <- model$subtree
-    expr <- model$expr
+    lambda <- object$lambda
+    subtree <- object$subtree
+    expr <- object$expr
 
     if (is.function(sigma)) {
         FUN <- match.fun(sigma)
@@ -110,7 +106,7 @@ gen_tree_data <- function(model = NULL,
     )
 
     tmp1 <- MASS::mvrnorm(ifelse(N == 1, 1.001, N), mu = rep(0, S), Sigma = sigma)
-    colnames(tmp1) <- model$lv_names
+    colnames(tmp1) <- object$lv_names
     args$personpar <- personpar <- data.frame(pers = gl(N, 1), tmp1)
 
     dat2 <- dplyr::left_join(dat1, personpar, by = "pers")
@@ -192,29 +188,26 @@ gen_tree_data <- function(model = NULL,
 
 }
 
-#' Recode Data Set Into Pseudoitems
+#' Recode Data Set Into Pseudoitems.
 #'
 #' This function takes a data set with polytomous items and an IR-tree model and
 #' returns the recoded items, the so-called pseudoitems.
 #'
-#' @inheritParams fit_tree_mplus
+#' @inheritParams fit.irtree_model
 #' @param keep Logical indicating whether to append the original items to the
 #'   data frame of the generated pseudoitems
 #' @return Data frame
 # @examples
 #' @export
-# @import checkmate
-# @import reshape2
-# @import dplyr
-recode_data <- function(model = NULL,
-                        data = NULL,
-                        keep = FALSE) {
+irtree_recode <- function(object = NULL,
+                          data = NULL,
+                          keep = FALSE) {
 
-    model <- tree_model(model = model)
+    object <- irtree_model(object)
 
-    j_names <- model$j_names
-    p_names <- model$p_names
-    mapping_matrix <- model$mapping_matrix
+    j_names <- object$j_names
+    p_names <- object$p_names
+    mapping_matrix <- object$mapping_matrix
 
     # data: polytomous items in wide format
     # PIs1: binary pseudoitems in wide format
@@ -256,7 +249,7 @@ recode_data <- function(model = NULL,
     #
     # for (ii in seq_along(dat5)) {
     #     dat5[[ii]] <- dplyr::filter(dat5[[ii]], item %in%
-    #                                  names(model$irt_items[[names(dat5)[ii]]]))
+    #                                  names(object$irt_items[[names(dat5)[ii]]]))
     # }
     # dat6 <- dplyr::bind_rows(dat5)
 

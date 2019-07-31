@@ -5,20 +5,19 @@
 #' external RData file.
 #'
 #' @param gen_model A description of the user-specified model that is used to
-#'   generate the data. See \code{\link{tree_model}} for more information.
+#'   generate the data. See \code{\link{irtree_model}} for more information.
 #' @param fit_model A description of the user-specified model that is fitted to
-#'   the data. See \code{\link{tree_model}} for more information.
+#'   the data. See \code{\link{irtree_model}} for more information.
 #' @param save_rdata Logical indicating whether to save the results to an RData
 #'   file.
-#' @param backend String specifying wheter to use mirt or Mplus for
-#'   estimation.
-#' @param ... Other parameters passed to \code{\link{fit_tree_mplus}}.
-#' @inheritParams gen_tree_data
-#' @inheritParams fit_tree_mplus
+#' @param ... Other parameters passed to [fit.irtree_model()].
+#' @inheritParams fit.irtree_model
+#' @inheritParams irtree_sim_data
+#' @inheritParams irtree_fit_mplus
 #' @return List of three elements. \code{fit} contains the Mplus output,
 #'   \code{gen_args} contains arguments used to generate the data, and
 #'   \code{sim_args} contains arguments used to fit the model.
-#' @seealso \code{\link{fit_tree_mplus}}, \code{\link{gen_tree_data}}
+#' @seealso \code{\link{irtree_fit_mplus}}, \code{\link{irtree_sim_data}}
 # @examples
 # \dontrun{
 # if(interactive()){
@@ -32,7 +31,7 @@ run_1sim <- function(gen_model = NULL,
                      sigma = NULL,
                      link = c("probit", "logit"),
                      itempar = NULL,
-                     backend = c("mirt", "mplus"),
+                     engine = c("mirt", "mplus"),
                      dir = NULL,
                      # R = 1,
                      save_rdata = FALSE,
@@ -40,25 +39,25 @@ run_1sim <- function(gen_model = NULL,
 
     backend <- match.arg(backend)
 
-    gen_model <- tree_model(gen_model)
+    gen_model <- irtree_model(gen_model)
 
-    fit_model <- tree_model(fit_model)
+    fit_model <- irtree_model(fit_model)
 
     # fit_model <- force(fit_model)
     #
-    # gen_model <- tree_model(model = gen_model)
+    # gen_model <- irtree_model(model = gen_model)
     # if (gen_model != fit_model) {
-    #     fit_model <- tree_model(model = fit_model)
+    #     fit_model <- irtree_model(model = fit_model)
     # } else {
     #     fit_model <- gen_model
     # }
 
-    X <- gen_tree_data(model = gen_model,
-                       # model2 = gen_model2,
-                       N = N,
-                       sigma = sigma,
-                       link = link,
-                       itempar = itempar)
+    X <- irtree_sim_data(object = gen_model,
+                         # model2 = gen_model2,
+                         N = N,
+                         sigma = sigma,
+                         link = link,
+                         itempar = itempar)
 
     tmp1 <- c("N", "link", "personpar",
               "sigma", "sigma_fun",
@@ -78,27 +77,21 @@ run_1sim <- function(gen_model = NULL,
                 gen_args = gen_args,
                 sim_args = sim_args)
 
-    if (backend == "mplus") {
-        out$fit <- fit_tree_mplus(data = X$data,
-                                  model = fit_model,
-                                  # model2 = fit_model2,
-                                  dir = dir,
-                                  link = link,
-                                  R = R,
-                                  ...)
+    out$fit <- fit(object = fit_model,
+                   data = X$data,
+                   engine = engine,
+                   dir = dir,
+                   link = link,
+                   # R = R,
+                   ...)
+
+    if (engine == "mplus") {
         if (!is.null(out$fit$mplus)) {
-            out$fit$est <- extract_mplus_output(results = out$fit$mplus, model = out$fit$args$model)
+            out$fit$est <- extract_mplus_output(object = out$fit$mplus, model = out$fit$args$model)
         }
-    } else if (backend == "mirt") {
-        out$fit <- fit_tree_mirt(data = X$data,
-                                 model = fit_model,
-                                 # model2 = fit_model2,
-                                 dir = dir,
-                                 link = link,
-                                 R = R,
-                                 ...)
+    } else if (engine == "mirt") {
         if (!is.null(out$fit$mirt)) {
-            out$fit$est <- extract_mirt_output(results = out$fit$mirt, model = out$fit$args$model)
+            out$fit$est <- extract_mirt_output(object = out$fit$mirt, model = out$fit$args$model)
         }
     }
 
