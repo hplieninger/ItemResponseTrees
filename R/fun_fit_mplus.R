@@ -5,19 +5,16 @@
 #' @param data Data frame containing only the items.
 #' @param model A description of the user-specified model. See
 #'   \code{\link{tree_model}} for more information.
-#' @param dir String, path name where the Mplus files should be
-#'   stored and run; the default corresponds to the working directory
-#' @param file_name String, file name of the data file and the Mplus files
+#' @param file String naming the file (or path) of the Mplus files and the data
+#'   file. Do not provide file endings, those will be automatically appended by
+#'   the function.
 # @param R Integer used to index the file names.
 #' @param integration_points Integer, passed to argument 'INTEGRATION' in Mplus.
 #'   Number of integration points for numerical integration.
 #' @param estimator String, passed to argument 'ESTIMATOR' in Mplus.
 #' @param link String, passed to argument 'LINK' in Mplus. Specifies
 #'   the link function.
-#' @param inp_rm Logical, whether the Mplus input file should be removed on exit.
-#' @param out_rm Logical, whether the Mplus output file should be removed on exit.
-#' @param fsc_rm Logical, whether the Mplus FSCORES file should be removed on exit.
-#' @param dat_rm Logical, whether the data file should be removed on exit.
+#' @param cleanup Logical, whether the Mplus files should be removed on exit.
 #' @param save_fscores Logical, wheter to save FSCORES or not.
 #' @param analysis_list Named list of strings passed to Mplus' argument
 #'   ANALYSIS. For example: \code{analysis_list = list(MITERATIONS = "1000")}.
@@ -41,20 +38,16 @@
 # @import MplusAutomation
 fit_tree_mplus <- function(data = NULL,
                            model = NULL,
-                           dir = ".",
                            # R = 1,
-                           file_name = "mplus-tree",
+                           file = tempfile("irtree_"),
                            integration_points = 15,
                            estimator = "MLR",
                            link = c("probit", "logit"),
-                           inp_rm = FALSE,
-                           out_rm = FALSE,
-                           fsc_rm = FALSE,
-                           dat_rm = FALSE,
+                           run = TRUE,
+                           cleanup = run,
                            save_fscores = TRUE,
                            # processors = 1,
                            analysis_list = list(),
-                           run = TRUE,
                            showOutput = FALSE,
                            replaceOutfile = "always",
                            overwrite = FALSE,
@@ -66,7 +59,6 @@ fit_tree_mplus <- function(data = NULL,
     link <- match.arg(link)
 
     checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
-    checkmate::assert_directory_exists(dir)
     checkmate::assert_list(analysis_list,  types = "character",
                            names = "unique")
     checkmate::qassertr(analysis_list, "S1")
@@ -118,6 +110,32 @@ fit_tree_mplus <- function(data = NULL,
     # whilst reading in the output is very cumbersome.
     args$model$lambda <- model$lambda <- model$lambda[order(model$lambda$trait, model$lambda$item), ]
 
+    ##### file #####
+
+    checkmate::assert_directory_exists(dirname(file), access = "rw")
+
+    dir <- normalizePath(dirname(file), winslash = "/", mustWork = TRUE)
+    file_name <- basename(file)
+
+    data_file <- file.path(dir, paste0(file_name, ".txt"))
+    inpu_file <- file.path(dir, paste0(file_name, ".inp"))
+    outp_file <- file.path(dir, paste0(file_name, ".out"))
+    fsco_file <- file.path(dir, paste0(file_name, ".fsc"))
+
+    if (!overwrite & any(file.exists(data_file, inpu_file, outp_file, fsco_file))) {
+        stop("File(s) already exist. Please modify argument 'file' or set 'overwrite' to TRUE.")
+    }
+
+    on.exit({
+        if (cleanup) {
+            file.remove(inpu_file, data_file)
+            if (run) {
+                file.remove(outp_file, fsco_file)
+            }
+        }
+
+    }, add = TRUE)
+
     ##### Pseudoitems #####
 
     if (model$class == "tree") {
@@ -137,46 +155,20 @@ fit_tree_mplus <- function(data = NULL,
         # attr(pseudoitems, "pseudoitem_names") <- model$j_names
     }
 
-    # data_file <- sprintf("mplus_tree_%05d_data.txt", R)
-    # inpu_file <- sprintf("mplus_tree_%05d.inp", R)
-    # outp_file <- sub("[.]inp", ".out", inpu_file)
-    # fsco_file <- sub("[.]inp", ".fsc", inpu_file)
-    data_file <- paste0(file_name, ".txt")
-    inpu_file <- paste0(file_name, ".inp")
-    outp_file <- paste0(file_name, ".out")
-    fsco_file <- paste0(file_name, ".fsc")
-
-    on.exit({
-        if (inp_rm) {
-            file.remove(file.path(dir, inpu_file))
-            if (dat_rm) {
-                file.remove(file.path(dir, data_file))
-            }
-        }
-        if (run) {
-            if (out_rm) {
-                file.remove(file.path(dir, outp_file))
-            }
-            if (fsc_rm) {
-                file.remove(file.path(dir, fsco_file))
-            }
-        }
-    }, add = TRUE)
-
     ##### Mplus Input #####
 
     tmp1 <- suppressMessages(
         write_mplus_input(
-            model        = model,
-            # lambda       = model$lambda,
-            # addendum     = model$addendum,
+            object        = object,
+            # lambda       = object$lambda,
+            # addendum     = object$addendum,
             pseudoitems  = pseudoitems,
             data_file    = data_file,
             integration_points = integration_points,
             estimator     = estimator,
             link          = link,
             save_fscores  = save_fscores,
-            fsco_file     = fsco_file,
+            fsco_file     = basename(fsco_file),
             # processors    = processors,
             analysis_list = analysis_list))
 
@@ -227,32 +219,27 @@ fit_tree_mplus <- function(data = NULL,
     # MplusAutomation::runModels()
     # MplusAutomation::readModels()
 
-    body <- MplusAutomation::createSyntax(mplus_input, data_file, check = FALSE)
-    if (file.exists(file.path(dir, inpu_file)) & overwrite == FALSE) {
-        stop("File already exists: ", file.path(dir, inpu_file), call. = FALSE)
-    } else {
-        cat(body, file = file.path(dir, inpu_file), sep = "\n")
-    }
+    body <- MplusAutomation::createSyntax(mplus_input, basename(data_file), check = FALSE)
+    cat(body, file = inpu_file, sep = "\n")
 
     invisible(
         capture.output(
             MplusAutomation::prepareMplusData(pseudoitems,
-                                              filename = file.path(dir, data_file),
+                                              filename = data_file,
                                               overwrite = overwrite))
-        )
+    )
 
     if (run) {
         invisible(
             capture.output(
-                MplusAutomation::runModels(file.path(dir, inpu_file),
+                MplusAutomation::runModels(inpu_file,
                                            replaceOutfile = replaceOutfile,
-                                           showOutput = showOutput,
+                                           showOutput = verbose,
                                            logFile = NULL,
                                            ...)
             ))
 
-        res <- MplusAutomation::readModels(file.path(dir, outp_file),
-                                           quiet = TRUE)
+        res <- MplusAutomation::readModels(outp_file, quiet = TRUE)
 
         if (.warnings2messages) {
             # This is useful for testing with testthat because Mplus
@@ -296,7 +283,7 @@ fit_tree_mplus <- function(data = NULL,
 # @param lambda Matrix as returned from \code{\link{fit_tree_mplus}}.
 #' @param pseudoitems Data frame as returned from \code{\link{recode_data}}.
 #' @param data_file String, the full file path of the data set.
-#' @param fsco_file String, the file used by Mplus to store the factor scores.
+#' @param fsco_file String, the file name used by Mplus to store the factor scores.
 # @param addendum String as returned from \code{\link{tree_model}}.
 #' @inheritParams fit_tree_mplus
 # @importMethodsFrom MplusAutomation update
