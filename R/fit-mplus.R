@@ -480,9 +480,7 @@ extract_mplus_output <- function(results = NULL,
 
     checkmate::assert_class(results, "mplus.model")
 
-    if (!is.null(object)) {
-        object <- irtree_model(object)
-    }
+    checkmate::assert_class(object, "irtree_model", null.ok = TRUE)
 
     tmp1 <- vapply(results$errors, function(x) {
         any(stringr::str_detect(x,

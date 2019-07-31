@@ -28,7 +28,7 @@ irtree_fit_mirt <- function(object = NULL,
 
     ellipsis::check_dots_used()
 
-    object <- irtree_model(object)
+    checkmate::assert_class(object, "irtree_model")
     checkmate::assert_data_frame(data,
                                  # types = "numeric",
                                  all.missing = FALSE, min.rows = 1, min.cols = object$J)
@@ -138,7 +138,7 @@ irtree_fit_mirt <- function(object = NULL,
 write_mirt_input <- function(object = NULL,
                              data = NULL) {
 
-    object <- irtree_model(object)
+    checkmate::assert_class(object, "irtree_model")
 
     checkmate::assert_data_frame(data, types = "integerish", any.missing = TRUE,
                                  all.missing = FALSE, ncols = (object$P)*object$J)
@@ -299,9 +299,7 @@ extract_mirt_output <- function(results = NULL,
 
     checkmate::assert_class(results, "SingleGroupClass")
 
-    if (!is.null(object)) {
-        object <- irtree_model(object)
-    }
+    checkmate::assert_class(object, "irtree_model", null.ok = TRUE)
 
     e2 <- new.env()
     # e2$lv_names <-

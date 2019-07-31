@@ -37,7 +37,7 @@ irtree_sim_data <- function(object = NULL,
                    probit = setNames("pnorm", link),
                    logit  = setNames("plogis", link))
 
-    object <- irtree_model(object)
+    checkmate::assert_class(object, "irtree_model")
 
     S <- object$S
     J <- object$J
@@ -203,7 +203,7 @@ irtree_recode <- function(object = NULL,
                           data = NULL,
                           keep = FALSE) {
 
-    object <- irtree_model(object)
+    checkmate::assert_class(object, "irtree_model")
 
     j_names <- object$j_names
     p_names <- object$p_names
