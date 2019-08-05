@@ -34,7 +34,7 @@ Suggests:
     knitr,
     listenv,
     lme4,
-    modeltests,
+    modeltests (>= 0.1.0),
     progress,
     rmarkdown,
     roxygen2,
@@ -46,3 +46,5 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
+Remotes:  
+    alexpghayes/modeltests

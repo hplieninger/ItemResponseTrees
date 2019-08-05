@@ -18,7 +18,6 @@ r_binary_packages:
   - MASS
   - listenv
   - lme4
-  - modeltests
   - progress
   - purrr
   - rlang
