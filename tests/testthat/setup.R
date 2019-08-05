@@ -1,7 +1,10 @@
+# Load packages required for tests ----------------------------------------
+
+library("dplyr")
+
+# Define functions required for tests -------------------------------------
+
 gen_itempar_boeck <- function(J = 10, loading = 1) {
-    # pnorm(m + 2*ss)
-    # curve(truncnorm::dtruncnorm(qnorm(x), mean = m, sd = ss, a = m - 2*ss, b = m + 2*ss),
-    #       xlim = c(0, 1))
 
     # mrs
     m <- qnorm(.7)
@@ -36,7 +39,6 @@ gen_itempar_boeck <- function(J = 10, loading = 1) {
     return(out)
 }
 
-
 gen_sigma_boeck <- function(sigma = NULL, df = 50, vars = NULL) {
 
     if (is.null(sigma)) {
@@ -57,16 +59,4 @@ gen_sigma_boeck <- function(sigma = NULL, df = 50, vars = NULL) {
 
     return(sig2)
 
-    # ggplot(reshape2::melt(apply(foo, 3, diag)), aes(x = value)) +
-    #     geom_posterior(ci_width = 0.95, draw_sd = F) +
-    #     # geom_density() +
-    #     facet_wrap(~ Var1, scales = "free_x")
-    #
-    # ggplot(reshape2::melt(apply(foo, 3, cov2cor)[c(2, 3, 6), ]), aes(x = value)) +
-    #     # geom_density() +
-    #     geom_posterior(ci_width = 0.95, draw_sd = F) +
-    #     facet_wrap(~ Var1, scales = "free_x")
-    #
-    # curve(dgamma(x = x, shape = 51, scale = .01), xlim = c(0, 2))
-    # curve(dgamma(x = x, shape = 101, scale = .01), xlim = c(0, 2))
 }

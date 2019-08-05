@@ -56,9 +56,9 @@ a WITH b@0;
 a WITH y1;
 "
 
-model1 <- tree_model(m1)
-model2 <- tree_model(m2)
-model3 <- tree_model(m3)
+model1 <- irtree_model(m1)
+model2 <- irtree_model(m2)
+model3 <- irtree_model(m3)
 
 
 ##### Data #####
@@ -67,10 +67,10 @@ flag1 <- TRUE
 ii <- 0
 while (flag1) {
     ii <- ii + 1
-    X <- gen_tree_data(model = model1, N = 100,
-                       sigma = diag(model1$S),
-                       itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
-                                      alpha = matrix(1, model1$J, model1$P)))
+    X <- irtree_sim_data(object = model1, N = 100,
+                         sigma = diag(model1$S),
+                         itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
+                                        alpha = matrix(1, model1$J, model1$P)))
     flag1 <- any(!vapply(lapply(X$data, unique), function(x) length(x) == model1$K, FUN.VALUE = T))
     if (ii > 50) {
         stop("Data generation failed")
@@ -100,47 +100,48 @@ counts <- ScienceNew %>%
 
 ##### Fit #####
 
-if (MplusAutomation::mplusAvailable() == 0) {
-    res1 <- fit_tree_mplus(data = df1,
-                           model = model1,
-                           file_name = basename(tempfile()),
-                           dir = tempdir(),
-                           run = T,
-                           integration_points = 7,
-                           analysis_list = list(LOGCRITERION = ".01"),
-                           .warnings2messages = TRUE)
-    summ1a <- extract_mplus_output(res1$mplus, model1)
-    summ1b <- extract_mplus_output(res1$mplus, m1)
-    summ1c <- extract_mplus_output(res1$mplus, class = "tree")
+run <- (MplusAutomation::mplusAvailable() == 0)
 
-    res2 <- fit_tree_mplus(data = ScienceNew,
-                           model = model2,
-                           file_name = basename(tempfile()),
-                           dir = tempdir(),
-                           run = T,
-                           integration_points = 7)
+res1 <- fit(data = df1,
+            verbose = FALSE,
+            engine = "mplus",
+            object = model1,
+            integration_points = 6,
+            analysis_list = list(LOGCRITERION = ".01",
+                                 COVERAGE = "0"),
+            .warnings2messages = TRUE,
+            run = run)
+# summ1a <- extract_mplus_output(res1$mplus, model1)
 
-    summ2a <- extract_mplus_output(res2$mplus, model2)
-    summ2b <- extract_mplus_output(res2$mplus, m2)
-    summ2c <- extract_mplus_output(res2$mplus, class = "grm")
+res2 <- fit(data = ScienceNew,
+            verbose = FALSE,
+            engine = "mplus",
+            object = model2,
+            integration_points = 6,
+            analysis_list = list(LOGCRITERION = ".01",
+                                 COVERAGE = "0"),
+            run = run)
 
-    res3 <- fit_tree_mplus(data = Science,
-                           model = model3,
-                           file_name = basename(tempfile()),
-                           dir = tempdir(),
-                           run = T,
-                           integration_points = 7)
-}
+# summ2a <- extract_mplus_output(res2$mplus, model2)
+
+res3 <- fit(data = Science,
+            verbose = FALSE,
+            engine = "mplus",
+            object = model3,
+            integration_points = 6,
+            analysis_list = list(LOGCRITERION = ".01",
+                                 COVERAGE = "0"),
+            run = run)
 
 test_that("Provide starting values",{
     skip_if(TRUE)
 
     flag1 <- TRUE
     while (flag1) {
-        X4 <- gen_tree_data(model = model4, N = 100,
-                            sigma = diag(model4$S),
-                            itempar = list(beta = matrix(rnorm(model4$J*model4$P), model4$J, model4$P),
-                                           alpha = matrix(1, model4$J, model4$P)))
+        X4 <- irtree_sim_data(object = model4, N = 100,
+                              sigma = diag(model4$S),
+                              itempar = list(beta = matrix(rnorm(model4$J*model4$P), model4$J, model4$P),
+                                             alpha = matrix(1, model4$J, model4$P)))
         flag1 <- any(!vapply(lapply(X4$data, unique), function(x) length(x) == model4$K, FUN.VALUE = T))
     }
     tmp1 <- names(model4$j_names)
@@ -148,19 +149,22 @@ test_that("Provide starting values",{
     names(X4$data) <- stringr::str_replace_all(names(X4$data), tmp1)
     df4 <- sample(data.frame(X4$data, y1 = rnorm(100)))
 
-    model4 <- tree_model(m4)
-    res4 <- fit_tree_mplus(data = df4,
-                           model = model4,
-                           file_name = basename(tempfile()),
-                           dir = tempdir(),
-                           run = T,
-                           integration_points = 7)
+    model4 <- irtree_model(m4)
+    res4 <- fit(data = df4,
+                verbose = FALSE,
+                engine = "mplus",
+                object = model4,
+                file_name = basename(tempfile()),
+                dir = tempdir(),
+                run = T,
+                integration_points = 7)
 })
 
 ##### Tests #####
 
-test_that("fit_tree_mplus() works for Tree", {
-    skip_if_not(MplusAutomation::mplusAvailable() == 0)
+skip_if_not(MplusAutomation::mplusAvailable() == 0)
+
+test_that("irtree_fit_mplus() works for Tree", {
 
     expect_s3_class(res1$mplus, "mplus.model")
     checkmate::expect_data_frame(res1$mplus$parameters$unstandardized,
@@ -168,8 +172,7 @@ test_that("fit_tree_mplus() works for Tree", {
                                  nrows = 26, ncols = 6)
 })
 
-test_that("fit_tree_mplus() works for GRM", {
-    skip_if_not(MplusAutomation::mplusAvailable() == 0)
+test_that("irtree_fit_mplus() works for GRM", {
 
     expect_s3_class(res2$mplus, "mplus.model")
 
@@ -180,56 +183,164 @@ test_that("fit_tree_mplus() works for GRM", {
                  counts[, "count", drop = TRUE], check.attributes = FALSE)
 })
 
-test_that("extract_mplus_output() works for Tree", {
-    skip_if_not(MplusAutomation::mplusAvailable() == 0)
+test_that("Methods work for output of irtree_fit_mplus()", {
 
-    expect_equal(summ1a, summ1b)
-    expect_equal(summ1a, summ1c)
-
-    expect_s3_class(summ1a$summaries, "mplus.summaries")
-    expect_s3_class(summ1a$warnings, "mplus.warnings")
-    expect_s3_class(summ1a$errors, "mplus.errors")
-
-    lapply(summ1a$person, checkmate::expect_data_frame,
-           any.missing = FALSE,
-           nrows = nrow(df1), ncols = model1$P,
-           info = "Tested expect_data_frame(summ1a$person)")
-    checkmate::expect_list(summ1a$item, types = "list", any.missing = FALSE, len = 4)
-    lapply(summ1a$item, checkmate::expect_data_frame,
-           min.cols = 2, max.cols = NULL, nrows = model1$J,
-           info = "Tested expect_data_frame(summ1a$item)")
-    expect_equal(summ1a$item$beta[summ1a$item$beta$item == "X3", "AB"],
-                 res1$mplus$parameters$unstandardized[res1$mplus$parameters$unstandardized$param == "AB_X3$1", "est"])
-    checkmate::expect_set_equal(names(summ1a$item), c("beta", "beta_se", "alpha", "alpha_se"))
-    checkmate::expect_matrix(summ1a$sigma, mode = "numeric", all.missing = FALSE,
-                             nrows = model1$P, ncols = model1$P)
-    checkmate::expect_matrix(summ1a$cormat, mode = "numeric", all.missing = FALSE,
-                             nrows = model1$P, ncols = model1$P)
+    expect_condition(capture.output(print(res1)), NA)
+    expect_condition(capture.output(summary(res1)), NA)
+    expect_condition(capture.output(coef(res1)), NA)
 })
 
+# test_that("extract_mplus_output() works for Tree", {
+#     skip("Skipping tests for extract_mplus_output()")
+#
+#     expect_equal(summ1a, summ1b)
+#     expect_equal(summ1a, summ1c)
+#
+#     expect_s3_class(summ1a$summaries, "mplus.summaries")
+#     expect_s3_class(summ1a$warnings, "mplus.warnings")
+#     expect_s3_class(summ1a$errors, "mplus.errors")
+#
+#     lapply(summ1a$person, checkmate::expect_data_frame,
+#            any.missing = FALSE,
+#            nrows = nrow(df1), ncols = model1$P,
+#            info = "Tested expect_data_frame(summ1a$person)")
+#     checkmate::expect_list(summ1a$item, types = "list", any.missing = FALSE, len = 4)
+#     lapply(summ1a$item, checkmate::expect_data_frame,
+#            min.cols = 2, max.cols = NULL, nrows = model1$J,
+#            info = "Tested expect_data_frame(summ1a$item)")
+#     expect_equal(summ1a$item$beta[summ1a$item$beta$item == "X3", "AB"],
+#                  res1$mplus$parameters$unstandardized[res1$mplus$parameters$unstandardized$param == "AB_X3$1", "est"])
+#     checkmate::expect_set_equal(names(summ1a$item), c("beta", "beta_se", "alpha", "alpha_se"))
+#     checkmate::expect_matrix(summ1a$sigma, mode = "numeric", all.missing = FALSE,
+#                              nrows = model1$P, ncols = model1$P)
+#     checkmate::expect_matrix(summ1a$cormat, mode = "numeric", all.missing = FALSE,
+#                              nrows = model1$P, ncols = model1$P)
+# })
+#
+#
+# test_that("extract_mplus_output() works for GRM", {
+#
+#     skip("Skipping tests for extract_mplus_output()")
+#
+#     expect_equal(summ2a, summ2b)
+#     expect_equal(summ2a, summ2c)
+#
+#     expect_s3_class(summ2a$summaries, "mplus.summaries")
+#     expect_s3_class(summ2a$warnings, "mplus.warnings")
+#     expect_s3_class(summ2a$errors, "mplus.errors")
+#
+#     lapply(summ2a$person, checkmate::expect_data_frame,
+#            any.missing = FALSE,
+#            nrows = nrow(ScienceNew), ncols = model2$P,
+#            info = "Tested expect_data_frame(summ2a$person)")
+#     checkmate::expect_list(summ2a$item, types = "list", any.missing = FALSE, len = 4)
+#     lapply(summ2a$item, checkmate::expect_data_frame,
+#            all.missing = FALSE,
+#            min.cols = 2, max.cols = NULL, nrows = model2$J,
+#            info = "Tested expect_data_frame(summ2a$item)")
+#     checkmate::expect_set_equal(names(summ2a$item), c("beta", "beta_se", "alpha", "alpha_se"))
+#     checkmate::expect_matrix(summ2a$sigma, mode = "numeric", any.missing = FALSE,
+#                              nrows = 1, ncols = model2$P)
+#     checkmate::expect_matrix(summ2a$cormat, mode = "numeric", any.missing = FALSE,
+#                              nrows = 1, ncols = model2$P)
+# })
 
-test_that("extract_mplus_output() works for GRM", {
-    skip_if_not(MplusAutomation::mplusAvailable() == 0)
+# Tidiers -----------------------------------------------------------------
 
-    expect_equal(summ2a, summ2b)
-    expect_equal(summ2a, summ2c)
+# From vignette at https://broom.tidyverse.org/articles/adding-tidiers.html
 
-    expect_s3_class(summ2a$summaries, "mplus.summaries")
-    expect_s3_class(summ2a$warnings, "mplus.warnings")
-    expect_s3_class(summ2a$errors, "mplus.errors")
+skip_if_not_installed("modeltests")
 
-    lapply(summ2a$person, checkmate::expect_data_frame,
-           any.missing = FALSE,
-           nrows = nrow(ScienceNew), ncols = model2$P,
-           info = "Tested expect_data_frame(summ2a$person)")
-    checkmate::expect_list(summ2a$item, types = "list", any.missing = FALSE, len = 4)
-    lapply(summ2a$item, checkmate::expect_data_frame,
-           all.missing = FALSE,
-           min.cols = 2, max.cols = NULL, nrows = model2$J,
-           info = "Tested expect_data_frame(summ2a$item)")
-    checkmate::expect_set_equal(names(summ2a$item), c("beta", "beta_se", "alpha", "alpha_se"))
-    checkmate::expect_matrix(summ2a$sigma, mode = "numeric", any.missing = FALSE,
-                             nrows = 1, ncols = model2$P)
-    checkmate::expect_matrix(summ2a$cormat, mode = "numeric", any.missing = FALSE,
-                             nrows = 1, ncols = model2$P)
+data(column_glossary, package = "modeltests")
+data(argument_glossary, package = "modeltests")
+
+test_that("irtree_fit tidier arguments", {
+
+    modeltests::check_arguments(tidy.irtree_fit)
+    modeltests::check_arguments(glance.irtree_fit)
+    modeltests::check_arguments(augment.irtree_fit, strict = FALSE)
+})
+
+test_that("tidy.irtree_fit()", {
+
+    td1 <- tidy(res1)
+    td2 <- tidy(res2)
+    td3 <- tidy(res3)
+
+    modeltests::check_tidy_output(subset(td1, select = -effect))
+    modeltests::check_tidy_output(subset(td2, select = -effect))
+    modeltests::check_tidy_output(subset(td3, select = -effect))
+
+    modeltests::check_dims(td1, 28, 5)  # optional but a good idea
+    modeltests::check_dims(td2, 17, 5)  # optional but a good idea
+    modeltests::check_dims(td3, 17, 5)  # optional but a good idea
+
+    ### Own tests ###
+
+    tmp1 <- tibble::deframe(select(td3, term, estimate))
+    tmp2 <- tmp1[["A<->BENEFIT"]]/sqrt(tmp1[["BENEFIT<->BENEFIT"]])/sqrt(tmp1[["A<->A"]])
+    expect_equal(tmp2, tmp1[["COR_A<->BENEFIT"]], tolerance = .002)
+
+    tmp1 <- dplyr::filter(td3, grepl("Thresholds", term)) %>%
+        select(3) %>%
+        as.data.frame
+    tmp2 <- dplyr::filter(td2, grepl("Thresholds", term)) %>%
+        select(3) %>%
+        slice(1:9) %>%
+        as.data.frame
+    expect_equal(tmp1, tmp2, tolerance = .002)
+
+    checkmate::expect_numeric(td1$p.value, lower = 0, upper = 1, finite = TRUE)
+    checkmate::expect_numeric(td2$p.value, lower = 0, upper = 1, finite = TRUE)
+    checkmate::expect_numeric(td3$p.value, lower = 0, upper = 1, finite = TRUE)
+    checkmate::expect_numeric(td1$std.error, lower = 0, finite = TRUE)
+    checkmate::expect_numeric(td2$std.error, lower = 0, finite = TRUE)
+    checkmate::expect_numeric(td3$std.error, lower = 0, finite = TRUE)
+
+})
+
+test_that("glance.irtree_fit()", {
+
+    gl1 <- glance(res1)
+    gl2 <- glance(res2)
+    gl3 <- glance(res3)
+
+    modeltests::check_glance_outputs(gl1, gl2, strict = TRUE)
+
+    ### Own tests ###
+
+    expect_equal(pull(gl1, nobs), nrow(df1))
+    expect_equal(pull(gl2, nobs), nrow(Science))
+
+})
+
+test_that("implementation of augment.irtree_fit()", {
+
+    # skip_if(TRUE)
+
+    modeltests::check_augment_function(
+        augment.irtree_fit, res1, data = df1, strict = FALSE
+    )
+    modeltests::check_augment_function(
+        augment.irtree_fit, res2, data = ScienceNew, strict = FALSE
+    )
+    modeltests::check_augment_function(
+        augment.irtree_fit, res3, data = Science, strict = FALSE
+    )
+
+    ### Own tests ###
+
+    ag1 <- augment(res1)
+    ag2 <- augment(res2)
+    ag3 <- augment(res3)
+
+    modeltests::check_dims(ag1, nrow(df1), ncol(df1) + model1$S*2)
+    modeltests::check_dims(ag2, nrow(Science), ncol(ScienceNew) + model2$S*2)
+    modeltests::check_dims(ag3, nrow(Science), ncol(Science) + model2$S*2)
+
+    checkmate::expect_numeric(ag1$.se.fitAB, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.se.fitBAP, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag2$.se.fitA, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag3$.se.fitA, lower = 0, finite = TRUE, all.missing = FALSE)
+
 })

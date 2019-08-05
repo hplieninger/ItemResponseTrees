@@ -23,7 +23,7 @@ Tree
 "
 
 test_that("Improper MPT equation gives warning", {
-  expect_warning(tree_model(m1))
+  expect_warning(irtree_model(m1))
 })
 
 m2 <- "
@@ -43,7 +43,7 @@ Tree
 dat <- setNames(data.frame(matrix(1:4, 10, 6)), paste0("x", 1:6))
 
 test_that("Mismatch of categories between model and data throws error", {
-    expect_error(fit_tree_mirt(dat, m2))
+    expect_error(irtree_fit_mirt(dat, m2))
 })
 
 m3 <- "
@@ -61,7 +61,7 @@ Tree
 "
 
 test_that("Mismatch of names between IRT and Equations throws error", {
-    expect_error(tree_model(m3))
+    expect_error(irtree_model(m3))
 })
 
 m4 <- "
@@ -102,7 +102,65 @@ Tree
 
 test_that("Misspecified model throws error", {
     for (ii in seq_along(l4)) {
-        expect_error(tree_model(l4[[ii]]), info = paste0("Problem in l4[[", ii, "]]."))
+        expect_error(irtree_model(l4[[ii]]), info = paste0("Problem in l4[[", ii, "]]."))
     }
 })
 
+
+# Improper and mixture models ---------------------------------------------
+
+m5a <- "
+IRT:
+a BY X1, X2;
+b BY X1, X2;
+c BY X1, X2;
+
+Equations:
+1 = c + (1-c)*a
+2 = (1-c)*(1-a)*b
+3 = (1-c)*(1-a)*(1-b)
+
+Class:
+Tree
+"
+
+m5b <- "
+IRT:
+a BY X1, X2;
+b BY X1, X2;
+c BY X1, X2;
+
+Equations:
+1 = (1-a)
+2 = (a)*(1-b)
+3 = c^2
+
+Class:
+Tree
+"
+
+m5c <- "
+IRT:
+a BY X1, X2;
+b BY X1, X2;
+
+Equations:
+1 = a
+2 = a*b
+3 = (1-a)*(1-b)
+
+Class:
+Tree
+"
+
+model5a <- irtree_model(m5a)
+model5b <- suppressWarnings(irtree_model(m5b))
+model5c <- suppressWarnings(irtree_model(m5c))
+
+test_that("Mixture and improper models throw errors", {
+    expect_error(fit(model5a, data.frame()))
+    expect_warning(irtree_model(m5b))
+    expect_error(fit(model5b, data.frame()))
+    expect_warning(irtree_model(m5c))
+    expect_error(fit(model5c, data.frame()))
+})

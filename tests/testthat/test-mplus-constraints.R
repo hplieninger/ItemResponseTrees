@@ -84,53 +84,70 @@ tmp6 <- sample(list(c("WeakWant", "WeakDO"), c("StrongWant", "StrongDo"))) %>%
 m2 <- paste(c(tmp1, sample(tmp2), tmp3, sample(tmp4), tmp5, sample(tmp6)), collapse = "\n")
 
 
-model1 <- tree_model(m1)
-model2 <- tree_model(m2)
+model1 <- irtree_model(m1)
+model2 <- irtree_model(m2)
 
-
-test_that("tree_model() works", {
-    expect_s3_class(model1, "tree_model")
-    expect_s3_class(model2, "tree_model")
+test_that("irtree_model() works", {
+    expect_s3_class(model1, "irtree_model")
+    expect_s3_class(model2, "irtree_model")
 })
 
 ##### Fit #####
 
+run <- (MplusAutomation::mplusAvailable() == 0)
+
+skip_if_not(MplusAutomation::mplusAvailable() == 0)
+
 test_that("Model constraints work independently of names", {
-    skip_if_not(MplusAutomation::mplusAvailable() == 0)
     skip_if_not_installed("lme4")
 
     rx <- sample(24)
 
-    res1 <- fit_tree_mplus(data = dat_1x[names(dat_1x) %in% names(model1$j_names)][rx],
-                           model = model1,
-                           file_name = basename(tempfile()),
-                           dir = tempdir(),
-                           run = TRUE,
-                           integration_points = 7,
-                           analysis_list = list(LOGCRITERION = ".01"),
-                           .warnings2messages = TRUE)
-    res2 <- fit_tree_mplus(data = dat_1[names(dat_1) %in% names(model2$j_names)][rx],
-                           model = model2,
-                           file_name = basename(tempfile()), dir = tempdir(),
-                           run = TRUE, integration_points = 7,
-                           analysis_list = list(LOGCRITERION = ".01"),
-                           .warnings2messages = TRUE)
-    sum1 <- extract_mplus_output(res1$mplus, model1)
-    sum2 <- extract_mplus_output(res2$mplus, model2)
-
-    tmp1 <- sum(abs(sum1$item$beta[, 2:3] - sum2$item$beta[, 2:3]))
-    tmp2 <- sum(abs(sum1$item$beta[, 2:3] - sum2$item$beta[, 3:2]))
+    res1 <- fit(data = dat_1x[names(dat_1x) %in% names(model1$j_names)][rx],
+                engine = "mplus",
+                object = model1,
+                run = run,
+                integration_points = 7,
+                analysis_list = list(LOGCRITERION = ".01",
+                                     COVERAGE = "0"),
+                .warnings2messages = TRUE)
+    res2 <- fit(data = dat_1[names(dat_1) %in% names(model2$j_names)][rx],
+                engine = "mplus",
+                object = model2,
+                run = run,
+                integration_points = 7,
+                analysis_list = list(LOGCRITERION = ".01",
+                                     COVERAGE = "0"),
+                .warnings2messages = TRUE)
 
     expect_s3_class(res1$mplus, "mplus.model")
     expect_s3_class(res2$mplus, "mplus.model")
-    expect_equal(sum1$summaries$AIC, sum2$summaries$AIC, tolerance = .1)
-    if (tmp1 < tmp2) {
-        expect_equal(sum1$item$beta[, 2:3], sum2$item$beta[, 2:3], tolerance = .01,
-                     check.attributes = FALSE)
-    } else {
-        expect_equal(sum1$item$beta[, 2:3], sum2$item$beta[, 3:2], tolerance = .01,
-                     check.attributes = FALSE)
-    }
+
+    expect_equal(as.data.frame(glance(res1)),
+                 as.data.frame(glance(res2)), tolerance = 1)
+
+    td1 <- tidy(res1)
+    td2 <- tidy(res2)
+
+    tmp1 <- td1 %>%
+        # mutate(thres = grepl("Thresholds", term)) %>%
+        arrange(effect, estimate) %>%
+        dplyr::filter(effect == "ran_pars") %>%
+        as.data.frame %>%
+        select(-term)
+    tmp2 <- td2 %>%
+        # mutate(thres = grepl("Thresholds", term)) %>%
+        arrange(effect, estimate) %>%
+        dplyr::filter(effect == "ran_pars") %>%
+        as.data.frame %>%
+        select(-term)
+
+    expect_equal(tmp1, tmp2, tolerance = .01)
+
+    checkmate::expect_numeric(td1$p.value, lower = 0, upper = 1, finite = TRUE)
+    checkmate::expect_numeric(td2$p.value, lower = 0, upper = 1, finite = TRUE)
+    checkmate::expect_numeric(td1$std.error, lower = 0, finite = TRUE)
+    checkmate::expect_numeric(td2$std.error, lower = 0, finite = TRUE)
 })
 
 # Deprecated --------------------------------------------------------------

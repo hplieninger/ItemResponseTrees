@@ -1,5 +1,4 @@
-library(testthat)
-library(ItemResponseTrees)
-library(magrittr)
+library("testthat")
+library("ItemResponseTrees")
 
 test_check("ItemResponseTrees")
