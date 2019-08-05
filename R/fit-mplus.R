@@ -40,14 +40,12 @@ irtree_fit_mplus <- function(object = NULL,
                              run = TRUE,
                              cleanup = run,
                              save_fscores = TRUE,
-                             analysis_list = list(),
+                             analysis_list = list(COVERAGE = "0"),
                              verbose = interactive(),
                              replaceOutfile = "always",
                              overwrite = FALSE,
                              ...,
                              .warnings2messages = FALSE) {
-
-    ellipsis::check_dots_used()
 
     link <- match.arg(link)
 
@@ -86,12 +84,13 @@ irtree_fit_mplus <- function(object = NULL,
     assert_nchar <- checkmate::makeAssertionFunction(check_nchar)
     assert_nchar(object$j_names, 8)
     assert_nchar(object$covariates, 8)
-    # checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1, min.cols = object$J)
     checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1,
                                  min.cols = object$J + length(object$covariates))
     checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
                                  ncols = object$J)
-    # checkmate::assert_subset(names(object$j_names), choices = names(data))
+    data <- tibble::as_tibble(data)
+
+    ellipsis::check_dots_used()
 
     args$object$j_names <- object$j_names <- sort2(object$j_names, names(data), TRUE)
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
@@ -121,9 +120,9 @@ irtree_fit_mplus <- function(object = NULL,
 
     on.exit({
         if (cleanup) {
-            file.remove(inpu_file, data_file)
+            try(file.remove(inpu_file, data_file), silent = TRUE)
             if (run) {
-                file.remove(outp_file, fsco_file)
+                try(file.remove(outp_file, fsco_file), silent = TRUE)
             }
         }
 
@@ -249,8 +248,11 @@ irtree_fit_mplus <- function(object = NULL,
         }
 
         outfiletext <- readLines(outp_file)
+        res$converged <- extract_mplus_converged(outfiletext)
         tmp1 <- extract_mplus_warning(outfiletext)
+        tmp2 <- class(res$warnings)
         res$warnings <- c(res$warnings, tmp1)
+        class(res$warnings) <- tmp2
 
         wrn1 <- res$warnings
         if (length(wrn1) > 0) {
@@ -463,9 +465,13 @@ extract_mplus_warning <- function(outfiletext) {
     tmp1 <- grep("ONE OR MORE PARAMETERS WERE FIXED TO AVOID SINGULARITY OF THE",
                  outfiletext)
     if (length(tmp1) == 0) {
-        return(list(0))
+        return(list())
     }
     tmp2 <- which("" == outfiletext[tmp1:length(outfiletext)])[1] - 2
     tmp3 <- trimws(outfiletext[tmp1:(tmp1 + tmp2)])
     return(list(tmp3))
+}
+
+extract_mplus_converged <- function(outfiletext) {
+    any(grepl("THE MODEL ESTIMATION TERMINATED NORMALLY", outfiletext))
 }

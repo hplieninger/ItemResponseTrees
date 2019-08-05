@@ -23,10 +23,7 @@ irtree_fit_mirt <- function(object = NULL,
                             SE = TRUE,
                             verbose = interactive(),
                             rm_mirt_internal = TRUE,
-                            ...
-) {
-
-    ellipsis::check_dots_used()
+                            ...) {
 
     checkmate::assert_class(object, "irtree_model")
     checkmate::assert_data_frame(data,
@@ -34,8 +31,11 @@ irtree_fit_mirt <- function(object = NULL,
                                  all.missing = FALSE, min.rows = 1, min.cols = object$J)
     checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
                                  ncols = object$J)
+    data <- tibble::as_tibble(data)
     # checkmate::assert_set_equal(names(data), y = levels(j_names))
     checkmate::assert_subset(names(object$j_names), choices = names(data))
+
+    ellipsis::check_dots_used()
 
     object$j_names <- sort2(object$j_names, names(data), x_names = TRUE)
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
@@ -59,7 +59,7 @@ irtree_fit_mirt <- function(object = NULL,
                  " but 'object' has equations for categories ", clps(", ", categ_mod), "."
                  , call. = FALSE)
         }
-        pseudoitems <- irtree_recode(object = object, data = data)
+        pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
     } else if (object$class == "grm") {
         pseudoitems <- data
     }
@@ -108,15 +108,17 @@ irtree_fit_mirt <- function(object = NULL,
             warning(conditionMessage(res$warning), call. = FALSE)
         }
         if (!is.null(res$error)) {
-            warning("Error: ", conditionMessage(res$error), call. = FALSE)
+            stop(conditionMessage(res$error), call. = FALSE)
         }
     } else {
         res <- list(value = NULL)
     }
 
     if (rm_mirt_internal) {
-        res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@den <- function() {}
-        res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@safe_den <- function() {}
+        try(silent = TRUE, expr = {
+            res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@den <- function() {}
+            res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@safe_den <- function() {}
+        })
     }
 
     return(list(mirt = res$value, error = res$error, warning = res$warning, args = args))
