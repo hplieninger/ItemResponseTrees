@@ -1,18 +1,31 @@
-#' Retrieve Estimates From mirt
+#' @title Retrieve estimates from mirt.
 #'
-#' This function takes the output from \code{\link[mirt]{mirt}} and returns the
-#' parameter estimates in a convenient way.
+#' @description This function takes the output from [`irtree_fit_mirt()`] and
+#'   returns the parameter estimates in a convenient way.
 #'
 #' @param results An object of class \code{\link[mirt]{SingleGroupClass-class}}
-#'   as returned from \code{\link{irtree_fit_mirt}}.
-#' @param ... Further arguments passed to \code{\link[mirt]{fscores}}
-#' @inheritParams extract_mplus_output
-#' @inheritParams mirt::fscores
+#'   as returned from [`irtree_fit_mirt()`].
+#' @param object A description of the user-specified model. See
+#'   [irtree_model] for more information.
+#' @param method Passed to [`mirt::fscores()`].
+#' @param class String specifying which class of model was fit.
+#' @param ... Passed to [`mirt::fscores()`].
 #' @return A list of parameter estimates and model fit information.
-# @examples
+#'
+#' @name extract_mirt_output-deprecated
+#' @usage extract_mirt_output(results = NULL, object = NULL, method = "MAP",
+#'   class = NULL, ...)
+#' @seealso [`ItemResponseTrees-deprecated`]
+#' @keywords internal
+NULL
+
+#' @rdname ItemResponseTrees-deprecated
+#' @usage NULL
+#' @section `extract_mirt_output()`:
+#' This function is deprecated. Use `glance()`, `tidy()`, and `augment()`
+#'   instead.
+#'
 #' @export
-#' @importClassesFrom mirt SingleGroupClass
-# @export
 extract_mirt_output <- function(results = NULL,
                                 object = NULL,
                                 method = "MAP",
@@ -26,7 +39,6 @@ extract_mirt_output <- function(results = NULL,
     checkmate::assert_class(object, "irtree_model", null.ok = TRUE)
 
     e2 <- new.env()
-    # e2$lv_names <-
 
     if (!is.null(object)) {
         e2$class <- object$class
@@ -34,12 +46,6 @@ extract_mirt_output <- function(results = NULL,
         checkmate::assert_choice(class, choices = c("tree", "grm"))
         e2$class <- class
     }
-
-    # fscores <- mirt::fscores(results, method = method, ...)
-
-    # lambda <- object$lambda
-
-    # lv_names <- unstd[unstd$paramHeader == "Variances", "param"]
 
     cf <- mirt::coef(results, printSE = FALSE, simplify = TRUE)
 
@@ -94,10 +100,7 @@ extract_mirt_output <- function(results = NULL,
         sigma     = sigma,
         cormat    = cormat,
         summaries = summaries
-        # , warnings  = results$warnings
-        # , errors    = results$errors
     )
 
     return(out)
 }
-
