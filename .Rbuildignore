@@ -5,3 +5,6 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 misc/
+vignettes/.*_cache/
+^doc$
+^Meta$

@@ -10,7 +10,7 @@
 #'   [irtree_model()]).
 #' @param itempar Either a list or a function that returns a list. The list has
 #'   an element `beta` and an element `alpha`. Each of these is a
-#'   matrix of item parameters. Note theat the order of items (rows) is taken from the
+#'   matrix of item parameters. Note that the order of items (rows) is taken from the
 #'   section Items and the order of processes (columns) is taken from the
 #'   section Processes in the `model` (see \code{\link{irtree_model}}).
 #' @param link Character. Link function to use.

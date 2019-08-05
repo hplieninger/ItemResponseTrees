@@ -85,7 +85,8 @@ irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 
     e1$equations <- vapply(
         gsub("\\s+", "", model_list$equations),
-        function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
+        # function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
+        function(x) strsplit(x, "[=]")[[1]],
         FUN.VALUE = character(2), USE.NAMES = FALSE)
 
     e1$expr <- lapply(e1$equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
@@ -96,7 +97,38 @@ irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 
     checkmate::assert_matrix(e1$equations, mode = "character",
                              nrows = 2, ncols = e1$K)
-    checkmate::assert_character(e1$equations, unique = TRUE, min.chars = 1)
+    checkmate::assert_character(e1$equations, min.chars = 1)
+    checkmate::assert_integerish(as.numeric(e1$equations[1, ]), any.missing = FALSE,
+                                 unique = TRUE, .var.name = "lhs of equations")
+}
+
+irtree_model_check_equations <- function(equations = NULL, p_names = NULL) {
+    checkmate::assert_matrix(equations, mode = "character", min.cols = 2, nrows = 2)
+
+    tmp1 <- stringr::str_extract_all(
+        equations[2, , drop = TRUE], pattern = "[:alpha:]+") %>%
+        vapply(. %>% duplicated %>% any, FUN.VALUE = TRUE)
+    if (any(tmp1)) {
+        stop("Each model equation may contain each parameter only once. ",
+             "Problem with: ", clps(", ", "'", equations[2, tmp1], "'", sep = ""), ".")
+    }
+
+    tmp1 <- stringr::str_split(equations[2, , drop = TRUE], pattern = "[*]") %>%
+        lapply(stringr::str_replace, clps("|", p_names), "") %>%
+        lapply(stringr::str_replace_all, "\\(|\\)|1-", "") %>%
+        vapply(. %>% nchar %>% magrittr::is_greater_than(0) %>% any, FUN.VALUE = TRUE)
+
+    # tmp1 <- stringr::str_split(equations[2, , drop = TRUE], pattern = "[*]") %>%
+    #     lapply(stringr::str_replace, "1-", "") %>%
+    #     lapply(stringr::str_detect, "\\+|/|-") %>%
+    #     vapply(any, TRUE)
+    if (any(tmp1)) {
+        stop("Each model equation may contain parameters 'p' and '1-p' and ",
+             "possibly products thereof but nothing else. Use only equations ",
+             "along the lines of a*(1-b). ",
+             "Problem with: ", clps(", ", "'", equations[2, tmp1], "'", sep = ""), ".")
+    }
+
 }
 
 # irtree_model_dimensions <- function(model_list = NULL, e1 = new.env()) {

@@ -7,24 +7,29 @@ r_check_args: --no-manual
 
 r_binary_packages:
   - checkmate
-  - MASS
-  - dplyr
-  - reshape2
-  - glue
-  - stringr
-  - mirt
-  - rlang
-  - gtools
-  - tidyr
-  - future
-  - listenv
-  - progress
-  - testthat
   - covr
-  - tibble
-  - lme4
-  - truncnorm
+  - dplyr
+  - ellipsis
+  - future
+  - generics
+  - glue
+  - knitr
   - magrittr
+  - MASS
+  - listenv
+  - lme4
+  - modeltests
+  - progress
+  - purrr
+  - rlang
+  - rmarkdown
+  - roxygen2
+  - sirt
+  - stringr
+  - testthat
+  - tibble
+  - tidyselect
+  - truncnorm
 
 after_success:
   - Rscript -e 'covr::codecov()'

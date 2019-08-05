@@ -30,7 +30,9 @@ glance.irtree_fit <- function(x = NULL, ...) {
     ellipsis::check_dots_used()
     engine <- x$args$engine
 
-    if (engine == "mplus") {
+    if (is.null(x[[engine]])) {
+        return(tibble::tibble())
+    } else if (engine == "mplus") {
         out <- tibble::as_tibble(x$mplus$summaries)
         out$converged <- x$mplus$converged
         names(out) <-
@@ -108,7 +110,9 @@ tidy.irtree_fit <- function(x = NULL, ...) {
     ellipsis::check_dots_used()
     engine <- x$args$engine
 
-    if (engine == "mplus") {
+    if (is.null(x[[engine]])) {
+        return(tibble::tibble())
+    } else if (engine == "mplus") {
         out <- tidy_mplus(x)
     } else if (engine == "mirt") {
         out <- tidy_mirt(x)
@@ -137,7 +141,8 @@ tidy_mirt <- function(x = NULL) {
                             is.na(.data$std.error))) %>%
         dplyr::mutate(group = grepl("GroupPars", .data$term),
                       term = sub("GroupPars[.]", "", .data$term)) %>%
-        tidyr::nest(data = c("term", "estimate", "std.error")) %>%
+        # tidyr::nest(data = c("term", "estimate", "std.error")) %>%
+        tidyr::nest(c("term", "estimate", "std.error")) %>%
         dplyr::mutate(data = purrr::map_if(.data$data, !.data$group, f1)) %>%
         tidyr::unnest(cols = .data$data) %>%
         dplyr::select(-"group")
@@ -230,9 +235,11 @@ augment.irtree_fit <- function(x = NULL,
         data <- x$args$data
     }
 
-    if (engine == "mplus") {
+    if (is.null(x[[engine]]) | !x$args$save_fscores) {
+        return(tibble::as_tibble(data))
+    } else if (engine == "mplus") {
         if (!checkmate::test_string(method, na.ok = TRUE,
-                                   pattern = "^EAP$", null.ok = TRUE)) {
+                                    pattern = "^EAP$", null.ok = TRUE)) {
             warning("Argument 'method' is only implemented for 'engine = \"mirt\".'")
         }
 

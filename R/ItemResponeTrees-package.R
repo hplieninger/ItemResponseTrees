@@ -1,13 +1,10 @@
-#' Fitting and Simulating IR-Tree Models
+#' IR-Tree Modeling in Mplus or mirt
 #'
-#' Item response tree (IR-tree) models are a class of item response models that
-#' reparameterize polytomous responses using a processing tree structure.
-#' They have been used to study response styles but are suitable for other
-#' applications as well.
-#' They can be fit using standard IRT software, and this package uses either the
-#' proprietary software 'Mplus' or the R package 'mirt' as a backend.
-#' Functions are provided to generate data, to fit a model, and to run
-#' simulation studies.
+#' ItemResponseTrees is an R package that allows to fit IR-tree models in Mplus
+#' or mirt. The package automates some of the hassle of IR-tree modeling by
+#' means of a consistent syntax. This allows new users to quickly adopt this
+#' model class, and this allows experienced users to fit many complex models
+#' effortlessly.
 #'
 #' @docType package
 #' @name ItemResponseTrees-package

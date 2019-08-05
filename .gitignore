@@ -1,5 +1,3 @@
-/misc/
-
 # History files
 .Rhistory
 .Rapp.history
@@ -30,10 +28,15 @@ vignettes/*.pdf
 .httr-oauth
 
 # knitr and R markdown default cache directories
-/*_cache/
 /cache/
+*_cache/
 
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+
 .Rproj.user
+inst/doc
+/misc/
+doc
+Meta

@@ -7,8 +7,8 @@
 irtree_fit_mplus(object = NULL, data = NULL,
   file = tempfile("irtree_"), integration_points = 15,
   estimator = "MLR", link = c("probit", "logit"), run = TRUE,
-  cleanup = run, save_fscores = TRUE, analysis_list = list(),
-  verbose = interactive(), replaceOutfile = "always",
+  cleanup = run, save_fscores = TRUE, analysis_list = list(COVERAGE =
+  "0"), verbose = interactive(), replaceOutfile = "always",
   overwrite = FALSE, ..., .warnings2messages = FALSE)
 }
 \arguments{
@@ -16,7 +16,8 @@ irtree_fit_mplus(object = NULL, data = NULL,
 \link{irtree_model} for more information.}
 
 \item{data}{Data frame containing containing one row per respondent and one
-column per variable.}
+column per variable. The variable names must correspond to those used in
+\code{object}.}
 
 \item{file}{String naming the file (or path) of the Mplus files and the data
 file. Do not provide file endings, those will be automatically appended by

@@ -23,7 +23,7 @@ represents the full model as needed by the package.
 
 \enumerate{
 \item The \code{model} string must contain at least the sections IRT, Class, and (if class is tree) Equations.
-\item Section headings must contain on a seperate line ending with a colon (:).
+\item Section headings must appear on a seperate line ending with a colon (:).
 \item The model may contain empty lines and comments, which begin with \code{#}.
 \item Line breaks are only allowed in section IRT.
 }
@@ -38,14 +38,14 @@ an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
 where \code{LV} is the name of the latent variable/parameter/process,
 \code{item} is the name of the observed variable in the data set and this
 is followed by the loading. The loading may either be fixed (e.g., to 1)
-using \code{@1} or it may be set free using \code{*}.
+using \code{@1} or it may be set free using \code{*} or omitting the
+loading completely.
 
 Each measurement model (i.e., the LV and its items) must appear on a
 seperate line ending with a semicolon. Items must be seperated by
-commas. Linebreaks are allowed.
+commas. Linebreaks are allowed. For example:
 
 \preformatted{
-  ## Example
   IRT:
   t  BY x1, x2, x3, x4, x5, x6;
   e  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
@@ -65,12 +65,11 @@ in the section IRT (combined with Subtree if specified).
 
 The equations may contain only products and not sums.
 That is, it is not possible to estimate genuine mixture models as, for
-example, in the package mpt2irt.
+example, in the package \href{https://github.com/hplieninger/mpt2irt}{mpt2irt}.
 
-Each equation must appear on a separate, non-broken line.
+Each equation must appear on a separate, non-broken line. For example:
 
 \preformatted{
-  ## Example
   Equations:
   1 = (1-m)*(1-t)*e
   2 = (1-m)*(1-t)*(1-e)
@@ -98,14 +97,12 @@ For example, one would use one tree for each Big Five scale and fix the
 response style parameters to equality across trees but not the target trait
 parameters.
 
-Each line in this section has a structure of \code{process = subprocess +
-  subprocess}, where \code{process} is the name of the process used only in
+Each line in this section has a structure of \code{process = subprocess + subprocess}, where \code{process} is the name of the process used only in
 section Equations and \code{subprocess} it the name of the process used only in
 section IRT.
-Use one line for each definition.
+Use one line for each definition. For example:
 
 \preformatted{
-  ## Example
   Subtree:
   t = t1 + t2 + t3 + t4 + t5}
 }
@@ -115,10 +112,10 @@ Use one line for each definition.
 
 The \code{model} must contain a section with heading Class to specify the
 type/class of IRT model to use.
-Currently, may be either \code{Tree} or \code{GRM} (graded response model).
+Currently, may be either \code{Tree} or \code{GRM} (graded response model). For
+example:
 
 \preformatted{
-  ## Example
   Class:
   Tree}
 }
@@ -138,10 +135,9 @@ typically be assumed to be equal and need thus be constrained accordingly.
 Each line in this section has a structure of \code{LV1 = LV2}, where
 \code{LV1} and \code{LV2} are the names of the latent variables used in
 section IRT.
-Use one line for each definition.
+Use one line for each definition. For example:
 
 \preformatted{
-  ## Example
   Constraints:
   LV1 = LV2
   LV1 = LV3}
@@ -155,10 +151,9 @@ The \code{model} may contain a section with heading Addendum if
 Any code in this section is directly pasted in the \code{MODEL} section of
 the Mplus input file.
 Use a semicolon at the end of each line; lines must not exceed 90 characters.
-Note that the addendum is ignored in \code{\link{irtree_sim_data}}.
+Note that the addendum is ignored in \code{\link[=irtree_sim_data]{irtree_sim_data()}}. For example:
 
 \preformatted{
-  ## Example
   Addendum:
   e WITH t@0;
   m WITH t@0;}

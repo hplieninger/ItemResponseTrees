@@ -2,19 +2,22 @@ Package: ItemResponseTrees
 Title: Fitting and Simulating IR-Tree Models
 Version: 0.0.1.9000
 Authors@R: person("Hansjoerg", "Plieninger", email = "plieninger@uni-mannheim.de", role = "cre")
-Description: The package uses 'Mplus' as a backend and provides functions for data generation, model fitting, and simulation studies.
+Description: ItemResponseTrees is an R package that allows to fit IR-tree models
+    in Mplus or mirt. The package automates some of the hassle of IR-tree 
+    modeling by means of a consistent syntax. This allows new users to quickly 
+    adopt this model class, and this allows experienced users to fit many 
+    complex models effortlessly.
 License: MIT + file LICENSE
 URL: https://github.com/hplieninger/ItemResponseTrees
 BugReports: https://github.com/hplieninger/ItemResponseTrees/issues
 Depends: 
-    R (>= 3.0.1)
+    R (>= 3.1)
 Imports: 
     checkmate (>= 1.9),
     dplyr,
     ellipsis,
     generics,
     glue,
-    gtools,
     magrittr,
     MASS,
     mirt,
@@ -28,16 +31,16 @@ Imports:
 Suggests:
     covr,
     future,
+    knitr,
     listenv,
     lme4,
-    progress,
-    testthat,
-    truncnorm,
-    roxygen2,
     modeltests,
-    knitr,
+    progress,
     rmarkdown,
-    sirt
+    roxygen2,
+    sirt,
+    testthat,
+    truncnorm
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

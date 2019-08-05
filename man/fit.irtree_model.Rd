@@ -5,30 +5,48 @@
 \title{Fit an IR-Tree model.}
 \usage{
 \method{fit}{irtree_model}(object = NULL, data = NULL,
-  engine = c("mplus", "mirt"), verbose = interactive(), ...)
+  engine = c("mplus", "mirt"), verbose = interactive(), ...,
+  .improper_okay = FALSE)
 }
 \arguments{
 \item{object}{A description of the user-specified model. See
 \link{irtree_model} for more information.}
 
 \item{data}{Data frame containing containing one row per respondent and one
-column per variable.}
+column per variable. The variable names must correspond to those used in
+\code{object}.}
 
 \item{engine}{String specifying whether to use Mplus or mirt for estimation.}
 
 \item{verbose}{Logical indicating whether Mplus/mirt output should be printed
 to the console.}
 
-\item{...}{further arguments passed either to \code{\link{irtree_fit_mplus}} or
-\code{\link{irtree_fit_mirt}}}
+\item{...}{further arguments passed either to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} or
+\code{\link[=irtree_fit_mirt]{irtree_fit_mirt()}}}
+
+\item{.improper_okay}{Logical indicating whether the model should also be fit
+if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
+know what you are doing.}
 }
 \value{
-OUTPUT_DESCRIPTION
+Returns a list of class \code{irtree_fit}. The first list element is the
+return value of \link[MplusAutomation:readModels]{MplusAutomation} or
+\link[mirt:mirt]{mirt}, and further information is provided in the element
+\code{args}.
 }
 \description{
-This function takes a \code{data} frame and a model \code{object} and runs the model in
-either Mplus or mirt.
+This function takes a \code{data} frame and an \code{object} of class \link{irtree_model},
+and runs the model in either Mplus or mirt.
 }
+\section{Methods}{
+ The methods \code{coef()}, \code{summary()}, and \code{print()} are
+implemented for objects of class \code{irtree_fit}, and those wrap the
+respective functions of \link[=mirt-package]{mirt} or
+\link[=MplusAutomation-package]{MplusAutomation}. However,
+\code{\link[=glance.irtree_fit]{glance()}}, \code{\link[=tidy.irtree_fit]{tidy()}}, and
+\code{\link[=augment.irtree_fit]{augment()}} may be more helpful.
+}
+
 \examples{
 \dontrun{
 if(interactive()){
@@ -37,5 +55,5 @@ if(interactive()){
 }
 }
 \seealso{
-irtree_fit_mplus irtree_fit_mirt
+The wrapped functions \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} and \code{\link[=irtree_fit_mirt]{irtree_fit_mirt()}}.
 }

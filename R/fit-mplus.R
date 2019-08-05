@@ -122,7 +122,10 @@ irtree_fit_mplus <- function(object = NULL,
         if (cleanup) {
             try(file.remove(inpu_file, data_file), silent = TRUE)
             if (run) {
-                try(file.remove(outp_file, fsco_file), silent = TRUE)
+                try(file.remove(outp_file), silent = TRUE)
+                if (save_fscores) {
+                    try(file.remove(fsco_file), silent = TRUE)
+                }
             }
         }
 

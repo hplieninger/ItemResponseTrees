@@ -11,7 +11,8 @@ irtree_recode(object = NULL, data = NULL, keep = FALSE)
 \link{irtree_model} for more information.}
 
 \item{data}{Data frame containing containing one row per respondent and one
-column per variable.}
+column per variable. The variable names must correspond to those used in
+\code{object}.}
 
 \item{keep}{Logical indicating whether to append the original items to the
 data frame of the generated pseudoitems}

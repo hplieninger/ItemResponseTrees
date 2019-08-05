@@ -27,11 +27,13 @@ parameters is taken from the section Processes in the model \code{object} (see
 
 \item{itempar}{Either a list or a function that returns a list. The list has
 an element \code{beta} and an element \code{alpha}. Each of these is a
-matrix of item parameters. Note theat the order of items (rows) is taken from the
+matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link{irtree_model}}).}
 
 \item{engine}{String specifying whether to use Mplus or mirt for estimation.}
+
+\item{dir}{Directory where the files are saved}
 
 \item{save_rdata}{Logical indicating whether to save the results to an RData
 file.}

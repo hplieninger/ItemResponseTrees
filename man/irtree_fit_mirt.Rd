@@ -12,7 +12,8 @@ irtree_fit_mirt(object = NULL, data = NULL, link = "logit",
 \link{irtree_model} for more information.}
 
 \item{data}{Data frame containing containing one row per respondent and one
-column per variable.}
+column per variable. The variable names must correspond to those used in
+\code{object}.}
 
 \item{link}{String specifying the link function. Only \code{logit} is
 implemented in mirt.}

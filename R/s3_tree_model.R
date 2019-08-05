@@ -1,34 +1,34 @@
 #' ItemResponseTree Model Syntax
 #'
 #' The ItemResponseTree model syntax describes an IR-tree model. The function
-#' \code{irtree_model} turns a user-defined model string into a list that
+#' `irtree_model` turns a user-defined model string into a list that
 #' represents the full model as needed by the package.
 #'
 #' @section Model:
 #'
 #' \enumerate{
-#'   \item The \code{model} string must contain at least the sections IRT, Class, and (if class is tree) Equations.
-#'   \item Section headings must contain on a seperate line ending with a colon (:).
-#'   \item The model may contain empty lines and comments, which begin with \code{#}.
+#'   \item The `model` string must contain at least the sections IRT, Class, and (if class is tree) Equations.
+#'   \item Section headings must appear on a seperate line ending with a colon (:).
+#'   \item The model may contain empty lines and comments, which begin with `#`.
 #'   \item Line breaks are only allowed in section IRT.
 #' }
 #'
 #' @section IRT:
 #'
-#'   The \code{model} must contain a section with heading IRT. Therein, the IRT
+#'   The `model` must contain a section with heading IRT. Therein, the IRT
 #'   structure of the model is described in a way resembling the MODEL part of
-#'   an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
-#'   where \code{LV} is the name of the latent variable/parameter/process,
-#'   \code{item} is the name of the observed variable in the data set and this
+#'   an Mplus input file. It has a structure of `LV BY item1*, item2@1`,
+#'   where `LV` is the name of the latent variable/parameter/process,
+#'   `item` is the name of the observed variable in the data set and this
 #'   is followed by the loading. The loading may either be fixed (e.g., to 1)
-#'   using \code{@1} or it may be set free using \code{*}.
+#'   using `@1` or it may be set free using `*` or omitting the
+#'   loading completely.
 #'
 #'   Each measurement model (i.e., the LV and its items) must appear on a
 #'   seperate line ending with a semicolon. Items must be seperated by
-#'   commas. Linebreaks are allowed.
+#'   commas. Linebreaks are allowed. For example:
 #'
 #'   \preformatted{
-#'   ## Example
 #'   IRT:
 #'   t  BY x1, x2, x3, x4, x5, x6;
 #'   e  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
@@ -36,22 +36,21 @@
 #'
 #' @section Equations:
 #'
-#'   The \code{model} must contain a section with heading Equations if Class is
+#'   The `model` must contain a section with heading Equations if Class is
 #'   Tree.
 #'   Therein, the model equations are described.
-#'   They have a structure similar to \code{Cat = p1*(1-p2)}, where \code{Cat}
+#'   They have a structure similar to `Cat = p1*(1-p2)`, where `Cat`
 #'   is any observed response category in the data set.
 #'   The names of the parameters must be equal to those of the latent variables
 #'   in the section IRT (combined with Subtree if specified).
 #'
 #'   The equations may contain only products and not sums.
 #'   That is, it is not possible to estimate genuine mixture models as, for
-#'   example, in the package mpt2irt.
+#'   example, in the package [mpt2irt](https://github.com/hplieninger/mpt2irt).
 #'
-#'   Each equation must appear on a separate, non-broken line.
+#'   Each equation must appear on a separate, non-broken line. For example:
 #'
 #'   \preformatted{
-#'   ## Example
 #'   Equations:
 #'   1 = (1-m)*(1-t)*e
 #'   2 = (1-m)*(1-t)*(1-e)
@@ -61,7 +60,7 @@
 #'
 # @section Processes:
 #
-#   The \code{model} must contain a section with heading Processes.
+#   The `model` must contain a section with heading Processes.
 #   It is essentially a listing of all processes/parameters/latent variables
 #   present in section IRT in the correct order.
 #   That is, the first process in that listing is the first column in the
@@ -70,16 +69,15 @@
 #   simply safeguards against ambiguities in the model syntax.
 #
 #   It is advised to choose relatively short names for the processes and items,
-#   because Mplus allows only names of up to eight characters.
+#   because Mplus allows only names of up to eight characters. For example:
 #
 #   \preformatted{
-#   ## Example
 #   Processes:
 #   e, m, t}
 #
 # @section Items:
 #
-#   The \code{model} must contain a section with heading Items.
+#   The `model` must contain a section with heading Items.
 #   It is essentially a listing of all observed variables present in the data
 #   set in the desired order.
 #   That is, the first, second, ... item in that listing is the first, second,
@@ -88,16 +86,15 @@
 #   simply safeguards against ambiguities in the model syntax.
 #
 #   It is advised to choose relatively short names for the processes and items,
-#   because Mplus allows only names of up to eight characters.
+#   because Mplus allows only names of up to eight characters. For example:
 #
 #   \preformatted{
-#   ## Example
 #   Items:
 #   x1, x2, x3, x4, x5}
 #'
 #' @section Subtree:
 #'
-#'   The \code{model} may contain a section with heading Subtree.
+#'   The `model` may contain a section with heading Subtree.
 #'   This is necessary if a process in the model equations (section Equations)
 #'   may correspond to different latent variables (section IRT).
 #'   For example, when analyzing a Big Five data set, one may wish to specify
@@ -113,68 +110,65 @@
 #'   response style parameters to equality across trees but not the target trait
 #'   parameters.
 #'
-#'   Each line in this section has a structure of \code{process = subprocess +
-#'   subprocess}, where \code{process} is the name of the process used only in
-#'   section Equations and \code{subprocess} it the name of the process used only in
+#'   Each line in this section has a structure of `process = subprocess +
+#'   subprocess`, where `process` is the name of the process used only in
+#'   section Equations and `subprocess` it the name of the process used only in
 #'   section IRT.
-#'   Use one line for each definition.
+#'   Use one line for each definition. For example:
 #'
 #'   \preformatted{
-#'   ## Example
 #'   Subtree:
 #'   t = t1 + t2 + t3 + t4 + t5}
 #'
 #' @section Class:
 #'
-#'   The \code{model} must contain a section with heading Class to specify the
+#'   The `model` must contain a section with heading Class to specify the
 #'   type/class of IRT model to use.
-#'   Currently, may be either \code{Tree} or \code{GRM} (graded response model).
+#'   Currently, may be either `Tree` or `GRM` (graded response model). For
+#'   example:
 #'
 #'   \preformatted{
-#'   ## Example
 #'   Class:
 #'   Tree}
 #'
 #' @section Constraints:
 #'
-#'   The \code{model} may contain a section with heading Constraints to specify
+#'   The `model` may contain a section with heading Constraints to specify
 #'   equality constraints of latent variables.
 #'   For example, in a sequential model as proposed by Tutz as well as Verhelst,
 #'   one would specify two processes for a 3-point item. The first process would
-#'   correspond to a pseudoitem of \code{0-1-1} and the second process to a
-#'   pseudoitem of \code{NA-0-1}.
+#'   correspond to a pseudoitem of `0-1-1` and the second process to a
+#'   pseudoitem of `NA-0-1`.
 #'   However, the latent variables corresponding to these processes would
 #'   typically be assumed to be equal and need thus be constrained accordingly.
 #'
-#'   Each line in this section has a structure of \code{LV1 = LV2}, where
-#'   \code{LV1} and \code{LV2} are the names of the latent variables used in
+#'   Each line in this section has a structure of `LV1 = LV2`, where
+#'   `LV1` and `LV2` are the names of the latent variables used in
 #'   section IRT.
-#'   Use one line for each definition.
+#'   Use one line for each definition. For example:
 #'
 #'   \preformatted{
-#'   ## Example
 #'   Constraints:
 #'   LV1 = LV2
 #'   LV1 = LV3}
 #'
 #' @section Addendum:
 #'
-#'   The \code{model} may contain a section with heading Addendum if
-#'   \code{backend = "mplus"} is used for estimation.
-#'   Any code in this section is directly pasted in the \code{MODEL} section of
+#'   The `model` may contain a section with heading Addendum if
+#'   `backend = "mplus"` is used for estimation.
+#'   Any code in this section is directly pasted in the `MODEL` section of
 #'   the Mplus input file.
 #'   Use a semicolon at the end of each line; lines must not exceed 90 characters.
-#'   Note that the addendum is ignored in \code{\link{irtree_sim_data}}.
+#'   Note that the addendum is ignored in [irtree_sim_data()]. For example:
 #'
 #'   \preformatted{
-#'   ## Example
 #'   Addendum:
 #'   e WITH t@0;
 #'   m WITH t@0;}
 #'
 #' @param model String with a specific structure as described below.
-#' @return List of class \code{irtree_model}. It contains the information
-#'   extracted from parsing \code{model}.
+#' @return List of class `irtree_model`. It contains the information
+#'   extracted from parsing `model`.
 #' @examples
 #' m1 <- "
 #' # Comment
@@ -537,10 +531,13 @@ irtree_model <- function(model = NULL) {
     # }
 
     e1$lambda <- lambda
+    e1$proper_model <- TRUE
 
     out1 <- as.list(e1)
     out1 <- out1[order(names(out1))]
     class(out1) <- c("irtree_model", "list")
+
+    tmp1 <- environment()
 
     ##### Test if probabilities sum to 1 #####
 
@@ -550,6 +547,7 @@ irtree_model <- function(model = NULL) {
                                                 alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
                                  K = ifelse(is.null(e1$K), NULL, e1$K)),
                  improper_model = function(cnd) {
+                     with(tmp1, out1$proper_model <- FALSE)
                      rlang::warn(
                          paste("Equations do not constitute a proper model because",
                                "they do not sum to 1. "),
