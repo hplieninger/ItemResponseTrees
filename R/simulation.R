@@ -10,6 +10,7 @@
 #'   the data. See \code{\link{irtree_model}} for more information.
 #' @param save_rdata Logical indicating whether to save the results to an RData
 #'   file.
+#' @param dir Directory where the files are saved
 #' @param ... Other parameters passed to [fit.irtree_model()].
 #' @inheritParams fit.irtree_model
 #' @inheritParams irtree_sim_data
@@ -24,7 +25,7 @@
 #  #EXAMPLE1
 #  }
 # }
-#' @export
+# @export
 run_1sim <- function(gen_model = NULL,
                      fit_model = gen_model,
                      N = NULL,
@@ -87,16 +88,18 @@ run_1sim <- function(gen_model = NULL,
 
     if (engine == "mplus") {
         if (!is.null(out$fit$mplus)) {
-            out$fit$est <- extract_mplus_output(object = out$fit$mplus, model = out$fit$args$model)
+            out$fit$est <- extract_mplus_output(results = out$fit$mplus, object = out$fit$args$model)
         }
     } else if (engine == "mirt") {
         if (!is.null(out$fit$mirt)) {
-            out$fit$est <- extract_mirt_output(object = out$fit$mirt, model = out$fit$args$model)
+            out$fit$est <- extract_mirt_output(results = out$fit$mirt, object = out$fit$args$model)
         }
     }
 
     if (save_rdata) {
-        save(out, file = file.path(dir, sprintf("%s_tree_%05d.RData", backend, R)))
+        save(out, file = file.path(dir, sprintf("%s_tree_%05d.RData", backend
+                                                # , R
+                                                )))
         invisible(out)
     } else {
         return(out)
@@ -124,7 +127,7 @@ run_1sim <- function(gen_model = NULL,
 #  #EXAMPLE1
 #  }
 # }
-#' @export
+# @export
 run_sim <- function(R = 1,
                     plan = NULL,
                     future_args = list(),
@@ -161,7 +164,7 @@ run_sim <- function(R = 1,
 
         res1[[rr]] <-
             future::future({
-                run_1sim(R = rr,
+                run_1sim(# R = rr,
                          gen_model = gen_model,
                          fit_model = fit_model,
                          N = N,
