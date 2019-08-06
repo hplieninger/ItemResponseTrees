@@ -56,7 +56,9 @@ irtree_fit_mplus <- function(object = NULL,
 
     link <- match.arg(link)
 
-    checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+    if (run) {
+        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+    }
 
     checkmate::assert_list(analysis_list,  types = "character",
                            names = "unique")
