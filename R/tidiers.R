@@ -220,9 +220,12 @@ augment.irtree_fit <- function(x = NULL,
         data <- x$args$data
     }
 
-    if (is.null(x[[engine]]) | !x$args$save_fscores) {
+    if (is.null(x[[engine]])) {
         return(tibble::as_tibble(data))
     } else if (engine == "mplus") {
+        if (!x$args$save_fscores) {
+            return(tibble::as_tibble(data))
+        }
         if (!checkmate::test_string(method, na.ok = TRUE,
                                     pattern = "^EAP$", null.ok = TRUE)) {
             warning("Argument 'method' is only implemented for 'engine = \"mirt\".'")

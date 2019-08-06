@@ -547,8 +547,9 @@ irtree_model <- function(model = NULL) {
     if (!is.null(model_list$equations)) {
         tryCatch(irtree_sim_data(object = out1, N = 1, sigma = diag(e1$S),
                                  itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
-                                                alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
-                                 K = ifelse(is.null(e1$K), NULL, e1$K)),
+                                                alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P))
+                                 # , K = ifelse(is.null(e1$K), NULL, e1$K)
+                                 ),
                  improper_model = function(cnd) {
                      with(tmp1, out1$proper_model <- FALSE)
                      rlang::warn(
