@@ -62,11 +62,12 @@ irtree_sim_data <- function(object = NULL,
     checkmate::assert_class(object, "irtree_model")
     match.arg(object$class, "tree")
     checkmate::assert_int(N, lower = 1, null.ok = !is.null(theta))
-    checkmate::assert_matrix(theta, mode = "numeric", min.rows = 1,
-                             ncols = object$S, null.ok = !is.null(sigma))
     if (!is.null(theta)) {
+        args$theta <- theta <- data.matrix(theta, rownames.force = FALSE)
         N <- nrow(theta)
     }
+    checkmate::assert_matrix(theta, mode = "numeric", min.rows = 1,
+                             ncols = object$S, null.ok = !is.null(sigma))
 
     S <- object$S
     J <- object$J
@@ -97,6 +98,8 @@ irtree_sim_data <- function(object = NULL,
         FUN <- match.fun(itempar)
         args$itempar_fun <- FUN
         itempar <- FUN()
+    } else {
+        itempar <- lapply(itempar, data.matrix, rownames.force = FALSE)
     }
     args$itempar <- itempar
 
@@ -105,9 +108,9 @@ irtree_sim_data <- function(object = NULL,
                            names = "named")
     checkmate::assert_names(names(itempar), permutation.of = c("beta", "alpha"))
 
-    checkmate::assert_matrix(itempar$beta, mode = "numeric", any.missing = FALSE,
+    checkmate::assert_matrix(itempar$beta, mode = "numeric",
                              nrows = J, ncols = P)
-    checkmate::assert_matrix(itempar$alpha, mode = "numeric", any.missing = FALSE,
+    checkmate::assert_matrix(itempar$alpha, mode = "numeric",
                              nrows = J, ncols = P)
 
     ### Parse item parameters ###
