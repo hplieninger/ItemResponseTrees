@@ -24,12 +24,19 @@
 #' @inheritParams MplusAutomation::runModels
 #' @inheritParams MplusAutomation::prepareMplusData
 #' @return List with two elements. `Mplus` contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. `args` contains the input specifications.
-# @examples
-# \dontrun{
-# if(interactive()){
-#  #EXAMPLE1
-#  }
-# }
+#' @examples
+#' \dontrun{
+#'   m1 <- "
+#'   IRT:
+#'   attitude BY Comfort, Work, Future, Benefit;
+#'   Class:
+#'   GRM
+#'   "
+#'   model1 <- irtree_model(m1)
+#'   data(Science, package = "mirt")
+#'
+#'   fit1 <- fit(model1, Science, engine = "mplus")
+#' }
 #' @export
 irtree_fit_mplus <- function(object = NULL,
                              data = NULL,

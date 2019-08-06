@@ -24,3 +24,22 @@ Data frame
 This function takes a data set with polytomous items and an IR-tree model and
 returns the recoded items, the so-called pseudoitems.
 }
+\examples{
+m1 <- "
+IRT:
+t BY x1;
+e BY x1;
+m BY x1;
+Equations:
+1 = (1-m)*(1-t)*e
+2 = (1-m)*(1-t)*(1-e)
+3 = m
+4 = (1-m)*t*(1-e)
+5 = (1-m)*t*e
+Class:
+Tree
+"
+model1 <- irtree_model(m1)
+dat <- data.frame(x1 = 1:5)
+irtree_recode(model1, dat, keep = TRUE)
+}

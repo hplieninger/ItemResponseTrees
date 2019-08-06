@@ -66,3 +66,17 @@ List with two elements. \code{Mplus} contains the Mplus output read into R via \
 \description{
 This function takes a data frame and a model string and runs the model in Mplus.
 }
+\examples{
+\dontrun{
+  m1 <- "
+  IRT:
+  attitude BY Comfort, Work, Future, Benefit;
+  Class:
+  GRM
+  "
+  model1 <- irtree_model(m1)
+  data(Science, package = "mirt")
+
+  fit1 <- fit(model1, Science, engine = "mplus")
+}
+}

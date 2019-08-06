@@ -16,12 +16,7 @@
 #' @param x object of class `irtree_fit` as returned from [`fit()`][fit.irtree_model].
 #' @param ... Additional arguments. Not used.
 #' @return A one-row [tibble][tibble::tibble-package] with columns such as \code{AIC} and \code{BIC}.
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' @example inst/examples/example-fit.R
 #' @seealso [`broom::glance()`], [`mirt::extract.mirt(x,
 #'   "secondordertest")`][mirt::extract.mirt]
 #' @export
@@ -98,12 +93,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #'   \item{\code{statistic}}{The value of the test statistic of the term (Mplus only).}
 #'   \item{\code{p.value}}{The p-value associated with the statistic.}
 #' }
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' @example inst/examples/example-fit.R
 #' @seealso [broom::tidy()]
 #' @export
 tidy.irtree_fit <- function(x = NULL, ...) {
@@ -215,12 +205,7 @@ tidy_mplus <- function(x = NULL) {
 #'   observation and one (two) additional columns for each latent variable if
 #'   `se.fit = FALSE` (if `se.fit = TRUE`). The names of the new columns start
 #'   with `.fit` (and `.se.fit`).
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' @example inst/examples/example-fit.R
 #' @seealso [broom::augment()]
 #' @export
 augment.irtree_fit <- function(x = NULL,

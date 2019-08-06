@@ -40,3 +40,19 @@ contains the input specifications.
 \description{
 This function takes a \code{data} frame and a model \code{object} and runs the model in mirt.
 }
+\examples{
+m1 <- "
+IRT:
+attitude BY Comfort, Work, Future, Benefit;
+Class:
+GRM
+"
+model1 <- irtree_model(m1)
+data(Science, package = "mirt")
+
+fit1 <- fit(model1, Science, engine = "mirt")
+
+glance(fit1)
+tidy(fit1)
+augment(fit1)
+}

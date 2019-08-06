@@ -27,12 +27,7 @@
 #'   return value of [MplusAutomation][MplusAutomation::readModels()] or
 #'   [mirt][mirt::mirt()], and further information is provided in the element
 #'   `args`.
-#' @examples
-#' \dontrun{
-#' if(interactive()){
-#'  #EXAMPLE1
-#'  }
-#' }
+#' @example inst/examples/example-fit.R
 #' @export
 #' @seealso The wrapped functions [`irtree_fit_mplus()`] and [`irtree_fit_mirt()`].
 fit.irtree_model <- function(object = NULL,

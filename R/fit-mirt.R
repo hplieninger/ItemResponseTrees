@@ -15,7 +15,7 @@
 #' @return List with two elements. `mirt` contains the mirt output, namely
 #'   an object of class \code{\link[mirt]{SingleGroupClass-class}} . `args`
 #'   contains the input specifications.
-# @examples
+#' @example inst/examples/example-fit.R
 #' @export
 irtree_fit_mirt <- function(object = NULL,
                             data = NULL,

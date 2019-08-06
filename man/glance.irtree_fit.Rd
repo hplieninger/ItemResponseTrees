@@ -32,11 +32,20 @@ information is not easily obtained from the output.
 }
 
 \examples{
-\dontrun{
-if(interactive()){
- #EXAMPLE1
- }
-}
+m1 <- "
+IRT:
+attitude BY Comfort, Work, Future, Benefit;
+Class:
+GRM
+"
+model1 <- irtree_model(m1)
+data(Science, package = "mirt")
+
+fit1 <- fit(model1, Science, engine = "mirt")
+
+glance(fit1)
+tidy(fit1)
+augment(fit1)
 }
 \seealso{
 \code{\link[broom:glance]{broom::glance()}}, \code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "secondordertest")}}

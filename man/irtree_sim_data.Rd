@@ -34,3 +34,23 @@ element \code{args} containing the true parameter values etc.
 \description{
 This function generates data from an IR-tree model.
 }
+\examples{
+m1 <- "
+IRT:
+t BY x1;
+e BY x1;
+m BY x1;
+Equations:
+1 = (1-m)*(1-t)*e
+2 = (1-m)*(1-t)*(1-e)
+3 = m
+4 = (1-m)*t*(1-e)
+5 = (1-m)*t*e
+Class:
+Tree
+"
+model1 <- irtree_model(m1)
+dat <- irtree_sim_data(model1, N = 5, sigma = diag(3),
+                       itempar = list(beta = matrix(runif(3), 1, 3),
+                                      alpha = matrix(1, 1, 3)))
+}

@@ -19,6 +19,25 @@
 #' @inheritParams fit.irtree_model
 #' @return A list with element `X` containing the data and an
 #'   element `args` containing the true parameter values etc.
+#' @examples
+#' m1 <- "
+#' IRT:
+#' t BY x1;
+#' e BY x1;
+#' m BY x1;
+#' Equations:
+#' 1 = (1-m)*(1-t)*e
+#' 2 = (1-m)*(1-t)*(1-e)
+#' 3 = m
+#' 4 = (1-m)*t*(1-e)
+#' 5 = (1-m)*t*e
+#' Class:
+#' Tree
+#' "
+#' model1 <- irtree_model(m1)
+#' dat <- irtree_sim_data(model1, N = 5, sigma = diag(3),
+#'                        itempar = list(beta = matrix(runif(3), 1, 3),
+#'                                       alpha = matrix(1, 1, 3)))
 #' @export
 irtree_sim_data <- function(object = NULL,
                             N = NULL,
@@ -199,7 +218,24 @@ irtree_sim_data <- function(object = NULL,
 #' @param keep Logical indicating whether to append the original items to the
 #'   data frame of the generated pseudoitems
 #' @return Data frame
-# @examples
+#' @examples
+#' m1 <- "
+#' IRT:
+#' t BY x1;
+#' e BY x1;
+#' m BY x1;
+#' Equations:
+#' 1 = (1-m)*(1-t)*e
+#' 2 = (1-m)*(1-t)*(1-e)
+#' 3 = m
+#' 4 = (1-m)*t*(1-e)
+#' 5 = (1-m)*t*e
+#' Class:
+#' Tree
+#' "
+#' model1 <- irtree_model(m1)
+#' dat <- data.frame(x1 = 1:5)
+#' irtree_recode(model1, dat, keep = TRUE)
 #' @export
 irtree_recode <- function(object = NULL,
                           data = NULL,
