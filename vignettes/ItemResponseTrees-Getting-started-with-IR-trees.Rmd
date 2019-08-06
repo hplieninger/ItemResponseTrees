@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 )
 ```
 
-[![Travis build status](https://travis-ci.org/hplieninger/ItemResponseTrees.svg?branch=master)](https://travis-ci.org/hplieninger/ItemResponseTrees)
-  [![Coverage status](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/github/hplieninger/ItemResponseTrees?branch=master)
+[![Build Status](https://travis-ci.org/hplieninger/ItemResponseTrees.svg?branch=master)](https://travis-ci.org/hplieninger/ItemResponseTrees)
+[![codecov](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/gh/hplieninger/ItemResponseTrees)
 
 ## ItemResponseTrees
 
@@ -62,7 +62,8 @@ The resulting five equations are shown in the right part of the figure.
 
 if (!identical(tools::md5sum("/tools/ecn-model.png"),
                tools::md5sum("../tools/ecn-model.png"))) {
-    file.copy("../tools/ecn-model.png", "tools/ecn-model.png", overwrite = TRUE)
+    invisible(file.copy("../tools/ecn-model.png", "tools/ecn-model.png",
+                        overwrite = TRUE))
 }
 
 knitr::include_graphics("tools/ecn-model.png")

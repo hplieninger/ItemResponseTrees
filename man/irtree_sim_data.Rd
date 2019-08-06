@@ -28,7 +28,7 @@ section Processes in the \code{model} (see \code{\link{irtree_model}}).}
 \item{link}{Character. Link function to use.}
 }
 \value{
-A list with element \code{X} containing the data and an
+A list with element \code{data} containing the data and an
 element \code{args} containing the true parameter values etc.
 }
 \description{

@@ -281,18 +281,18 @@ irtree_fit_mplus <- function(object = NULL,
 
 #' Prepare an Mplus Input File
 #'
-#' This is an internal function used by \code{\link{irtree_fit_mplus}}. It receives its
+#' This is an internal function used by [irtree_fit_mplus()]. It receives its
 #' inputs from the model object and the data set and returns an object of class
-#' \code{\link[MplusAutomation]{mplusObject}}.
+#' [MplusAutomation::mplusObject].
 #'
 #' @param pseudoitems Data frame as returned from \code{\link{irtree_recode}}.
 #' @param data_file String, the full file path of the data set.
 #' @param fsco_file String, the file name used by Mplus to store the factor scores.
 # @param addendum String as returned from \code{\link{irtree_model}}.
 #' @inheritParams irtree_fit_mplus
-#' @return A list of of class \code{\link[MplusAutomation]{mplusObject}}
+#' @return A list of of class [MplusAutomation::mplusObject]
 #' @export
-#' @seealso MplusAutomation::mplusObject
+#' @seealso [MplusAutomation::mplusObject]
 write_mplus_input <- function(object = object,
                               # lambda = NULL,
                               # addendum = NULL,

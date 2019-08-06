@@ -1,10 +1,9 @@
 Getting started with IR-trees
 ================
 
-[![Travis build
-status](https://travis-ci.org/hplieninger/ItemResponseTrees.svg?branch=master)](https://travis-ci.org/hplieninger/ItemResponseTrees)
-[![Coverage
-status](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/github/hplieninger/ItemResponseTrees?branch=master)
+[![Build
+Status](https://travis-ci.org/hplieninger/ItemResponseTrees.svg?branch=master)](https://travis-ci.org/hplieninger/ItemResponseTrees)
+[![codecov](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/gh/hplieninger/ItemResponseTrees)
 
 ## ItemResponseTrees
 
@@ -50,8 +49,6 @@ category is given by multiplying all parameters along the branch that
 lead to that category (see also Böckenholt, 2012; Plieninger & Heck,
 2018). The resulting five equations are shown in the right part of the
 figure.
-
-    #> [1] TRUE
 
 <img src="tools/ecn-model.png" width="80%" style="border:0px;display: block;  margin-left: auto; margin-right: auto;" />
 

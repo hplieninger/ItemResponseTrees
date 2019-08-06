@@ -33,13 +33,13 @@ the link function.}
 ANALYSIS. For example: \code{analysis_list = list(MITERATIONS = "1000")}.}
 }
 \value{
-A list of of class \code{\link[MplusAutomation]{mplusObject}}
+A list of of class \link[MplusAutomation:mplusObject]{MplusAutomation::mplusObject}
 }
 \description{
-This is an internal function used by \code{\link{irtree_fit_mplus}}. It receives its
+This is an internal function used by \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}}. It receives its
 inputs from the model object and the data set and returns an object of class
-\code{\link[MplusAutomation]{mplusObject}}.
+\link[MplusAutomation:mplusObject]{MplusAutomation::mplusObject}.
 }
 \seealso{
-MplusAutomation::mplusObject
+\link[MplusAutomation:mplusObject]{MplusAutomation::mplusObject}
 }

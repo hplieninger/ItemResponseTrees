@@ -167,8 +167,11 @@
 #'   m WITH t@0;}
 #'
 #' @param model String with a specific structure as described below.
-#' @return List of class `irtree_model`. It contains the information
-#'   extracted from parsing `model`.
+#' @return List of class `irtree_model`. It contains the information extracted
+#'   from parsing `model`. Side note: The returned list contains an element
+#'   `mappping_matrix` that contains the pseudoitems. This information is
+#'   instructive, and it might be used as an input to the [irtrees::dendrify()]
+#'   function of the [irtrees::irtrees-package] package.
 #' @examples
 #' m1 <- "
 #' # Comment

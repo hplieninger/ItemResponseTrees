@@ -10,8 +10,11 @@ irtree_model(model = NULL)
 \item{model}{String with a specific structure as described below.}
 }
 \value{
-List of class \code{irtree_model}. It contains the information
-extracted from parsing \code{model}.
+List of class \code{irtree_model}. It contains the information extracted
+from parsing \code{model}. Side note: The returned list contains an element
+\code{mappping_matrix} that contains the pseudoitems. This information is
+instructive, and it might be used as an input to the \code{\link[irtrees:dendrify]{irtrees::dendrify()}}
+function of the \link[irtrees:irtrees-package]{irtrees::irtrees-package} package.
 }
 \description{
 The ItemResponseTree model syntax describes an IR-tree model. The function

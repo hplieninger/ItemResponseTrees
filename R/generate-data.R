@@ -17,7 +17,7 @@
 # @param K Integer, number of categories. Needed only not defined by the
 #   equations in `model`.
 #' @inheritParams fit.irtree_model
-#' @return A list with element `X` containing the data and an
+#' @return A list with element `data` containing the data and an
 #'   element `args` containing the true parameter values etc.
 #' @examples
 #' m1 <- "
