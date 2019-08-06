@@ -8,6 +8,9 @@
 #'   to [MASS::mvrnorm()]. Note that the order of the person
 #'   parameters is taken from the section Processes in the model `object` (see
 #'   [irtree_model()]).
+#' @param theta Optional numeric matrix of person parameters with one row per person and
+#'   one column per dimension (i.e., `object$S`). If provided, this overrides
+#'   `N` and `sigma`.
 #' @param itempar Either a list or a function that returns a list. The list has
 #'   an element `beta` and an element `alpha`. Each of these is a
 #'   matrix of item parameters. Note that the order of items (rows) is taken from the
@@ -42,6 +45,7 @@
 irtree_sim_data <- function(object = NULL,
                             N = NULL,
                             sigma = NULL,
+                            theta = NULL,
                             itempar = NULL,
                             link = c("probit", "logit")) {
 
@@ -57,7 +61,12 @@ irtree_sim_data <- function(object = NULL,
 
     checkmate::assert_class(object, "irtree_model")
     match.arg(object$class, "tree")
-    checkmate::qassert(N, "X1[1,)")
+    checkmate::assert_int(N, lower = 1, null.ok = !is.null(theta))
+    checkmate::assert_matrix(theta, mode = "numeric", min.rows = 1,
+                             ncols = object$S, null.ok = !is.null(sigma))
+    if (!is.null(theta)) {
+        N <- nrow(theta)
+    }
 
     S <- object$S
     J <- object$J
@@ -82,7 +91,7 @@ irtree_sim_data <- function(object = NULL,
     args$sigma <- sigma
 
     checkmate::assert_matrix(sigma, mode = "numeric", any.missing = FALSE,
-                             nrows = S, ncols = S)
+                             nrows = S, ncols = S, null.ok = !is.null(theta))
 
     if (is.function(itempar)) {
         FUN <- match.fun(itempar)
@@ -125,9 +134,11 @@ irtree_sim_data <- function(object = NULL,
         cate = gl(K, 1,    length = J*K*N)
     )
 
-    tmp1 <- MASS::mvrnorm(ifelse(N == 1, 1.001, N), mu = rep(0, S), Sigma = sigma)
-    colnames(tmp1) <- object$lv_names
-    args$personpar <- personpar <- data.frame(pers = gl(N, 1), tmp1)
+    if (is.null(theta)) {
+        theta <- MASS::mvrnorm(ifelse(N == 1, 1.001, N), mu = rep(0, S), Sigma = sigma)
+    }
+    colnames(theta) <- object$lv_names
+    args$personpar <- personpar <- data.frame(pers = gl(N, 1), theta)
 
     dat2 <- dplyr::left_join(dat1, personpar, by = "pers")
 
@@ -185,6 +196,8 @@ irtree_sim_data <- function(object = NULL,
     }
 
     probs <- dplyr::bind_rows(dat8)
+    p_return <- dplyr::select(probs, c("pers", "item", "cate", "prob")) %>%
+        dplyr::arrange(pers, item, cate)
 
     prob_item_sum <- aggregate(prob ~ pers + item, data = probs, sum)$prob
     if (!isTRUE(all.equal(prob_item_sum, rep(1, N*J)))) {
@@ -205,7 +218,8 @@ irtree_sim_data <- function(object = NULL,
     names(X) <- sub("^prob[.]", "", names(X))
     attr(X, "reshapeWide") <- NULL
 
-    return(list(data = X, args = args))
+    return(list(data = X,
+                probs = p_return, args = args))
 
 }
 

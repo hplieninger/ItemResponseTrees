@@ -5,7 +5,7 @@
 \title{Generate Data From an IR-Tree Model}
 \usage{
 irtree_sim_data(object = NULL, N = NULL, sigma = NULL,
-  itempar = NULL, link = c("probit", "logit"))
+  theta = NULL, itempar = NULL, link = c("probit", "logit"))
 }
 \arguments{
 \item{object}{A description of the user-specified model. See
@@ -18,6 +18,10 @@ is the variance-covariance matrix of the person parameters that is passed
 to \code{\link[MASS:mvrnorm]{MASS::mvrnorm()}}. Note that the order of the person
 parameters is taken from the section Processes in the model \code{object} (see
 \code{\link[=irtree_model]{irtree_model()}}).}
+
+\item{theta}{Optional numeric matrix of person parameters with one row per person and
+one column per dimension (i.e., \code{object$S}). If provided, this overrides
+\code{N} and \code{sigma}.}
 
 \item{itempar}{Either a list or a function that returns a list. The list has
 an element \code{beta} and an element \code{alpha}. Each of these is a
