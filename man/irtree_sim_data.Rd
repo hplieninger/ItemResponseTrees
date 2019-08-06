@@ -5,7 +5,7 @@
 \title{Generate Data From an IR-Tree Model}
 \usage{
 irtree_sim_data(object = NULL, N = NULL, sigma = NULL,
-  itempar = NULL, link = c("probit", "logit"), K = NULL)
+  itempar = NULL, link = c("probit", "logit"))
 }
 \arguments{
 \item{object}{A description of the user-specified model. See
@@ -26,9 +26,6 @@ section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link{irtree_model}}).}
 
 \item{link}{Character. Link function to use.}
-
-\item{K}{Integer, number of categories. Needed only not defined by the
-equations in \code{model}.}
 }
 \value{
 A list with element \code{X} containing the data and an

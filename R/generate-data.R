@@ -14,8 +14,8 @@
 #'   section Items and the order of processes (columns) is taken from the
 #'   section Processes in the `model` (see \code{\link{irtree_model}}).
 #' @param link Character. Link function to use.
-#' @param K Integer, number of categories. Needed only not defined by the
-#'   equations in `model`.
+# @param K Integer, number of categories. Needed only not defined by the
+#   equations in `model`.
 #' @inheritParams fit.irtree_model
 #' @return A list with element `X` containing the data and an
 #'   element `args` containing the true parameter values etc.
@@ -24,8 +24,7 @@ irtree_sim_data <- function(object = NULL,
                             N = NULL,
                             sigma = NULL,
                             itempar = NULL,
-                            link = c("probit", "logit"),
-                            K = NULL) {
+                            link = c("probit", "logit")) {
 
     link <- match.arg(link)
 
@@ -38,18 +37,20 @@ irtree_sim_data <- function(object = NULL,
                    logit  = setNames("plogis", link))
 
     checkmate::assert_class(object, "irtree_model")
+    match.arg(object$class, "tree")
+    checkmate::qassert(N, "X1[1,)")
 
     S <- object$S
     J <- object$J
     j_names <- object$j_names
     P <- object$P
     p_names <- object$p_names
-    if (is.null(object$K)) {
-        checkmate::qassert(K, "X1[2,)")
-    } else {
-        checkmate::qassert(object$K, "X1[2,)")
-        K <- object$K
-    }
+    # if (is.null(object$K)) {
+    #     checkmate::qassert(K, "X1[2,)")
+    # } else {
+    checkmate::qassert(object$K, "X1[2,)")
+    K <- object$K
+    # }
     lambda <- object$lambda
     subtree <- object$subtree
     expr <- object$expr
@@ -154,8 +155,8 @@ irtree_sim_data <- function(object = NULL,
     for (ii in seq_len(P)) {
         dat7[, as.character(p_names[ii])] <- do.call(link,
                                                      list(dplyr::pull(dat7, alpha_names[ii])*(
-                                                          dplyr::pull(dat7, theta_names[ii]) -
-                                                          dplyr::pull(dat7, beta_names[ii]))))
+                                                         dplyr::pull(dat7, theta_names[ii]) -
+                                                             dplyr::pull(dat7, beta_names[ii]))))
     }
 
     dat8 <- split(dat7, dat7$cate)
@@ -183,6 +184,7 @@ irtree_sim_data <- function(object = NULL,
     X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
     X <- dplyr::select(X, -.data$pers)
     names(X) <- sub("^prob[.]", "", names(X))
+    attr(X, "reshapeWide") <- NULL
 
     return(list(data = X, args = args))
 
@@ -225,11 +227,11 @@ irtree_recode <- function(object = NULL,
     #                         variable.name = "item",
     #                         value.name = "cate")
     # dat2$item <- factor(dat2$item, levels = names(j_names), labels = j_names)
-    tmp1 <- data.frame(pers = seq_len(nrow(data)), data[, names(j_names)])
+    tmp1 <- data.frame(pers = seq_len(nrow(data)), data[, names(j_names), drop = FALSE])
     dat2 <- reshape(tmp1, direction = "long",
                     idvar = "pers",
                     varying = list(which(names(tmp1) != "pers")),
-                    times = names(data[, names(j_names)]),
+                    times = names(data[, names(j_names), drop = FALSE]),
                     timevar = "item", v.names = "cate")
     dat2$item <- factor(dat2$item, levels = names(j_names), labels = j_names)
     rownames(dat2) <- NULL
