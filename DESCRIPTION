@@ -15,7 +15,6 @@ Depends:
 Imports: 
     checkmate (>= 1.9),
     dplyr,
-    ellipsis,
     generics,
     glue,
     magrittr,

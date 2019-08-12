@@ -35,7 +35,7 @@ irtree_fit_mirt <- function(object = NULL,
     # checkmate::assert_set_equal(names(data), y = levels(j_names))
     checkmate::assert_subset(names(object$j_names), choices = names(data))
 
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
 
     object$j_names <- sort2(object$j_names, names(data), x_names = TRUE)
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)

@@ -101,7 +101,7 @@ irtree_fit_mplus <- function(object = NULL,
                                  ncols = object$J)
     data <- tibble::as_tibble(data)
 
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
 
     args$object$j_names <- object$j_names <- sort2(object$j_names, names(data), TRUE)
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)

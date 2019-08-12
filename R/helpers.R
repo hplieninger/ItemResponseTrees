@@ -4,7 +4,7 @@
 #' @inheritDotParams base::paste
 #' @keywords internal
 clps <- function(collapse = " ", ..., sep = " ") {
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
     paste(..., sep = sep, collapse = collapse)
 }
 

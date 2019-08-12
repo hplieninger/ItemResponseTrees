@@ -22,7 +22,7 @@
 #' @export
 glance.irtree_fit <- function(x = NULL, ...) {
 
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
     engine <- x$args$engine
 
     if (is.null(x[[engine]])) {
@@ -97,7 +97,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #' @seealso [broom::tidy()]
 #' @export
 tidy.irtree_fit <- function(x = NULL, ...) {
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
     engine <- x$args$engine
 
     if (is.null(x[[engine]])) {
@@ -213,7 +213,7 @@ augment.irtree_fit <- function(x = NULL,
                                se.fit = TRUE,
                                method = "EAP",
                                ...) {
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
     engine <- x$args$engine
 
     if (is.null(data)) {

@@ -68,7 +68,7 @@ generics::fit
 
 #' @export
 summary.irtree_fit <- function(object, ...) {
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
     if (object$args$engine == "mplus") {
         print(object$mplus$parameters$unstandardized)
     } else if (object$args$engine == "mirt") {
@@ -78,7 +78,7 @@ summary.irtree_fit <- function(object, ...) {
 
 #' @export
 coef.irtree_fit <- function(object, ...) {
-    ellipsis::check_dots_used()
+    # ellipsis::check_dots_used()
     if (object$args$engine == "mplus") {
         MplusAutomation:::coef.mplus.model(object$mplus, ...)
     } else if (object$args$engine == "mirt") {
