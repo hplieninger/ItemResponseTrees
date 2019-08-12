@@ -107,7 +107,7 @@ test_that("Model constraints work independently of names", {
                 engine = "mplus",
                 object = model1,
                 run = run,
-                integration_points = 7,
+                quadpts = 6,
                 analysis_list = list(LOGCRITERION = ".01",
                                      COVERAGE = "0"),
                 .warnings2messages = TRUE)
@@ -115,7 +115,7 @@ test_that("Model constraints work independently of names", {
                 engine = "mplus",
                 object = model2,
                 run = run,
-                integration_points = 7,
+                quadpts = 6,
                 analysis_list = list(LOGCRITERION = ".01",
                                      COVERAGE = "0"),
                 .warnings2messages = TRUE)

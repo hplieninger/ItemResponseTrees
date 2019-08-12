@@ -5,10 +5,10 @@
 \title{Fit an IR-Tree Model using Mplus}
 \usage{
 irtree_fit_mplus(object = NULL, data = NULL,
-  file = tempfile("irtree_"), integration_points = 15,
-  estimator = "MLR", link = c("probit", "logit"), run = TRUE,
-  cleanup = run, save_fscores = TRUE, analysis_list = list(COVERAGE =
-  "0"), verbose = interactive(), replaceOutfile = "always",
+  file = tempfile("irtree_"), quadpts = 15, estimator = "MLR",
+  link = c("probit", "logit"), run = TRUE, cleanup = run,
+  save_fscores = TRUE, analysis_list = list(COVERAGE = "0"),
+  verbose = interactive(), replaceOutfile = "always",
   overwrite = FALSE, ..., .warnings2messages = FALSE)
 }
 \arguments{
@@ -23,8 +23,10 @@ column per variable. The variable names must correspond to those used in
 file. Do not provide file endings, those will be automatically appended by
 the function.}
 
-\item{integration_points}{Integer, passed to argument 'INTEGRATION' in Mplus.
-Number of integration points for numerical integration.}
+\item{quadpts}{This is passed to argument 'INTEGRATION'. Thus, it may be an
+integer specifiying the number of integration points for the Mplus default
+of rectangular numerical integration (e.g., \code{quadpts = 15}). Or it may be a
+string, which gives more fine grained control (e.g., \code{quadpts = "MONTECARLO(2000)"}).}
 
 \item{estimator}{String, passed to argument 'ESTIMATOR' in Mplus.}
 

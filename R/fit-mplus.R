@@ -5,9 +5,11 @@
 #' @param file String naming the file (or path) of the Mplus files and the data
 #'   file. Do not provide file endings, those will be automatically appended by
 #'   the function.
-# @param R Integer used to index the file names.
-#' @param integration_points Integer, passed to argument 'INTEGRATION' in Mplus.
-#'   Number of integration points for numerical integration.
+#' @param quadpts This is passed to argument 'INTEGRATION'. Thus, it may be an
+#'   integer specifiying the number of integration points for the Mplus default
+#'   of rectangular numerical integration (e.g., `quadpts = 15`). Or it may be a
+#'   string, which gives more fine grained control (e.g., `quadpts =
+#'   "MONTECARLO(2000)"`).
 #' @param estimator String, passed to argument 'ESTIMATOR' in Mplus.
 #' @param link String, passed to argument 'LINK' in Mplus. Specifies
 #'   the link function.
@@ -41,7 +43,7 @@
 irtree_fit_mplus <- function(object = NULL,
                              data = NULL,
                              file = tempfile("irtree_"),
-                             integration_points = 15,
+                             quadpts = 15,
                              estimator = "MLR",
                              link = c("probit", "logit"),
                              run = TRUE,
@@ -166,9 +168,9 @@ irtree_fit_mplus <- function(object = NULL,
             object        = object,
             # lambda       = object$lambda,
             # addendum     = object$addendum,
-            pseudoitems  = pseudoitems,
-            data_file    = data_file,
-            integration_points = integration_points,
+            pseudoitems   = pseudoitems,
+            data_file     = data_file,
+            quadpts       = quadpts,
             estimator     = estimator,
             link          = link,
             save_fscores  = save_fscores,
@@ -302,7 +304,7 @@ write_mplus_input <- function(object = object,
                               data_file = NULL,
                               fsco_file = NULL,
                               save_fscores = FALSE,
-                              integration_points = NULL,
+                              quadpts = NULL,
                               estimator = NULL,
                               link = NULL,
                               # processors = 1,
@@ -389,7 +391,7 @@ write_mplus_input <- function(object = object,
 
     ANALYSIS <- glue::glue("ALGORITHM = INTEGRATION EM;",
                            "ESTIMATOR = {estimator};",
-                           "INTEGRATION = {integration_points};",
+                           "INTEGRATION = {quadpts};",
                            "LINK = {link};",
                            # "PROCESSORS = {processors};",
                            analysis2,

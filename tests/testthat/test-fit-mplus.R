@@ -106,7 +106,7 @@ res1 <- fit(data = df1,
             verbose = FALSE,
             engine = "mplus",
             object = model1,
-            integration_points = 6,
+            quadpts = 6,
             analysis_list = list(LOGCRITERION = ".01",
                                  COVERAGE = "0"),
             .warnings2messages = TRUE,
@@ -117,7 +117,7 @@ res2 <- fit(data = ScienceNew,
             verbose = FALSE,
             engine = "mplus",
             object = model2,
-            integration_points = 6,
+            quadpts = "MONTECARLO(500)",
             analysis_list = list(LOGCRITERION = ".01",
                                  COVERAGE = "0"),
             run = run)
@@ -128,7 +128,7 @@ res3 <- fit(data = Science,
             verbose = FALSE,
             engine = "mplus",
             object = model3,
-            integration_points = 6,
+            quadpts = "GAUSS(6)",
             analysis_list = list(LOGCRITERION = ".01",
                                  COVERAGE = "0"),
             run = run)
@@ -157,7 +157,7 @@ test_that("Provide starting values",{
                 file_name = basename(tempfile()),
                 dir = tempdir(),
                 run = T,
-                integration_points = 7)
+                quadpts = 7)
 })
 
 ##### Tests #####
