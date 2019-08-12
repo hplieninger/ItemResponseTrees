@@ -1,9 +1,9 @@
 #' Retrieve estimates From Mplus.
 #'
 #' This function takes the output from Mplus as returned from
-#' [`irtree_fit_mplus()`] and returns the estimates in a convenient way.
+#' [irtree_fit_mplus()] and returns the estimates in a convenient way.
 #'
-#' @param results A list as returned from [`irtree_fit_mplus()`].
+#' @param results A list as returned from [irtree_fit_mplus()].
 #' @param object A description of the user-specified model. See
 #'   [irtree_model] for more information.
 #' @param class String specifying which class of model was fit
@@ -15,7 +15,7 @@
 #' @name extract_mplus_output-deprecated
 #' @usage extract_mplus_output(results = NULL, object = NULL, class = NULL,
 #'   .errors2messages = FALSE)
-#' @seealso [`ItemResponseTrees-deprecated`]
+#' @seealso [ItemResponseTrees-deprecated]
 #' @keywords internal
 NULL
 

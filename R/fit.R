@@ -10,16 +10,16 @@
 #'   [`glance()`][glance.irtree_fit], [`tidy()`][tidy.irtree_fit], and
 #'   [`augment()`][augment.irtree_fit] may be more helpful.
 #'
-#' @param object A description of the user-specified model. See
-#'   [irtree_model] for more information.
+#' @param object Object of class `irtree_model`. See [irtree_model] for more
+#'   information.
 #' @param data Data frame containing containing one row per respondent and one
 #'   column per variable. The variable names must correspond to those used in
 #'   `object`.
 #' @param engine String specifying whether to use Mplus or mirt for estimation.
 #' @param verbose Logical indicating whether Mplus/mirt output should be printed
 #'   to the console.
-#' @param ... further arguments passed either to [`irtree_fit_mplus()`] or
-#'   [`irtree_fit_mirt()`]
+#' @param ... further arguments passed either to [irtree_fit_mplus()] or
+#'   [irtree_fit_mirt()]
 #' @param .improper_okay Logical indicating whether the model should also be fit
 #'   if it is not a proper IR-tree model. Set this only to `TRUE` if you really
 #'   know what you are doing.
@@ -29,7 +29,7 @@
 #'   `args`.
 #' @example inst/examples/example-fit.R
 #' @export
-#' @seealso The wrapped functions [`irtree_fit_mplus()`] and [`irtree_fit_mirt()`].
+#' @seealso The wrapped functions [irtree_fit_mplus()] and [irtree_fit_mirt()].
 fit.irtree_model <- function(object = NULL,
                              data = NULL,
                              engine = c("mplus", "mirt"),

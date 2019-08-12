@@ -314,7 +314,7 @@ test_that("glance.irtree_fit()", {
 
 })
 
-test_that("implementation of augment.irtree_fit()", {
+test_that("augment.irtree_fit()", {
 
     # skip_if(TRUE)
 

@@ -14,32 +14,34 @@ List of class \code{irtree_model}. It contains the information extracted
 from parsing \code{model}. Side note: The returned list contains an element
 \code{mappping_matrix} that contains the pseudoitems. This information is
 instructive, and it might be used as an input to the \code{\link[irtrees:dendrify]{irtrees::dendrify()}}
-function of the \link[irtrees:irtrees-package]{irtrees::irtrees-package} package.
+function of the \link[irtrees:irtrees-package]{irtrees} package.
 }
 \description{
 The ItemResponseTree model syntax describes an IR-tree model. The function
-\code{irtree_model} turns a user-defined model string into a list that
-represents the full model as needed by the package.
+\code{irtree_model()} turns a user-defined model string into an object of class
+\code{irtree_model} that represents the full model as needed by the package.
 }
-\section{Model}{
+\section{Overview of the Model Syntax}{
 
 
 \enumerate{
-\item The \code{model} string must contain at least the sections IRT, Class, and (if class is tree) Equations.
+\item The \code{model} string must contain at least the sections \strong{IRT}, \strong{Class}, and (if class is tree) \strong{Equations}.
 \item Section headings must appear on a seperate line ending with a colon (:).
 \item The model may contain empty lines and comments, which begin with \code{#}.
-\item Line breaks are only allowed in section IRT.
+\item Line breaks are only allowed in section \strong{IRT}.
 }
+Details for all the required and optional sections of the \code{model} string are
+given in the following.
 }
 
 \section{IRT}{
 
 
-The \code{model} must contain a section with heading IRT. Therein, the IRT
+The \code{model} must contain a section with heading \strong{IRT}. Therein, the IRT
 structure of the model is described in a way resembling the MODEL part of
 an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
 where \code{LV} is the name of the latent variable/parameter/process,
-\code{item} is the name of the observed variable in the data set and this
+\code{item} is the name of the observed variable in the data set, which
 is followed by the loading. The loading may either be fixed (e.g., to 1)
 using \code{@1} or it may be set free using \code{*} or omitting the
 loading completely.
@@ -50,21 +52,21 @@ commas. Linebreaks are allowed. For example:
 
 \preformatted{
   IRT:
-  t  BY x1, x2, x3, x4, x5, x6;
-  e  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
-  m  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
+  t BY x1, x2, x3, x4, x5, x6;
+  e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
+  m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
 }
 
 \section{Equations}{
 
 
-The \code{model} must contain a section with heading Equations if Class is
+The \code{model} must contain a section with heading \strong{Equations} if \strong{Class} is
 Tree.
 Therein, the model equations are described.
 They have a structure similar to \code{Cat = p1*(1-p2)}, where \code{Cat}
 is any observed response category in the data set.
 The names of the parameters must be equal to those of the latent variables
-in the section IRT (combined with Subtree if specified).
+in the section \strong{IRT} (combined with \strong{Subtree} if specified).
 
 The equations may contain only products and not sums.
 That is, it is not possible to estimate genuine mixture models as, for
@@ -81,39 +83,10 @@ Each equation must appear on a separate, non-broken line. For example:
   5 = (1-m)*t*e}
 }
 
-\section{Subtree}{
-
-
-The \code{model} may contain a section with heading Subtree.
-This is necessary if a process in the model equations (section Equations)
-may correspond to different latent variables (section IRT).
-For example, when analyzing a Big Five data set, one may wish to specify
-only one extremity process e for all items but multiple target traits t,
-namely, one for each of the five scales.
-In such a case, the section Equations would list only the parameter t,
-while the section IRT would list the parameters t1, ..., t5.
-
-In the framework of MPT, one would think of such a situation in terms of
-multiple albeit similar trees with specific parameter contraints across
-trees.
-For example, one would use one tree for each Big Five scale and fix the
-response style parameters to equality across trees but not the target trait
-parameters.
-
-Each line in this section has a structure of \code{process = subprocess + subprocess}, where \code{process} is the name of the process used only in
-section Equations and \code{subprocess} it the name of the process used only in
-section IRT.
-Use one line for each definition. For example:
-
-\preformatted{
-  Subtree:
-  t = t1 + t2 + t3 + t4 + t5}
-}
-
 \section{Class}{
 
 
-The \code{model} must contain a section with heading Class to specify the
+The \code{model} must contain a section with heading \strong{Class} to specify the
 type/class of IRT model to use.
 Currently, may be either \code{Tree} or \code{GRM} (graded response model). For
 example:
@@ -123,10 +96,39 @@ example:
   Tree}
 }
 
+\section{Subtree}{
+
+
+The \code{model} may contain a section with heading \strong{Subtree}.
+This is necessary if a process in the model equations (section \strong{Equations})
+may correspond to different latent variables (section \strong{IRT}).
+For example, when analyzing a Big Five data set, one may wish to specify
+only one extremity process e for all items but multiple target traits t,
+namely, one for each of the five scales.
+In such a case, the section \strong{Equations} would list only the parameter t,
+while the section \strong{IRT} would list the parameters t1, ..., t5.
+
+In the framework of MPT, one would think of such a situation in terms of
+multiple albeit similar trees with specific parameter contraints across
+trees.
+For example, one would use one tree for each Big Five scale and fix the
+response style parameters to equality across trees but not the target trait
+parameters.
+
+Each line in this section has a structure of \code{process = subprocess + subprocess}, where \code{process} is the name of the process used only in
+section \strong{Equations} and \code{subprocess} it the name of the process used only in
+section \strong{IRT}.
+Use one line for each definition. For example:
+
+\preformatted{
+  Subtree:
+  t = t1 + t2 + t3 + t4 + t5}
+}
+
 \section{Constraints}{
 
 
-The \code{model} may contain a section with heading Constraints to specify
+The \code{model} may contain a section with heading \strong{Constraints} to specify
 equality constraints of latent variables.
 For example, in a sequential model as proposed by Tutz as well as Verhelst,
 one would specify two processes for a 3-point item. The first process would
@@ -137,7 +139,7 @@ typically be assumed to be equal and need thus be constrained accordingly.
 
 Each line in this section has a structure of \code{LV1 = LV2}, where
 \code{LV1} and \code{LV2} are the names of the latent variables used in
-section IRT.
+section \strong{IRT}.
 Use one line for each definition. For example:
 
 \preformatted{
@@ -149,8 +151,8 @@ Use one line for each definition. For example:
 \section{Addendum}{
 
 
-The \code{model} may contain a section with heading Addendum if
-\code{backend = "mplus"} is used for estimation.
+The \code{model} may contain a section with heading \strong{Addendum} if
+\code{engine = "mplus"} is used for estimation.
 Any code in this section is directly pasted in the \code{MODEL} section of
 the Mplus input file.
 Use a semicolon at the end of each line; lines must not exceed 90 characters.

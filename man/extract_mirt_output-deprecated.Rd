@@ -28,6 +28,6 @@ This function takes the output from \code{\link[=irtree_fit_mirt]{irtree_fit_mir
 returns the parameter estimates in a convenient way.
 }
 \seealso{
-\code{\link{ItemResponseTrees-deprecated}}
+\link{ItemResponseTrees-deprecated}
 }
 \keyword{internal}

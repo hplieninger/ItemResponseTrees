@@ -27,6 +27,6 @@ This function takes the output from Mplus as returned from
 \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} and returns the estimates in a convenient way.
 }
 \seealso{
-\code{\link{ItemResponseTrees-deprecated}}
+\link{ItemResponseTrees-deprecated}
 }
 \keyword{internal}

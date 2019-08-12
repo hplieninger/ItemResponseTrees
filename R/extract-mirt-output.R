@@ -1,21 +1,21 @@
 #' @title Retrieve estimates from mirt.
 #'
-#' @description This function takes the output from [`irtree_fit_mirt()`] and
+#' @description This function takes the output from [irtree_fit_mirt()] and
 #'   returns the parameter estimates in a convenient way.
 #'
 #' @param results An object of class \code{\link[mirt]{SingleGroupClass-class}}
-#'   as returned from [`irtree_fit_mirt()`].
+#'   as returned from [irtree_fit_mirt()].
 #' @param object A description of the user-specified model. See
 #'   [irtree_model] for more information.
-#' @param method Passed to [`mirt::fscores()`].
+#' @param method Passed to [mirt::fscores()].
 #' @param class String specifying which class of model was fit.
-#' @param ... Passed to [`mirt::fscores()`].
+#' @param ... Passed to [mirt::fscores()].
 #' @return A list of parameter estimates and model fit information.
 #'
 #' @name extract_mirt_output-deprecated
 #' @usage extract_mirt_output(results = NULL, object = NULL, method = "MAP",
 #'   class = NULL, ...)
-#' @seealso [`ItemResponseTrees-deprecated`]
+#' @seealso [ItemResponseTrees-deprecated]
 #' @keywords internal
 NULL
 

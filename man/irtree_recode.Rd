@@ -7,8 +7,8 @@
 irtree_recode(object = NULL, data = NULL, keep = FALSE)
 }
 \arguments{
-\item{object}{A description of the user-specified model. See
-\link{irtree_model} for more information.}
+\item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more
+information.}
 
 \item{data}{Data frame containing containing one row per respondent and one
 column per variable. The variable names must correspond to those used in

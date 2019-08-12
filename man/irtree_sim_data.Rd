@@ -8,8 +8,8 @@ irtree_sim_data(object = NULL, N = NULL, sigma = NULL,
   theta = NULL, itempar = NULL, link = c("probit", "logit"))
 }
 \arguments{
-\item{object}{A description of the user-specified model. See
-\link{irtree_model} for more information.}
+\item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more
+information.}
 
 \item{N}{Integer, the number of persons.}
 

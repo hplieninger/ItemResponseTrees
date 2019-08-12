@@ -10,8 +10,8 @@ write_mplus_input(object = object, pseudoitems = NULL,
   analysis_list = list())
 }
 \arguments{
-\item{object}{A description of the user-specified model. See
-\link{irtree_model} for more information.}
+\item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more
+information.}
 
 \item{pseudoitems}{Data frame as returned from \code{\link{irtree_recode}}.}
 

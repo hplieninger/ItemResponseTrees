@@ -17,7 +17,7 @@
 #' @param ... Additional arguments. Not used.
 #' @return A one-row [tibble][tibble::tibble-package] with columns such as \code{AIC} and \code{BIC}.
 #' @example inst/examples/example-fit.R
-#' @seealso [`broom::glance()`], [`mirt::extract.mirt(x,
+#' @seealso [broom::glance()], [`mirt::extract.mirt(x,
 #'   "secondordertest")`][mirt::extract.mirt]
 #' @export
 glance.irtree_fit <- function(x = NULL, ...) {
