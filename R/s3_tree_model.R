@@ -161,7 +161,7 @@
 #'   Any code in this section is directly pasted in the `MODEL` section of
 #'   the Mplus input file.
 #'   Use a semicolon at the end of each line; lines must not exceed 90 characters.
-#'   Note that the addendum is ignored in [irtree_sim_data()]. For example:
+#'   Note that the addendum is ignored in [irtree_gen_data()]. For example:
 #'
 #'   \preformatted{
 #'   Addendum:

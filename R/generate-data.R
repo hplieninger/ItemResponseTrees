@@ -36,11 +36,67 @@
 #' Tree
 #' "
 #' model1 <- irtree_model(m1)
-#' dat <- irtree_sim_data(model1, N = 5, sigma = diag(3),
+#' dat <- irtree_gen_data(model1, N = 5, sigma = diag(3),
 #'                        itempar = list(beta = matrix(runif(3), 1, 3),
 #'                                       alpha = matrix(1, 1, 3)))
 #' @export
-irtree_sim_data <- function(object = NULL,
+irtree_gen_data <- function(object = NULL,
+                            N = NULL,
+                            sigma = NULL,
+                            theta = NULL,
+                            itempar = NULL,
+                            link = c("probit", "logit")) {
+
+    checkmate::assert_class(object, "irtree_model")
+
+    link <- match.arg(link)
+
+    if (object$class == "tree") {
+        out <- irtree_gen_tree(object = object,
+                               N = N,
+                               sigma = sigma,
+                               theta = theta,
+                               itempar = itempar,
+                               link = link)
+    } else if (object$class == "pcm") {
+        out <- irtree_gen_pcm(object = object,
+                              N = N,
+                              sigma = sigma,
+                              theta = theta,
+                              itempar = itempar,
+                              link = link)
+    }
+    return(out)
+}
+
+#' Generate Data From an IR-Tree Model
+#'
+#' This function generates data from an IR-tree model.
+#'
+#' @inheritParams irtree_gen_data
+#' @return A list with element `data` containing the data and an
+#'   element `spec` containing the true parameter values etc.
+#' @examples
+#' m1 <- "
+#' IRT:
+#' t BY x1;
+#' e BY x1;
+#' m BY x1;
+#' Equations:
+#' 1 = (1-m)*(1-t)*e
+#' 2 = (1-m)*(1-t)*(1-e)
+#' 3 = m
+#' 4 = (1-m)*t*(1-e)
+#' 5 = (1-m)*t*e
+#' Class:
+#' Tree
+#' "
+#' model1 <- irtree_model(m1)
+#' dat <- irtree_gen_tree(model1, N = 5, sigma = diag(3),
+#'                        itempar = list(beta = matrix(runif(3), 1, 3),
+#'                                       alpha = matrix(1, 1, 3)))
+#' @export
+irtree_gen_tree <- function(object = NULL,
                             N = NULL,
                             sigma = NULL,
                             theta = NULL,
@@ -55,15 +111,6 @@ irtree_sim_data <- function(object = NULL,
                    probit = setNames("pnorm", link),
                    logit  = setNames("plogis", link))
 
-    checkmate::assert_class(object, "irtree_model")
-    match.arg(object$class, "tree")
-    checkmate::assert_int(N, lower = 1, null.ok = !is.null(theta))
-    if (!is.null(theta)) {
-        args$theta <- theta <- data.matrix(theta, rownames.force = FALSE)
-        N <- nrow(theta)
-    }
-    checkmate::assert_matrix(theta, mode = "numeric", min.rows = 1,
-                             ncols = object$S, null.ok = !is.null(sigma))
 
     S <- object$S
     J <- object$J
@@ -79,6 +126,14 @@ irtree_sim_data <- function(object = NULL,
     lambda <- object$lambda
     subtree <- object$subtree
     expr <- object$expr
+
+    checkmate::assert_int(N, lower = 1, null.ok = !is.null(theta))
+    if (!is.null(theta)) {
+        spec$theta <- theta <- data.matrix(theta, rownames.force = FALSE)
+        N <- nrow(theta)
+    }
+    checkmate::assert_matrix(theta, mode = "numeric", min.rows = 1,
+                             ncols = object$S, null.ok = !is.null(sigma))
 
     if (is.function(sigma)) {
         FUN <- match.fun(sigma)
