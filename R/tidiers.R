@@ -23,7 +23,8 @@
 glance.irtree_fit <- function(x = NULL, ...) {
 
     # ellipsis::check_dots_used()
-    engine <- x$args$engine
+    checkmate::qassert(x$spec$engine, "S1")
+    engine <- match.arg(x$spec$engine, c("mplus", "mirt", "tam"))
 
     if (is.null(x[[engine]])) {
         return(tibble::tibble())
@@ -70,7 +71,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
                 "nobs",
                 "n.factors",
                 "ngroups",
-                .strict = F)) %>%
+                .strict = FALSE)) %>%
         dplyr::mutate_if(rlang::is_integerish, as.integer)
 
     checkmate::assert_tibble(out, nrows = 1)
@@ -98,7 +99,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #' @export
 tidy.irtree_fit <- function(x = NULL, ...) {
     # ellipsis::check_dots_used()
-    engine <- x$args$engine
+    engine <- match.arg(x$spec$engine, c("mplus", "mirt", "tam"))
 
     if (is.null(x[[engine]])) {
         return(tibble::tibble())
@@ -214,16 +215,16 @@ augment.irtree_fit <- function(x = NULL,
                                method = "EAP",
                                ...) {
     # ellipsis::check_dots_used()
-    engine <- x$args$engine
+    engine <- match.arg(x$spec$engine, c("mplus", "mirt", "tam"))
 
     if (is.null(data)) {
-        data <- x$args$data
+        data <- x$spec$data
     }
 
     if (is.null(x[[engine]])) {
         return(tibble::as_tibble(data))
     } else if (engine == "mplus") {
-        if (!x$args$save_fscores) {
+        if (!x$spec$save_fscores) {
             return(tibble::as_tibble(data))
         }
         if (!checkmate::test_string(method, na.ok = TRUE,

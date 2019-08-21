@@ -17,11 +17,9 @@
 #'   section Items and the order of processes (columns) is taken from the
 #'   section Processes in the `model` (see \code{\link{irtree_model}}).
 #' @param link Character. Link function to use.
-# @param K Integer, number of categories. Needed only not defined by the
-#   equations in `model`.
 #' @inheritParams fit.irtree_model
 #' @return A list with element `data` containing the data and an
-#'   element `args` containing the true parameter values etc.
+#'   element `spec` containing the true parameter values etc.
 #' @examples
 #' m1 <- "
 #' IRT:
@@ -51,9 +49,7 @@ irtree_sim_data <- function(object = NULL,
 
     link <- match.arg(link)
 
-    args <- c(as.list(environment())
-              # , list(...)
-    )
+    spec <- c(as.list(environment()))
 
     link <- switch(link,
                    probit = setNames("pnorm", link),
@@ -86,22 +82,22 @@ irtree_sim_data <- function(object = NULL,
 
     if (is.function(sigma)) {
         FUN <- match.fun(sigma)
-        args$sigma_fun <- FUN
+        spec$sigma_fun <- FUN
         sigma <- FUN()
     }
-    args$sigma <- sigma
+    spec$sigma <- sigma
 
     checkmate::assert_matrix(sigma, mode = "numeric", any.missing = FALSE,
                              nrows = S, ncols = S, null.ok = !is.null(theta))
 
     if (is.function(itempar)) {
         FUN <- match.fun(itempar)
-        args$itempar_fun <- FUN
+        spec$itempar_fun <- FUN
         itempar <- FUN()
     } else {
         itempar <- lapply(itempar, data.matrix, rownames.force = FALSE)
     }
-    args$itempar <- itempar
+    spec$itempar <- itempar
 
     checkmate::assert_list(itempar, types = "numeric", any.missing = FALSE,
                            len = 2,
@@ -141,9 +137,12 @@ irtree_sim_data <- function(object = NULL,
         theta <- MASS::mvrnorm(ifelse(N == 1, 1.001, N), mu = rep(0, S), Sigma = sigma)
     }
     colnames(theta) <- object$lv_names
-    args$personpar <- personpar <- data.frame(pers = gl(N, 1), theta)
+    spec$personpar <- theta
+    spec$theta <- NULL
 
-    dat2 <- dplyr::left_join(dat1, personpar, by = "pers")
+    dat2 <- dplyr::left_join(dat1,
+                             data.frame(pers = gl(N, 1), theta),
+                             by = "pers")
 
     # From dat2 to dat6:
     # Apply subtree-structure such that each item loads on the correct theta,
@@ -200,7 +199,7 @@ irtree_sim_data <- function(object = NULL,
 
     probs <- dplyr::bind_rows(dat8)
     p_return <- dplyr::select(probs, c("pers", "item", "cate", "prob")) %>%
-        dplyr::arrange(pers, item, cate)
+        dplyr::arrange(.data$pers, .data$item, .data$cate)
 
     prob_item_sum <- aggregate(prob ~ pers + item, data = probs, sum)$prob
     if (!isTRUE(all.equal(prob_item_sum, rep(1, N*J)))) {
@@ -221,8 +220,8 @@ irtree_sim_data <- function(object = NULL,
     names(X) <- sub("^prob[.]", "", names(X))
     attr(X, "reshapeWide") <- NULL
 
-    return(list(data = X,
-                probs = p_return, args = args))
+    return(list(data = tibble::as_tibble(X),
+                probs = p_return, spec = spec))
 
 }
 

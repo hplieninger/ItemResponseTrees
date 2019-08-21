@@ -26,7 +26,7 @@
 #' @return Returns a list of class `irtree_fit`. The first list element is the
 #'   return value of [MplusAutomation][MplusAutomation::readModels()] or
 #'   [mirt][mirt::mirt()], and further information is provided in the element
-#'   `args`.
+#'   `spec`.
 #' @example inst/examples/example-fit.R
 #' @export
 #' @seealso The wrapped functions [irtree_fit_mplus()] and [irtree_fit_mirt()].
@@ -57,9 +57,7 @@ fit.irtree_model <- function(object = NULL,
                                verbose = verbose, ...)
     }
 
-    out$args$engine <- engine
-    class(out) <- c("irtree_fit", class(out))
-    invisible(out)
+    return(out)
 }
 
 #' @importFrom generics fit
@@ -69,9 +67,9 @@ generics::fit
 #' @export
 summary.irtree_fit <- function(object, ...) {
     # ellipsis::check_dots_used()
-    if (object$args$engine == "mplus") {
+    if (object$spec$engine == "mplus") {
         print(object$mplus$parameters$unstandardized)
-    } else if (object$args$engine == "mirt") {
+    } else if (object$spec$engine == "mirt") {
         mirt::summary(object$mirt, ...)
     }
 }
@@ -79,18 +77,16 @@ summary.irtree_fit <- function(object, ...) {
 #' @export
 coef.irtree_fit <- function(object, ...) {
     # ellipsis::check_dots_used()
-    if (object$args$engine == "mplus") {
+    if (object$spec$engine == "mplus") {
         MplusAutomation:::coef.mplus.model(object$mplus, ...)
-    } else if (object$args$engine == "mirt") {
-        mirt::coef(object$mirt, ...)
     }
 }
 
 #' @export
 print.irtree_fit <- function(x, ...) {
-    if (x$args$engine == "mplus") {
+    if (x$spec$engine == "mplus") {
         print(x$mplus, ...)
-    } else if (x$args$engine == "mirt") {
+    } else if (x$spec$engine == "mirt") {
         mirt:::print(x$mirt)
     }
 }

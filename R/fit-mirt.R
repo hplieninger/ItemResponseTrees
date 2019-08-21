@@ -13,7 +13,7 @@
 #' @inheritParams fit.irtree_model
 #' @inheritParams mirt::mirt
 #' @return List with two elements. `mirt` contains the mirt output, namely
-#'   an object of class \code{\link[mirt]{SingleGroupClass-class}} . `args`
+#'   an object of class \code{\link[mirt]{SingleGroupClass-class}} . `spec`
 #'   contains the input specifications.
 #' @example inst/examples/example-fit.R
 #' @export
@@ -46,9 +46,10 @@ irtree_fit_mirt <- function(object = NULL,
 
     link <- match.arg(link)
 
-    args <- c(as.list(environment())
+    spec <- c(as.list(environment())
               # , list(...)
     )
+    spec$engine <- "mirt"
 
     if (object$class == "tree") {
         # categ_dat <- as.integer(names(table(as.matrix(data))))
@@ -62,13 +63,13 @@ irtree_fit_mirt <- function(object = NULL,
         pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
     } else if (object$class == "grm") {
         pseudoitems <- data
-    }
+    } else stop("bug")
 
     # lambda <- object$lambda
     #
     # lambda <- lambda[order(lambda$trait, lambda$item), ]
     # lambda$new_name <- names(pseudoitems)
-    # args$object$lambda <- object$lambda <- lambda
+    # spec$object$lambda <- object$lambda <- lambda
     #
     # mirt1 <- split(lambda, lambda$trait)
     #
@@ -121,7 +122,9 @@ irtree_fit_mirt <- function(object = NULL,
         })
     }
 
-    return(list(mirt = res$value, error = res$error, warning = res$warning, args = args))
+    out <- list(mirt = res$value, error = res$error, warning = res$warning, spec = spec)
+    class(out) <- c("irtree_fit", class(out))
+    return(out)
 }
 
 #' Prepare a mirt Model
@@ -150,7 +153,7 @@ write_mirt_input <- function(object = NULL,
     lambda <- lambda[order(lambda$trait, lambda$item), ]
     lambda$new_name <- names(data)
 
-    # args$object$lambda <- object$lambda <- lambda
+    # spec$object$lambda <- object$lambda <- lambda
 
     mirt1 <- split(lambda, lambda$trait)
 
@@ -181,7 +184,7 @@ write_mirt_input <- function(object = NULL,
                                                                ", a", x, ")"), FUN.VALUE = "")
             mirt3 <- paste("CONSTRAIN =", paste(tmp2, collapse = ", "))
         }
-    }
+    } else stop("bug")
 
     mirt_string <- mirt::mirt.model(paste(c(mirt2, mirt3), collapse = "\n"),
                                     itemnames = names(data))

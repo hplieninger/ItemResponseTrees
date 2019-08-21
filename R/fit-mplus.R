@@ -25,7 +25,7 @@
 #' @inheritParams fit.irtree_model
 #' @inheritParams MplusAutomation::runModels
 #' @inheritParams MplusAutomation::prepareMplusData
-#' @return List with two elements. `Mplus` contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. `args` contains the input specifications.
+#' @return List with two elements. `mplus` contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. `spec` contains the input specifications.
 #' @examples
 #' \dontrun{
 #'   m1 <- "
@@ -67,9 +67,10 @@ irtree_fit_mplus <- function(object = NULL,
     checkmate::qassertr(analysis_list, "S1")
     checkmate::assert_class(object, "irtree_model")
 
-    args <- c(as.list(environment())
+    spec <- c(as.list(environment())
               # , list(...)
     )
+    spec$engine <- "mplus"
 
     checkmate::assert_character(object$covariates, min.chars = 1,
                                 pattern = "^[[:alpha:]][[:alnum:]_]*$",
@@ -103,7 +104,7 @@ irtree_fit_mplus <- function(object = NULL,
 
     # ellipsis::check_dots_used()
 
-    args$object$j_names <- object$j_names <- sort2(object$j_names, names(data), TRUE)
+    spec$object$j_names <- object$j_names <- sort2(object$j_names, names(data), TRUE)
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     # CAVE: The following line is super important. It is the only safeguard that
     # assures that the items in the 'MODEL'-statement of the mplus input are in
@@ -111,7 +112,7 @@ irtree_fit_mplus <- function(object = NULL,
     # This in turn assures that the item thresholds in the output are in that
     # same order---and this is necessary, because otherwise checking the order
     # whilst reading in the output is very cumbersome.
-    args$object$lambda <- object$lambda <- object$lambda[order(object$lambda$trait, object$lambda$item), ]
+    spec$object$lambda <- object$lambda <- object$lambda[order(object$lambda$trait, object$lambda$item), ]
 
     ##### file #####
 
@@ -159,7 +160,7 @@ irtree_fit_mplus <- function(object = NULL,
         names(tmp1) <- paste0("^", names(tmp1), "$")
         names(pseudoitems) <- stringr::str_replace_all(names(pseudoitems), tmp1)
         # attr(pseudoitems, "pseudoitem_names") <- object$j_names
-    }
+    } else stop("bug")
 
     ##### Mplus Input #####
 
@@ -179,7 +180,7 @@ irtree_fit_mplus <- function(object = NULL,
             analysis_list = analysis_list))
 
     mplus_input <- tmp1$mplus_input
-    args$object$lambda <- object$lambda <- tmp1$lambda
+    spec$object$lambda <- object$lambda <- tmp1$lambda
 
     checkmate::assert_class(mplus_input, "mplusObject")
 
@@ -196,7 +197,7 @@ irtree_fit_mplus <- function(object = NULL,
                            }, FUN.VALUE = character(1))
     } else if (object$class == "grm") {
         tmp2 <- NULL
-    }
+    } else stop("bug")
 
     # tmp1 <- attr(pseudoitems, "mapping_matrix")
     # tmp1 <- tmp1[, !is.element(colnames(tmp1), "cate"), drop = FALSE]
@@ -280,7 +281,9 @@ irtree_fit_mplus <- function(object = NULL,
         res <- NULL
     }
 
-    invisible(list(mplus = res, args = args))
+    out <- list(mplus = res, spec = spec)
+    class(out) <- c("irtree_fit", class(out))
+    return(out)
 }
 
 #' Prepare an Mplus Input File
@@ -416,7 +419,7 @@ write_mplus_input <- function(object = object,
         tmp1 <- names(pseudoitems)
     } else if (object$class == "tree") {
         tmp1 <- c(intersect(names(pseudoitems), lambda$new_name), object$covariates)
-    }
+    } else stop("bug")
 
     mp_cat_vars <-
         paste(
