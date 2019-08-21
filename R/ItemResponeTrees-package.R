@@ -12,7 +12,7 @@
 #' @author Hansjoerg Plieninger
 #'
 #' @importFrom stats setNames aggregate as.formula na.omit rmultinom cov2cor reshape
-#' @importFrom utils capture.output
+#' @importFrom utils capture.output packageVersion
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 #' @importFrom tibble tibble

@@ -131,14 +131,20 @@ tidy_mirt <- function(x = NULL) {
                             .data$estimate == 0 &
                             is.na(.data$std.error))) %>%
         dplyr::mutate(group = grepl("GroupPars", .data$term),
-                      term = sub("GroupPars[.]", "", .data$term)) %>%
-        # tidyr::nest(data = c("term", "estimate", "std.error")) %>%
-        tidyr::nest(c("term", "estimate", "std.error")) %>%
+                      term = sub("GroupPars[.]", "", .data$term))
+
+    if (packageVersion("tidyr") >= "0.8.3.9") {
+        est2 <- tidyr::nest(est1, data = c("term", "estimate", "std.error"))
+    } else {
+        est2 <- tidyr::nest(est1, c("term", "estimate", "std.error"))
+    }
+
+    est3 <- est2 %>%
         dplyr::mutate(data = purrr::map_if(.data$data, !.data$group, f1)) %>%
         tidyr::unnest(cols = .data$data) %>%
         dplyr::select(-"group")
 
-    est2 <- mirt::coef(x$mirt, simplify = TRUE)$cov %>%
+    est4 <- mirt::coef(x$mirt, simplify = TRUE)$cov %>%
         cov2cor %>%
         as.data.frame() %>%
         tibble::rownames_to_column() %>%
@@ -148,7 +154,7 @@ tidy_mirt <- function(x = NULL) {
         tidyr::unite(col = "term", .data$rowname, .data$key, sep = ".") %>%
         dplyr::mutate(term = paste0("COR_", .data$term))
 
-    out <- dplyr::bind_rows(est1, est2) %>%
+    out <- dplyr::bind_rows(est3, est4) %>%
         dplyr::mutate(effect = ifelse(grepl("^(MEAN_|COV_|COR_)", .data$term), "ran_pars", "fixed")) %>%
         dplyr::select(.data$effect, dplyr::everything()) %>%
         dplyr::arrange(.data$effect)
