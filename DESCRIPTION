@@ -25,7 +25,7 @@ Imports:
     rlang (>= 0.1.2),
     stringr,
     tibble,
-    tidyr,
+    tidyr (>= 1.0.0),
     tidyselect
 Suggests:
     covr,

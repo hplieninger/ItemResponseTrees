@@ -133,11 +133,7 @@ tidy_mirt <- function(x = NULL) {
         dplyr::mutate(group = grepl("GroupPars", .data$term),
                       term = sub("GroupPars[.]", "", .data$term))
 
-    if (packageVersion("tidyr") >= "0.8.3.9") {
-        est2 <- tidyr::nest(est1, data = c("term", "estimate", "std.error"))
-    } else {
-        est2 <- tidyr::nest(est1, c("term", "estimate", "std.error"))
-    }
+    est2 <- tidyr::nest(est1, data = c("term", "estimate", "std.error"))
 
     est3 <- est2 %>%
         dplyr::mutate(data = purrr::map_if(.data$data, !.data$group, f1)) %>%
