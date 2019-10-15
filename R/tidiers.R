@@ -146,12 +146,12 @@ tidy_mirt <- function(x = NULL) {
 
     est4 <- mirt::coef(x$mirt, simplify = TRUE)$cov %>%
         cov2cor %>%
+        {.[lower.tri(., diag = TRUE)] <- NA; return(.)} %>%
         as.data.frame() %>%
         tibble::rownames_to_column() %>%
-        tidyr::gather(key = "key", value = "estimate", -"rowname") %>%
-        dplyr::filter(.data$rowname != .data$key) %>%
+        tidyr::pivot_longer(cols = -rowname, values_to = "estimate") %>%
         na.omit %>%
-        tidyr::unite(col = "term", .data$rowname, .data$key, sep = ".") %>%
+        tidyr::unite(col = "term", .data$rowname, .data$name, sep = ".") %>%
         dplyr::mutate(term = paste0("COR_", .data$term))
 
     out <- dplyr::bind_rows(est3, est4) %>%
