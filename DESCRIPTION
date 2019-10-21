@@ -1,6 +1,6 @@
 Package: ItemResponseTrees
 Title: IR-Tree Modeling in Mplus or mirt
-Version: 0.1
+Version: 0.1.1
 Authors@R: person("Hansjoerg", "Plieninger", email = "plieninger@uni-mannheim.de", role = "cre")
 Description: ItemResponseTrees is an R package that allows to fit IR-tree models
     in Mplus or mirt. The package automates some of the hassle of IR-tree 

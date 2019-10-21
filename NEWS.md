@@ -1,3 +1,8 @@
-# ItemResponseTrees 0.0.0.9000
+# ItemResponseTrees 0.1.1
 
-* Added a `NEWS.md` file to track changes to the package.
+* Add wrapper functions for the TAM package
+* Add the multidimensional partial credit model (not an IR-tree model); works only in TAM
+
+# ItemResponseTrees 0.1
+
+* First stable version
