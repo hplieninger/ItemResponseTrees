@@ -8,7 +8,7 @@ Status](https://travis-ci.org/hplieninger/ItemResponseTrees.svg?branch=master)](
 ## ItemResponseTrees
 
 ItemResponseTrees is an R package that allows to fit IR-tree models in
-Mplus or mirt. If you’re unfamiliar with IR-trees, the paper of
+Mplus, mirt, or TAM. If you’re unfamiliar with IR-trees, the paper of
 [Böckenholt (2012)](https://dx.doi.org/10.1037/a0028111) is a good
 starting point. If you’re familiar with the class of IR-tree models,
 this tutorial will get you started. The package automates some of the
@@ -118,7 +118,8 @@ Further information about the model syntax is provided in
 The ItemResponseTrees package provides wrapper functions for Mplus (via
 the
 [MplusAutomation](https://cran.r-project.org/package=MplusAutomation)
-package) and for the [mirt](https://cran.r-project.org/package=mirt)
+package), for the [mirt](https://cran.r-project.org/package=mirt)
+package, and for the [TAM](https://cran.r-project.org/package=TAM)
 package. To fit a model, the model string as defined above as to be
 converted into an object of class `irtree_model` using the function
 `irtree_model()`. Then, the model can be `fit()` as follows:
@@ -198,9 +199,9 @@ tail(tidy(fit1), 3)
 #> # A tibble: 3 x 4
 #>   effect   term    estimate std.error
 #>   <chr>    <chr>      <dbl>     <dbl>
-#> 1 ran_pars COR_e.t   0.336         NA
-#> 2 ran_pars COR_m.t  -0.0840        NA
-#> 3 ran_pars COR_m.e  -0.321         NA
+#> 1 ran_pars COR_t.e   0.336         NA
+#> 2 ran_pars COR_t.m  -0.0840        NA
+#> 3 ran_pars COR_e.m  -0.321         NA
 ```
 
 ### Factor scores
