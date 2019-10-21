@@ -17,6 +17,9 @@
 #'   section Items and the order of processes (columns) is taken from the
 #'   section Processes in the `model` (see \code{\link{irtree_model}}).
 #' @param link Character. Link function to use.
+#' @param .na_okay Logical indicating whether variables with unobserved response
+#'   categories are permitted. If not (`.na_okay = FALSE`), rejection sampling
+#'   is used to ensure that all categories are observed.
 #' @inheritParams fit.irtree_model
 #' @return A list with element `data` containing the data and an
 #'   element `spec` containing the true parameter values etc.
@@ -45,7 +48,9 @@ irtree_gen_data <- function(object = NULL,
                             sigma = NULL,
                             theta = NULL,
                             itempar = NULL,
-                            link = c("probit", "logit")) {
+                            link = c("probit", "logit"),
+                            .na_okay = TRUE
+    ) {
 
     checkmate::assert_class(object, "irtree_model")
 
@@ -57,14 +62,16 @@ irtree_gen_data <- function(object = NULL,
                                sigma = sigma,
                                theta = theta,
                                itempar = itempar,
-                               link = link)
+                               link = link,
+                               .na_okay = .na_okay)
     } else if (object$class == "pcm") {
         out <- irtree_gen_pcm(object = object,
                               N = N,
                               sigma = sigma,
                               theta = theta,
                               itempar = itempar,
-                              link = link)
+                              link = link,
+                              .na_okay = .na_okay)
     }
     return(out)
 }
@@ -101,7 +108,8 @@ irtree_gen_tree <- function(object = NULL,
                             sigma = NULL,
                             theta = NULL,
                             itempar = NULL,
-                            link = c("probit", "logit")) {
+                            link = c("probit", "logit"),
+                            .na_okay = TRUE) {
 
     link <- match.arg(link)
 
@@ -267,11 +275,22 @@ irtree_gen_tree <- function(object = NULL,
     dat10 <- aggregate(prob ~ pers + item,
                        data = probs,
                        function(x) which(rmultinom(n = 1, size = 1, prob = x) == 1))
-
-    # X <- reshape2::dcast(dat10, pers ~ item, value.var = "prob")[, -1]
-    # tidyr::pivot_wide(dat10, names_from = "item", values_from = "prob")
     X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
     X <- dplyr::select(X, -.data$pers)
+
+    if (!.na_okay) {
+        ii <- 0
+        while (!.check_all_categ_observed(X, object$K)) {
+            dat10 <- aggregate(prob ~ pers + item,
+                               data = probs,
+                               function(x) which(rmultinom(n = 1, size = 1, prob = x) == 1))
+            X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
+            X <- dplyr::select(X, -.data$pers)
+            ii <- ii + 1
+            if (ii >= 25) stop("Could not generate data without missing categories.")
+        }
+    }
+
     names(X) <- sub("^prob[.]", "", names(X))
     attr(X, "reshapeWide") <- NULL
 
@@ -389,3 +408,10 @@ irtree_recode <- function(object = NULL,
 
     return(PIs2)
 }
+
+.check_all_categ_observed <- function(data, K) {
+    tmp1 <- apply(data, 2, function(x) {
+        table(factor(x, 1:K))
+    })
+
+    return(!any(tmp1 == 0))

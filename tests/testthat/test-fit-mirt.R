@@ -30,19 +30,11 @@ model2 <- irtree_model(m2)
 
 ##### Data #####
 
-flag1 <- TRUE
-ii <- 0
-while (flag1) {
-    ii <- ii + 1
-    X <- irtree_sim_data(object = model1, N = 100,
-                         sigma = diag(model1$S),
-                         itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
-                                        alpha = matrix(1, model1$J, model1$P)))
-    flag1 <- any(!vapply(lapply(X$data, unique), function(x) length(x) == model1$K, FUN.VALUE = T))
-    if (ii > 50) {
-        stop("Data generation failed")
-    }
-}
+X <- irtree_gen_data(object = model1, N = 100,
+                     sigma = diag(model1$S),
+                     itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
+                                    alpha = matrix(1, model1$J, model1$P)),
+                     .na_okay = FALSE)
 
 data(Science, package = "mirt")
 ScienceNew <- Science

@@ -84,3 +84,11 @@ sort2 <- function(x = NULL, y = NULL, x_names = FALSE, subset = TRUE) {
         x[order(match(x, y))]
     }
 }
+
+.stop_not_implemented <- function() {
+    stop("The requested behavior is not implemented. ",
+         "Please modify your function call. For example, ",
+         "try to use a different 'engine' or modify your model ",
+         "(especially the model class). Or contact the ",
+         "package maintainer.", call. = FALSE)
+}
