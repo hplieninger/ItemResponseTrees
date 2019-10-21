@@ -49,7 +49,6 @@ res1 <- fit(data = X$data,
             method = "QMCEM",
             quadpts = 1000,
             verbose = FALSE)
-# summ1 <- extract_mirt_output(res1$mirt, object = model1)
 
 res2 <- fit(data = ScienceNew,
             engine = "mirt",
@@ -62,8 +61,6 @@ res2 <- fit(data = ScienceNew,
 res2x <- mirt::mirt(ScienceNew, 1, "graded", SE = FALSE,
                     method = "QMCEM", quadpts = 1000, verbose = FALSE,
                     constrain = list(c(1, 5, 9)))
-
-# summ2 <- extract_mirt_output(res2$mirt, class = model2$class)
 
 ##### Tests #####
 
@@ -83,51 +80,6 @@ test_that("Methods work for output of irtree_fit_mirt()", {
     expect_condition(capture.output(summary(res1)), NA)
     expect_condition(capture.output(coef(res1)), NA)
 })
-
-# test_that("extract_mirt_output() works for Tree", {
-#
-#     expect_s3_class(summ1$summaries, "mirt_df")
-#
-#     lapply(summ1$person, checkmate::expect_data_frame,
-#            any.missing = FALSE,
-#            nrows = nrow(X$data), ncols = model1$S,
-#            info = "Tested expect_data_frame(summ1$person)")
-#     checkmate::expect_list(summ1$item, types = "list", any.missing = FALSE, len = 2)
-#     lapply(summ1$item, checkmate::expect_data_frame,
-#            min.cols = 2, max.cols = NULL, nrows = model1$J,
-#            info = "Tested expect_data_frame(summ1$item)")
-#     checkmate::expect_set_equal(names(summ1$item), c("beta", "alpha"))
-#     checkmate::expect_matrix(summ1$sigma, mode = "numeric", all.missing = FALSE,
-#                              nrows = model1$P, ncols = model1$P)
-#     checkmate::expect_matrix(summ1$cormat, mode = "numeric", all.missing = FALSE,
-#                              nrows = model1$P, ncols = model1$P)
-# })
-#
-# test_that("extract_mirt_output() works for GRM", {
-#
-#     expect_s3_class(summ2$summaries, "mirt_df")
-#
-#     mirtcoef <- mirt::coef(res2x)[names(ScienceNew)] %>%
-#         lapply(data.frame) %>%
-#         dplyr::bind_rows() %>%
-#         dplyr::select(-a1)
-#
-#     expect_equal(summ2$item$beta[, 2:4], mirtcoef)
-#
-#     lapply(summ2$person, checkmate::expect_data_frame,
-#            any.missing = FALSE,
-#            nrows = nrow(ScienceNew), ncols = model2$S,
-#            info = "Tested expect_data_frame(summ2$person)")
-#     checkmate::expect_list(summ2$item, types = "list", any.missing = FALSE, len = 2)
-#     lapply(summ2$item, checkmate::expect_data_frame,
-#            min.cols = 2, max.cols = NULL, nrows = model2$J,
-#            info = "Tested expect_data_frame(summ2$item)")
-#     checkmate::expect_set_equal(names(summ2$item), c("beta", "alpha"))
-#     checkmate::expect_matrix(summ2$sigma, mode = "numeric", all.missing = FALSE,
-#                              nrows = model2$P, ncols = model2$P)
-#     checkmate::expect_matrix(summ2$cormat, mode = "numeric", all.missing = FALSE,
-#                              nrows = model2$P, ncols = model2$P)
-# })
 
 # Tidiers -----------------------------------------------------------------
 
@@ -152,7 +104,7 @@ test_that("tidy.irtree_fit()", {
 
     tmp1 <- tibble::deframe(select(td1, term, estimate))
     tmp2 <- tmp1[["COV_21"]]/sqrt(tmp1[["COV_11"]])/sqrt(tmp1[["COV_22"]])
-    expect_equal(tmp2, tmp1[["COR_b.a"]], tolerance = .002)
+    expect_equal(tmp2, tmp1[["COR_a.b"]], tolerance = .002)
 
     tmp1 <- tibble::deframe(select(td2, term, estimate))
     expect_equal(tmp1[["MEAN_1"]], 0)
@@ -178,8 +130,6 @@ test_that("glance.irtree_fit()", {
 })
 
 test_that("implementation of augment.irtree_fit()", {
-
-    # skip_if(TRUE)
 
     modeltests::check_augment_function(
         augment.irtree_fit, res1, data = X$data, strict = FALSE

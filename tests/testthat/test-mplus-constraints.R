@@ -4,7 +4,7 @@ if (requireNamespace("lme4", quietly = TRUE)) {
     data(VerbAgg, package = "lme4")
 
     dat_1 <- VerbAgg %>%
-        dplyr::mutate_at("resp", as.integer) %>%
+        mutate_at("resp", as.integer) %>%
         reshape(direction = "wide",
                 idvar = c("id", "Anger", "Gender"),
                 timevar = "item", v.names = "resp",
