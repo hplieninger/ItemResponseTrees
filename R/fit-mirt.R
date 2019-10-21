@@ -63,7 +63,9 @@ irtree_fit_mirt <- function(object = NULL,
         pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
     } else if (object$class == "grm") {
         pseudoitems <- data
-    } else stop("bug")
+    } else {
+        .stop_not_implemented()
+    }
 
     # lambda <- object$lambda
     #
@@ -106,10 +108,10 @@ irtree_fit_mirt <- function(object = NULL,
                        verbose  = verbose,
                        ...))
         if (!is.null(res$warning)) {
-            warning(conditionMessage(res$warning), call. = FALSE)
+            warning(conditionMessage(res$warning))
         }
         if (!is.null(res$error)) {
-            stop(conditionMessage(res$error), call. = FALSE)
+            warning(conditionMessage(res$error))
         }
     } else {
         res <- list(value = NULL)
@@ -184,7 +186,9 @@ write_mirt_input <- function(object = NULL,
                                                                ", a", x, ")"), FUN.VALUE = "")
             mirt3 <- paste("CONSTRAIN =", paste(tmp2, collapse = ", "))
         }
-    } else stop("bug")
+    } else {
+        stop("Only model classes Tree and GRM are implemented for mirt.")
+    }
 
     mirt_string <- mirt::mirt.model(paste(c(mirt2, mirt3), collapse = "\n"),
                                     itemnames = names(data))

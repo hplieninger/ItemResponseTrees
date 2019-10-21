@@ -132,11 +132,11 @@ irtree_fit_mplus <- function(object = NULL,
 
     on.exit({
         if (cleanup) {
-            try(file.remove(inpu_file, data_file), silent = TRUE)
+            suppressWarnings(file.remove(inpu_file, data_file))
             if (run) {
-                try(file.remove(outp_file), silent = TRUE)
+                suppressWarnings(file.remove(outp_file))
                 if (save_fscores) {
-                    try(file.remove(fsco_file), silent = TRUE)
+                    suppressWarnings(file.remove(fsco_file))
                 }
             }
         }
@@ -160,7 +160,9 @@ irtree_fit_mplus <- function(object = NULL,
         names(tmp1) <- paste0("^", names(tmp1), "$")
         names(pseudoitems) <- stringr::str_replace_all(names(pseudoitems), tmp1)
         # attr(pseudoitems, "pseudoitem_names") <- object$j_names
-    } else stop("bug")
+    } else {
+        .stop_not_implemented()
+    }
 
     ##### Mplus Input #####
 
@@ -197,7 +199,9 @@ irtree_fit_mplus <- function(object = NULL,
                            }, FUN.VALUE = character(1))
     } else if (object$class == "grm") {
         tmp2 <- NULL
-    } else stop("bug")
+    } else {
+        .stop_not_implemented()
+    }
 
     # tmp1 <- attr(pseudoitems, "mapping_matrix")
     # tmp1 <- tmp1[, !is.element(colnames(tmp1), "cate"), drop = FALSE]
@@ -419,7 +423,9 @@ write_mplus_input <- function(object = object,
         tmp1 <- names(pseudoitems)
     } else if (object$class == "tree") {
         tmp1 <- c(intersect(names(pseudoitems), lambda$new_name), object$covariates)
-    } else stop("bug")
+    } else {
+        .stop_not_implemented()
+    }
 
     mp_cat_vars <-
         paste(
