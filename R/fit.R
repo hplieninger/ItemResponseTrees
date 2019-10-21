@@ -32,7 +32,7 @@
 #' @seealso The wrapped functions [irtree_fit_mplus()] and [irtree_fit_mirt()].
 fit.irtree_model <- function(object = NULL,
                              data = NULL,
-                             engine = c("mplus", "mirt"),
+                             engine = c("mplus", "mirt", "tam"),
                              verbose = interactive(),
                              ...,
                              .improper_okay = FALSE) {
@@ -55,6 +55,11 @@ fit.irtree_model <- function(object = NULL,
     } else if (engine == "mirt") {
         out <- irtree_fit_mirt(object = object, data = data,
                                verbose = verbose, ...)
+    } else if (engine == "tam") {
+        out <- irtree_fit_tam(object = object, data = data,
+                              verbose = verbose, ...)
+    } else {
+        .stop_not_implemented()
     }
 
     return(out)
@@ -71,6 +76,8 @@ summary.irtree_fit <- function(object, ...) {
         print(object$mplus$parameters$unstandardized)
     } else if (object$spec$engine == "mirt") {
         mirt::summary(object$mirt, ...)
+    } else if (object$spec$engine == "tam") {
+        TAM:::summary.tam.mml(object$tam, ...)
     }
 }
 
@@ -79,6 +86,10 @@ coef.irtree_fit <- function(object, ...) {
     # ellipsis::check_dots_used()
     if (object$spec$engine == "mplus") {
         MplusAutomation:::coef.mplus.model(object$mplus, ...)
+    } else if (object$spec$engine == "mirt") {
+        mirt::coef(object$mirt, ...)
+    } else {
+        return(NULL)
     }
 }
 
@@ -88,5 +99,7 @@ print.irtree_fit <- function(x, ...) {
         print(x$mplus, ...)
     } else if (x$spec$engine == "mirt") {
         mirt:::print(x$mirt)
+    } else if (x$spec$engine == "tam") {
+        TAM:::print.tam.mml(x$tam)
     }
 }

@@ -1,8 +1,8 @@
 #' ItemResponseTree Model Syntax
 #'
-#' The ItemResponseTree model syntax describes an IR-tree model. The function
-#' `irtree_model()` turns a user-defined model string into an object of class
-#' `irtree_model` that represents the full model as needed by the package.
+#' The ItemResponseTree model syntax describes the statistical model. The
+#' function `irtree_model()` turns a user-defined model string into an object of
+#' class `irtree_model` that represents the full model as needed by the package.
 #'
 #' @section Overview of the Model Syntax:
 #'
@@ -20,7 +20,7 @@
 #'   The `model` must contain a section with heading **IRT**. Therein, the IRT
 #'   structure of the model is described in a way resembling the MODEL part of
 #'   an Mplus input file. It has a structure of `LV BY item1*, item2@1`,
-#'   where `LV` is the name of the latent variable/parameter/process,
+#'   where `LV` is the name of the latent variable/parameter/process, and
 #'   `item` is the name of the observed variable in the data set, which
 #'   is followed by the loading. The loading may either be fixed (e.g., to 1)
 #'   using `@1` or it may be set free using `*` or omitting the
@@ -168,6 +168,27 @@
 #'   e WITH t@0;
 #'   m WITH t@0;}
 #'
+#' @section Weights:
+#'
+#'   The `model` may contain a section with heading **Weights** if model
+#'   **Class** is PCM.
+#'   This allows to specify (uni- and) multidimensional partial credit models.
+#'   They have been proposed, for example, by Wetzel and Carstensen (2017), as
+#'   an alternative to IR-tree models.
+#'   Note that fitting these models is only implemented for `engine = "tam"`.
+#'
+#'   Each line in this section has a structure of `LV = weights`, where `LV` is
+#'   the name of the processes used in section **IRT**.
+#'   `weights` must be valid R code, namely, a vector of weights (see, e.g.,
+#'   Table 1 in Wetzel & Carstensen, 2017, or Table 2 in Falk & Cai, 2015).
+#'   Use one line for each definition. For example:
+#'
+#'   \preformatted{
+#'   Weights:
+#'   t = c(0, 1, 2, 3, 4)
+#'   e = c(1, 0, 0, 0, 1)
+#'   m = c(0, 0, 1, 0, 0)}
+#'
 #' @param model String with a specific structure as described below.
 #' @return List of class `irtree_model`. It contains the information extracted
 #'   from parsing `model`. Side note: The returned list contains an element
@@ -209,6 +230,9 @@ irtree_model <- function(model = NULL) {
 
     # out1 <- list(string = model)
     e1 <- new.env()
+    # Remove white space and emtpy lines at beginning and end
+    model <- sub("^\\s*", "", model)
+    model <- sub("\\s*$", "", model)
     e1$string <- model
 
     model2 <- trimws(strsplit(model, "\\n+")[[1]])
@@ -217,12 +241,15 @@ irtree_model <- function(model = NULL) {
 
     ### Extract suparts of 'model' ###
 
-    model_list <- list("irt" = NULL, "equations" = NULL,
+    model_list <- list("irt" = NULL,
+                       "equations" = NULL,
                        # "processes" = NULL,
                        "subtree" = NULL,
                        # "items" = NULL,
-                       "class" = NULL, "addendum" = NULL,
-                       "constraints" = NULL)
+                       "class" = NULL,
+                       "addendum" = NULL,
+                       "constraints" = NULL,
+                       "weights" = NULL)
     # Check Headings in 'model'
     headings <-
         na.omit(
@@ -279,10 +306,24 @@ irtree_model <- function(model = NULL) {
     ##### Class #####
 
     e1$class <- tolower(stringr::str_extract(model_list$class, "\\w+"))
-    checkmate::assert_choice(e1$class, choices = c("tree", "grm"), .var.name = "Class")
+    checkmate::assert_choice(e1$class, choices = c("tree", "grm", "pcm"), .var.name = "Class")
 
-    if (e1$class == "tree" & is.null(model_list$equations)) {
-        stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
+    if (e1$class == "tree") {
+        if (is.null(model_list$equations)) {
+            stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
+        }
+        if (!is.null(model_list$weights)) {
+            stop("Argument 'model' must not contain a part with heading 'Weights'.", call. = FALSE)
+        }
+    }
+    if (e1$class == "pcm") {
+        if (is.null(model_list$weights)) {
+            stop("Argument 'model' must contain a part with heading 'Weights'. ",
+                 "For examples, see:\n?irtree_gen_pcm", call. = FALSE)
+        }
+        # if (!is.null(model_list$equations)) {
+        #     stop("Argument 'model' must not contain a part with heading 'Equations'.", call. = FALSE)
+        # }
     }
 
     ##### IRT #####
@@ -313,6 +354,10 @@ irtree_model <- function(model = NULL) {
 
     irtree_model_constraints(model_list, e1)
 
+    ##### Weights #####
+
+    irtree_model_weights(model_list, e1)
+
     ##### Labels for Items and Processes #####
 
     # Mplus allows names of max 8 characters.
@@ -331,7 +376,7 @@ irtree_model <- function(model = NULL) {
     if (e1$class == "tree") {
         flag1 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
                            max(nchar(e1$j_names))))
-    } else if (e1$class == "grm") {
+    } else if (e1$class %in% c("grm", "pcm")) {
         flag1 <- 8 < max(nchar(e1$j_names))
     }
 
@@ -370,7 +415,7 @@ irtree_model <- function(model = NULL) {
         #                    max(nchar(e1$j_names))))
         flag2 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
                            max(nchar(j_names_new))))
-    } else if (e1$class == "grm") {
+    } else if (e1$class %in% c("grm", "pcm")) {
         flag2 <- 8 < max(nchar(e1$lv_names))
     }
 
@@ -518,7 +563,7 @@ irtree_model <- function(model = NULL) {
 
     if (e1$class == "tree") {
         lambda$new_name <- glue::glue_data(lambda, "{p}_{item}")
-    } else if (e1$class == "grm") {
+    } else if (e1$class %in% c("grm", "pcm")) {
         lambda$new_name <- glue::glue_data(lambda, "{item}")
     }
     lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
@@ -547,7 +592,7 @@ irtree_model <- function(model = NULL) {
     ##### Test if probabilities sum to 1 #####
 
     if (!is.null(model_list$equations)) {
-        tryCatch(irtree_sim_data(object = out1, N = 1, sigma = diag(e1$S),
+        tryCatch(irtree_gen_data(object = out1, N = 1, sigma = diag(e1$S),
                                  itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
                                                 alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P))
                                  # , K = ifelse(is.null(e1$K), NULL, e1$K)

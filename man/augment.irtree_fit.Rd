@@ -17,20 +17,13 @@ object.}
 \item{se.fit}{Logical indicating whether standard errors for the fitted
 values should be returned as well.}
 
-\item{method}{type of factor score estimation method. Can be:
-\itemize{
-    \item \code{"EAP"} for the expected a-posteriori (default)
-    \item \code{"MAP"} for the maximum a-posteriori (i.e, Bayes modal)
-    \item \code{"ML"} for maximum likelihood
-    \item \code{"WLE"} for weighted likelihood estimation
-    \item \code{"EAPsum"} for the expected a-posteriori for each sum score
-    \item \code{"plausible"} for a single plausible value imputation for each case.
-      This is equivalent to setting \code{plausible.draws = 1}
-    \item \code{"classify"} for the posteriori classification probabilities (only
-      applicable when the input model was of class \code{MixtureClass})
- }}
+\item{method}{This is passed to \code{\link[mirt:fscores]{mirt::fscores()}} or
+\code{\link[TAM:IRT.factor.scores.tam.mml]{TAM:::IRT.factor.scores()}} (as argument
+\code{type}) if applicable.}
 
-\item{...}{Additional arguments passed to \code{\link[mirt:fscores]{mirt::fscores()}} if applicable.}
+\item{...}{Additional arguments passed to \code{\link[mirt:fscores]{mirt::fscores()}} or
+\code{\link[TAM:IRT.factor.scores.tam.mml]{TAM:::IRT.factor.scores()}} if
+applicable.}
 }
 \value{
 Returns a \link[tibble:tibble-package]{tibble} with one row for each

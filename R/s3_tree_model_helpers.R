@@ -1,3 +1,9 @@
+# Notation:
+# P: Number of different processes in the tree diagram (e.g., P=3 in the
+#    classical tree for 5-point items)
+# S: Number of latent dimensions (e.g., S=7 for the classical tree for 5-point
+#    items applied to Big-5 data)
+
 irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
 
     irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
@@ -283,4 +289,17 @@ irtree_model_mapping <- function(e1 = new.env()) {
     } else {
         return(invisible(NULL))
     }
+}
+
+irtree_model_weights <- function(model_list = NULL, e1 = new.env()) {
+    if (is.null(model_list$weights)) {
+        return(invisible(NULL))
+    }
+    w_vec <- unlist(strsplit(model_list$weights, "\\n+"))
+    w_vec <- strsplit(w_vec, "\\s?=\\s?")
+    weights <- lapply(w_vec, function(x) eval(parse(text = x[2])))
+    names(weights) <- vapply(w_vec, `[[`, 1, FUN.VALUE = "a")
+    e1$K <- length(weights[[1]])
+    checkmate::qassertr(weights, paste0("N", e1$K, "(,)"))
+    e1$weights <- weights
 }

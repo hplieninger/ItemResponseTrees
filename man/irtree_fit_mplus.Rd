@@ -63,7 +63,7 @@ it will throw an error.}
 signaled as warnings (the default) or messages.}
 }
 \value{
-List with two elements. \code{Mplus} contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. \code{args} contains the input specifications.
+List with two elements. \code{mplus} contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. \code{spec} contains the input specifications.
 }
 \description{
 This function takes a data frame and a model string and runs the model in Mplus.

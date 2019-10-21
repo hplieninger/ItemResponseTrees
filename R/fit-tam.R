@@ -1,0 +1,135 @@
+#' Fit an IR-Tree Model using TAM.
+#'
+#' This function takes a `data` frame and a model `object` and runs the model in TAM.
+#'
+#' @param link String specifying the link function. Only `logit` is
+#'   implemented in TAM.
+#' @param ... Other arguments passed to [TAM::tam.mml()].
+#' @param .set_min_to_0 Logical. [TAM][TAM::tam.mml] expects the data to be scored 0,
+#'   ..., K. If `.set_min_to_0 = TRUE`, the minimum of the data is subtracted from
+#'   each response, which will likely both satisfy TAM and do no harm to the
+#'   data.
+#' @inheritParams TAM::tam.mml
+#' @inheritParams fit.irtree_model
+#' @return List with two elements. `tam` contains the TAM output, namely
+#'   an object of class [`tam.mml`][TAM::tam.mml] . `spec`
+#'   contains the input specifications.
+#' @example inst/examples/example-fit.R
+#' @export
+irtree_fit_tam <- function(object = NULL,
+                           data = NULL,
+                           link = "logit",
+                           verbose = interactive(),
+                           ...,
+                           .set_min_to_0 = FALSE) {
+
+    checkmate::assert_class(object, "irtree_model")
+    if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
+        stop("2Pl is not implemented in TAM.")
+    }
+    checkmate::assert_data_frame(data,
+                                 # types = "numeric",
+                                 all.missing = FALSE, min.rows = 1, min.cols = object$J)
+    checkmate::assert_data_frame(data[names(object$j_names)], types = "integerish",
+                                 ncols = object$J)
+    data <- tibble::as_tibble(data)
+    checkmate::assert_subset(names(object$j_names), choices = names(data))
+
+    object$j_names <- sort2(object$j_names, names(data), x_names = TRUE)
+    object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
+    object$lambda <- object$lambda[order(object$lambda$item, object$lambda$trait), ]
+
+    link <- match.arg(link)
+
+    spec <- c(as.list(environment()))
+    spec$engine <- "tam"
+
+    if (object$class == "tree") {
+
+        categ_dat <- unique(unlist(data, use.names = FALSE))
+        categ_mod <- as.integer(names(object$expr))
+        if (length(sym_diff(categ_dat, categ_mod)) > 0) {
+            stop("'data' has categories ", clps(", ", sort(categ_dat)),
+                 " but 'object' has equations for categories ", clps(", ", categ_mod), "."
+                 , call. = FALSE)
+        }
+        pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
+
+        Q <- .make_tam_Q(object = object, pseudoitems = pseudoitems)
+
+    } else if (object$class == "pcm") {
+
+        if (.set_min_to_0) {
+            pseudoitems <- data - min(data[names(object$j_names)])
+        } else {
+            pseudoitems <- data
+            if (min(data[names(object$j_names)]) != 0) {
+                warning("Minimum of data is not equal to zero. ",
+                        "You should probably recode your data or set '.set_min_to_0 = TRUE'.", call. = FALSE)
+            }
+        }
+
+        B <- .make_tam_B(object, array = TRUE)
+
+    } else {
+        stop("Class ", object$class, " not implemented in TAM.", call. = FALSE)
+    }
+
+    if (TRUE) {
+        res <- myTryCatch(
+            TAM::tam.mml(resp     = pseudoitems,
+                         irtmodel = "1PL",
+                         Q        = get0("Q", environment(), inherits = FALSE),
+                         B        = get0("B", environment(), inherits = FALSE),
+                         verbose  = verbose,
+                         ...))
+        if (!is.null(res$warning)) {
+            warning(conditionMessage(res$warning))
+        }
+        if (!is.null(res$error)) {
+            warning(conditionMessage(res$error))
+        }
+    } else {
+        res <- list(value = NULL)
+    }
+
+    out <- list(tam = res$value, error = res$error, warning = res$warning, spec = spec)
+    class(out) <- c("irtree_fit", class(out))
+    return(out)
+}
+
+.make_tam_Q <- function(object = NULL, pseudoitems = NULL) {
+
+    df1 <- data.frame(object$lambda, dim = 1) %>%
+        dplyr::select(.data$trait, .data$new_name, .data$dim) %>%
+        reshape(direction = "wide", v.names = "dim",
+                idvar = "new_name", timevar = "trait")
+
+    df1$new_name <- factor(df1$new_name, levels = names(pseudoitems))
+    df1 <- df1[order(df1$new_name), ]
+
+    Q <- dplyr::select(df1, dplyr::starts_with("dim.")) %>%
+        dplyr::mutate_all(tidyr::replace_na, 0) %>%
+        as.matrix
+    return(Q)
+}
+
+.make_tam_B <- function(object = NULL, array = TRUE) {
+
+    weights_df <- tibble::enframe(object$weights, "trait")
+    weights_df$trait <- factor(weights_df$trait, levels(object$lambda$trait))
+
+    B1 <- dplyr::full_join(object$lambda, weights_df, by = "trait")
+    B2 <- tidyr::pivot_wider(B1, id_cols = "item", names_from = "trait", values_from = "value")
+    B3 <- tidyr::unnest(B2, cols = -.data$item)
+    B4 <- dplyr::select(B3, -1)
+    B   <- Matrix::Matrix(as.matrix(B4))
+
+    if (array) {
+        B5 <- array(B, dim = c(object$K, object$J, object$S))
+        B <- array(apply(B5, 3, t),
+                   dim = c(object$J, object$K, object$S))
+    }
+    return(B)
+
+}

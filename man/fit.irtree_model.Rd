@@ -5,7 +5,7 @@
 \title{Fit an IR-Tree model.}
 \usage{
 \method{fit}{irtree_model}(object = NULL, data = NULL,
-  engine = c("mplus", "mirt"), verbose = interactive(), ...,
+  engine = c("mplus", "mirt", "tam"), verbose = interactive(), ...,
   .improper_okay = FALSE)
 }
 \arguments{
@@ -32,7 +32,7 @@ know what you are doing.}
 Returns a list of class \code{irtree_fit}. The first list element is the
 return value of \link[MplusAutomation:readModels]{MplusAutomation} or
 \link[mirt:mirt]{mirt}, and further information is provided in the element
-\code{args}.
+\code{spec}.
 }
 \description{
 This function takes a \code{data} frame and an \code{object} of class \link{irtree_model},

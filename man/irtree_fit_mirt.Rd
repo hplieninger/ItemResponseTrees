@@ -34,7 +34,7 @@ two functions are removed from the output if \code{rm_mirt_internal =
 }
 \value{
 List with two elements. \code{mirt} contains the mirt output, namely
-an object of class \code{\link[mirt]{SingleGroupClass-class}} . \code{args}
+an object of class \code{\link[mirt]{SingleGroupClass-class}} . \code{spec}
 contains the input specifications.
 }
 \description{

@@ -19,6 +19,7 @@ Imports:
     glue,
     magrittr,
     MASS,
+    Matrix,
     mirt,
     MplusAutomation (>= 0.7),
     purrr,
@@ -37,7 +38,9 @@ Suggests:
     progress,
     rmarkdown,
     roxygen2,
+    sfsmisc,
     sirt,
+    TAM,
     testthat,
     truncnorm
 Encoding: UTF-8

@@ -44,9 +44,6 @@ glance.irtree_fit <- function(x = NULL, ...) {
 
         out$iterations <- NA_integer_
 
-        # out <- tibble::as_tibble(out) %>%
-        #     dplyr::select(c("AIC":"LL"), "converged", dplyr::everything())
-
     } else if (engine == "mirt") {
         out <- mirt::anova(x$mirt)
         out$converged <- mirt::extract.mirt(x$mirt, "converged")
@@ -56,6 +53,29 @@ glance.irtree_fit <- function(x = NULL, ...) {
         out$nobs <- x$mirt@Data$N
         out$n.factors <- mirt::extract.mirt(x$mirt, "nfact")
         out$ngroups <- mirt::extract.mirt(x$mirt, "ngroups")
+        out <- tibble::as_tibble(out)
+    } else if (engine == "tam") {
+        out <- data.frame(AIC = x$tam$ic$AIC)
+        out$BIC <- x$tam$ic$BIC
+        out$AICc <- x$tam$ic$AICc
+
+        out$converged <- NA
+        tmp1 <- diff(x$tam$deviance.history)
+        tmp2 <- utils::tail(tmp1[, "deviance", drop = TRUE], 5)
+        if (x$tam$iter == x$tam$control$maxiter) {
+            out$converged <- FALSE
+        } else if (any(tmp2 >= 0)) {
+            out$converged <- FALSE
+
+        }
+
+        out$logLik <- x$tam$ic$loglike
+        out$iterations <- x$tam$iter
+        out$estimator <- NA_character_
+        out$npar <- x$tam$ic$np
+        out$nobs <- x$tam$ic$n
+        out$n.factors <- x$tam$ndim
+        out$ngroups <- x$tam$groups
         out <- tibble::as_tibble(out)
     }
 
@@ -107,6 +127,8 @@ tidy.irtree_fit <- function(x = NULL, ...) {
         out <- tidy_mplus(x)
     } else if (engine == "mirt") {
         out <- tidy_mirt(x)
+    } else if (engine == "tam") {
+        out <- .tidy_tam(x)
     }
     return(out)
 }
@@ -145,7 +167,7 @@ tidy_mirt <- function(x = NULL) {
         {.[lower.tri(., diag = TRUE)] <- NA; return(.)} %>%
         as.data.frame() %>%
         tibble::rownames_to_column() %>%
-        tidyr::pivot_longer(cols = -rowname, values_to = "estimate") %>%
+        tidyr::pivot_longer(cols = -.data$rowname, values_to = "estimate") %>%
         na.omit %>%
         tidyr::unite(col = "term", .data$rowname, .data$name, sep = ".") %>%
         dplyr::mutate(term = paste0("COR_", .data$term))
@@ -186,6 +208,32 @@ tidy_mplus <- function(x = NULL) {
     return(out)
 }
 
+.tidy_tam <- function(x = NULL) {
+    xsi <- x$tam$xsi
+    names(xsi) <- c("estimate", "std.error")
+    out1 <- data.frame(
+        effect = "fixed",
+        tibble::as_tibble(xsi, rownames = "term"))
+
+    varx <- x$tam$variance
+    corx <- cov2cor(varx)
+    tmp1 <- unlist(as.data.frame(varx, row.names = FALSE))
+    tmp2 <- tmp1[as.vector(lower.tri(varx, TRUE))]
+    names(tmp2) <- sub("V", "COV_", names(tmp2))
+
+    tmp3 <- unlist(as.data.frame(corx, row.names = FALSE))
+    tmp4 <- tmp3[as.vector(lower.tri(corx))]
+    names(tmp4) <- sub("V", "COR_", names(tmp4))
+
+    out2 <- data.frame(
+        effect = "ran_pars",
+        tibble::enframe(c(tmp2, tmp4), "term", "estimate"),
+        std.error = NA_real_)
+
+    out <- tibble::as_tibble(rbind(out1, out2))
+    return(out)
+}
+
 #' Augment data with information from an irtree_fit object.
 #'
 #' @description Augment accepts a model object and a dataset and adds
@@ -202,7 +250,12 @@ tidy_mplus <- function(x = NULL) {
 #'   object.
 #' @param se.fit Logical indicating whether standard errors for the fitted
 #'   values should be returned as well.
-#' @param ... Additional arguments passed to [mirt::fscores()] if applicable.
+#' @param method This is passed to [mirt::fscores()] or
+#'   [`TAM:::IRT.factor.scores()`][TAM::IRT.factor.scores.tam.mml] (as argument
+#'   `type`) if applicable.
+#' @param ... Additional arguments passed to [mirt::fscores()] or
+#'   [`TAM:::IRT.factor.scores()`][TAM::IRT.factor.scores.tam.mml] if
+#'   applicable.
 #' @inheritParams mirt::fscores
 #' @return Returns a [tibble][tibble::tibble-package] with one row for each
 #'   observation and one (two) additional columns for each latent variable if
@@ -231,7 +284,7 @@ augment.irtree_fit <- function(x = NULL,
         }
         if (!checkmate::test_string(method, na.ok = TRUE,
                                     pattern = "^EAP$", null.ok = TRUE)) {
-            warning("Argument 'method' is only implemented for 'engine = \"mirt\".'")
+            warning("Argument 'method' is only implemented for 'engine = \"mirt\".'", call. = FALSE)
         }
 
         out <- tryCatch({
@@ -268,6 +321,22 @@ augment.irtree_fit <- function(x = NULL,
             {
                 tmp1 <- augment_mirt(x = x, se.fit = se.fit, method = method, ...)
                 tibble::as_tibble(cbind(data, tmp1))
+            },
+            error = function(cond) {
+                warning(cond)
+                return(tibble::as_tibble(data))
+            }
+        )
+        return(out)
+    } else if (engine == "tam") {
+
+        out <- tryCatch(
+            {
+                tmp1 <- TAM:::IRT.factor.scores.tam.mml(x$tam)
+                names(tmp1) <- sub("^EAP(.*)", ".fitted\\1", names(tmp1))
+                names(tmp1) <- sub("^SD.EAP(.*)", ".se.fit\\1", names(tmp1))
+
+                tibble::as_tibble(cbind(data, tmp1[order(names(tmp1))]))
             },
             error = function(cond) {
                 warning(cond)

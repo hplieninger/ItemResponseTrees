@@ -17,9 +17,9 @@ instructive, and it might be used as an input to the \code{\link[irtrees:dendrif
 function of the \link[irtrees:irtrees-package]{irtrees} package.
 }
 \description{
-The ItemResponseTree model syntax describes an IR-tree model. The function
-\code{irtree_model()} turns a user-defined model string into an object of class
-\code{irtree_model} that represents the full model as needed by the package.
+The ItemResponseTree model syntax describes the statistical model. The
+function \code{irtree_model()} turns a user-defined model string into an object of
+class \code{irtree_model} that represents the full model as needed by the package.
 }
 \section{Overview of the Model Syntax}{
 
@@ -40,7 +40,7 @@ given in the following.
 The \code{model} must contain a section with heading \strong{IRT}. Therein, the IRT
 structure of the model is described in a way resembling the MODEL part of
 an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
-where \code{LV} is the name of the latent variable/parameter/process,
+where \code{LV} is the name of the latent variable/parameter/process, and
 \code{item} is the name of the observed variable in the data set, which
 is followed by the loading. The loading may either be fixed (e.g., to 1)
 using \code{@1} or it may be set free using \code{*} or omitting the
@@ -156,12 +156,35 @@ The \code{model} may contain a section with heading \strong{Addendum} if
 Any code in this section is directly pasted in the \code{MODEL} section of
 the Mplus input file.
 Use a semicolon at the end of each line; lines must not exceed 90 characters.
-Note that the addendum is ignored in \code{\link[=irtree_sim_data]{irtree_sim_data()}}. For example:
+Note that the addendum is ignored in \code{\link[=irtree_gen_data]{irtree_gen_data()}}. For example:
 
 \preformatted{
   Addendum:
   e WITH t@0;
   m WITH t@0;}
+}
+
+\section{Weights}{
+
+
+The \code{model} may contain a section with heading \strong{Weights} if model
+\strong{Class} is PCM.
+This allows to specify (uni- and) multidimensional partial credit models.
+They have been proposed, for example, by Wetzel and Carstensen (2017), as
+an alternative to IR-tree models.
+Note that fitting these models is only implemented for \code{engine = "tam"}.
+
+Each line in this section has a structure of \code{LV = weights}, where \code{LV} is
+the name of the processes used in section \strong{IRT}.
+\code{weights} must be valid R code, namely, a vector of weights (see, e.g.,
+Table 1 in Wetzel & Carstensen, 2017, or Table 2 in Falk & Cai, 2015).
+Use one line for each definition. For example:
+
+\preformatted{
+  Weights:
+  t = c(0, 1, 2, 3, 4)
+  e = c(1, 0, 0, 0, 1)
+  m = c(0, 0, 1, 0, 0)}
 }
 
 \examples{
