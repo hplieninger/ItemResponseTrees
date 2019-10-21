@@ -1,6 +1,6 @@
-#' Generate Data From an IR-Tree Model
+#' Generate Data
 #'
-#' This function generates data from an IR-tree model.
+#' This function generates data from an ItemResponseTree model.
 #'
 #' @param N Integer, the number of persons.
 #' @param sigma Either a matrix or a function that returns a matrix. This matrix
@@ -72,6 +72,8 @@ irtree_gen_data <- function(object = NULL,
                               itempar = itempar,
                               link = link,
                               .na_okay = .na_okay)
+    } else {
+        stop("Class ", object$class, " not implemented.", call. = FALSE)
     }
     return(out)
 }
@@ -114,6 +116,7 @@ irtree_gen_tree <- function(object = NULL,
     link <- match.arg(link)
 
     spec <- c(as.list(environment()))
+    spec$J <- object$J
 
     link <- switch(link,
                    probit = setNames("pnorm", link),
@@ -136,12 +139,6 @@ irtree_gen_tree <- function(object = NULL,
     expr <- object$expr
 
     checkmate::assert_int(N, lower = 1, null.ok = !is.null(theta))
-    if (!is.null(theta)) {
-        spec$theta <- theta <- data.matrix(theta, rownames.force = FALSE)
-        N <- nrow(theta)
-    }
-    checkmate::assert_matrix(theta, mode = "numeric", min.rows = 1,
-                             ncols = object$S, null.ok = !is.null(sigma))
 
     if (is.function(sigma)) {
         FUN <- match.fun(sigma)
@@ -152,6 +149,13 @@ irtree_gen_tree <- function(object = NULL,
 
     checkmate::assert_matrix(sigma, mode = "numeric", any.missing = FALSE,
                              nrows = S, ncols = S, null.ok = !is.null(theta))
+
+    if (!is.null(theta)) {
+        spec$theta <- theta <- data.matrix(theta, rownames.force = FALSE)
+        N <- nrow(theta)
+    }
+    checkmate::assert_matrix(theta, mode = "numeric", min.rows = 1,
+                             ncols = object$S, null.ok = !is.null(sigma))
 
     if (is.function(itempar)) {
         FUN <- match.fun(itempar)
@@ -415,3 +419,4 @@ irtree_recode <- function(object = NULL,
     })
 
     return(!any(tmp1 == 0))
+}
