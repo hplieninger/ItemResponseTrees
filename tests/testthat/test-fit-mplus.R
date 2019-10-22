@@ -38,23 +38,23 @@ Addendum:
 a WITH Benefit;
 "
 
-m4 <- "
-IRT:
-b BY X1, X2, X3, X4*2, X10;
-a BY X1, X2, X3, X4*2, X10;
-
-Equations:
-1 = (1-a)
-2 = a*(1-b)
-3 = a*b
-
-Class:
-Tree
-
-Addendum:
-a WITH b@0;
-a WITH y1;
-"
+# m4 <- "
+# IRT:
+# b BY X1, X2, X3, X4*2, X10;
+# a BY X1, X2, X3, X4*2, X10;
+#
+# Equations:
+# 1 = (1-a)
+# 2 = a*(1-b)
+# 3 = a*b
+#
+# Class:
+# Tree
+#
+# Addendum:
+# a WITH b@0;
+# a WITH y1;
+# "
 
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
@@ -67,7 +67,7 @@ X <- irtree_gen_data(object = model1, N = 100,
                      sigma = diag(model1$S),
                      itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                                     alpha = matrix(1, model1$J, model1$P)),
-                     .na_okay = FALSE)
+                     .na_okay = FALSE, .skip = TRUE)
 tmp1 <- names(model1$j_names)
 names(tmp1) <- model1$j_names
 names(X$data) <- stringr::str_replace_all(names(X$data), tmp1)

@@ -92,3 +92,35 @@ sort2 <- function(x = NULL, y = NULL, x_names = FALSE, subset = TRUE) {
          "(especially the model class). Or contact the ",
          "package maintainer.", call. = FALSE)
 }
+
+.must_have <- function(model_list = NULL,
+                       element = NA_character_,
+                       must_have = TRUE,
+                       .name = NULL,
+                       .class = NULL,
+                       .engine = NULL,
+                       .skip = FALSE) {
+    if (.skip) {
+        return()
+    }
+    if (is.null(model_list[[element]]) == must_have &&
+        (length(model_list[[element]]) == 0) == must_have) {
+        if (is.null(.name)) {
+            .name <- stringr::str_to_title(element)
+        }
+
+        if (!is.null(.class)) {
+            why <- glue::glue(" if class is '{.class}'")
+        } else if (!is.null(.engine)) {
+            why <- glue::glue(" if engine is '{.engine}'")
+        } else {
+            why <- ""
+        }
+        tmp1 <- glue::glue(
+            "Argument 'model' must {ifelse(must_have, '', 'NOT ')}",
+             "contain a part with heading ",
+             "'{.name}'{why}."
+        )
+        stop(tmp1, call. = FALSE)
+    }
+}

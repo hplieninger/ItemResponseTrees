@@ -20,6 +20,10 @@
 #' @param .na_okay Logical indicating whether variables with unobserved response
 #'   categories are permitted. If not (`.na_okay = FALSE`), rejection sampling
 #'   is used to ensure that all categories are observed.
+#' @param .skip Logical. Some features of the [model][`irtree_model`] syntax,
+#'   which are available for model fitting (e.g., `Addendum`), are not
+#'   implemented for data generation. Those parts of the model are ignored if
+#'   `.skip = TRUE`.
 #' @inheritParams fit.irtree_model
 #' @return A list with element `data` containing the data and an
 #'   element `spec` containing the true parameter values etc.
@@ -49,10 +53,15 @@ irtree_gen_data <- function(object = NULL,
                             theta = NULL,
                             itempar = NULL,
                             link = c("probit", "logit"),
-                            .na_okay = TRUE
+                            .na_okay = TRUE,
+                            .skip = FALSE
     ) {
 
     checkmate::assert_class(object, "irtree_model")
+
+    # .must_have(object, "subtree", FALSE)
+    .must_have(object, "constraints", FALSE, .skip = .skip)
+    .must_have(object, "addendum", FALSE, .skip = .skip)
 
     link <- match.arg(link)
 
@@ -71,7 +80,8 @@ irtree_gen_data <- function(object = NULL,
                               theta = theta,
                               itempar = itempar,
                               link = link,
-                              .na_okay = .na_okay)
+                              .na_okay = .na_okay,
+                              .skip = .skip)
     } else {
         stop("Class ", object$class, " not implemented.", call. = FALSE)
     }

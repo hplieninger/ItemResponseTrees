@@ -299,9 +299,7 @@ irtree_model <- function(model = NULL) {
     }
     model_list[flag] <- NULL
 
-    if (is.null(model_list$irt)) {
-        stop("Argument 'model' must contain a part with heading 'IRT'.", call. = FALSE)
-    }
+    .must_have(model_list, "irt", .name = "IRT")
 
     ##### Class #####
 
@@ -309,22 +307,15 @@ irtree_model <- function(model = NULL) {
     checkmate::assert_choice(e1$class, choices = c("tree", "grm", "pcm"), .var.name = "Class")
 
     if (e1$class == "tree") {
-        if (is.null(model_list$equations)) {
-            stop("Argument 'model' must contain a part with heading 'Equations'.", call. = FALSE)
-        }
-        if (!is.null(model_list$weights)) {
-            stop("Argument 'model' must not contain a part with heading 'Weights'.", call. = FALSE)
-        }
-    }
-    if (e1$class == "pcm") {
-        if (is.null(model_list$weights)) {
-            stop("Argument 'model' must contain a part with heading 'Weights'. ",
-                 "For examples, see:\n?irtree_gen_pcm", call. = FALSE)
-        }
-        # if (!is.null(model_list$equations)) {
-        #     stop("Argument 'model' must not contain a part with heading 'Equations'.", call. = FALSE)
-        # }
-    }
+        .must_have(model_list, "equations", .class = "Tree")
+        .must_have(model_list, "weights", FALSE, .class = "Tree")
+    } else if (e1$class == "grm") {
+        .must_have(model_list, "equations", FALSE, .class = "GRM")
+        .must_have(model_list, "weights", FALSE, .class = "GRM")
+    } else if (e1$class == "pcm") {
+        .must_have(model_list, "equations", FALSE, .class = "PCM")
+        .must_have(model_list, "weights", .class = "PCM")
+    } else .stop_not_implemented()
 
     ##### IRT #####
 
@@ -594,7 +585,8 @@ irtree_model <- function(model = NULL) {
     if (!is.null(model_list$equations)) {
         tryCatch(irtree_gen_data(object = out1, N = 1, sigma = diag(e1$S),
                                  itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
-                                                alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P))
+                                                alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
+                                 .skip = TRUE
                                  # , K = ifelse(is.null(e1$K), NULL, e1$K)
                                  ),
                  improper_model = function(cnd) {

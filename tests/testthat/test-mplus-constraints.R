@@ -96,7 +96,7 @@ test_that("irtree_model() works", {
 
 run <- (MplusAutomation::mplusAvailable() == 0)
 
-skip_if_not(MplusAutomation::mplusAvailable() == 0)
+skip_if_not(run)
 
 test_that("Model constraints work independently of names", {
     skip_if_not_installed("lme4")
