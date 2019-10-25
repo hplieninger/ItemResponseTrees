@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{object of class irtree_fit as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
 
-\item{...}{Additional arguments. Not used.}
+\item{...}{Additional arguments.}
 }
 \value{
 A \link[tibble:tibble-package]{tibble} with one row for each model

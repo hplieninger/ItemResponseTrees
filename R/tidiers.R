@@ -104,7 +104,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #' Tidy summarizes information about the parameter estimates of the IR-tree model.
 #'
 #' @param x object of class irtree_fit as returned from  [`fit()`][fit.irtree_model].
-#' @param ... Additional arguments. Not used.
+#' @param ... Additional arguments.
 #' @return A [tibble][tibble::tibble-package] with one row for each model
 #'   parameter and the following columns:
 #' \describe{
@@ -126,14 +126,27 @@ tidy.irtree_fit <- function(x = NULL, ...) {
     } else if (engine == "mplus") {
         out <- tidy_mplus(x)
     } else if (engine == "mirt") {
-        out <- tidy_mirt(x)
+        out <- tidy_mirt(x, ...)
     } else if (engine == "tam") {
         out <- .tidy_tam(x)
     }
     return(out)
 }
 
-tidy_mirt <- function(x = NULL) {
+#' Tidy an irtree_fit object estimated using mirt.
+#'
+#' Tidy summarizes information about the parameter estimates of the IR-tree model.
+#'
+#' @param difficulty Logical. The [mirt][mirt::mirt-package] package uses easiness
+#'   parameters. These are returned with a message if `difficulty = NA` (the
+#'   default), without a message if `difficulty = FALSE`, and they are
+#'   transformed to difficulty parameters if `difficulty = TRUE`.
+#' @inheritParams tidy.irtree_fit
+#' @inherit tidy.irtree_fit return description
+#' @seealso [`tidy()`][tidy.irtree_fit()], [broom::tidy()]
+tidy_mirt <- function(x = NULL, difficulty = NA) {
+
+    checkmate::qassert(difficulty, "b1")
 
     f1 <- function(x) {
         tidyr::separate(x, .data$term, into = c("i", "p"), sep = "[.]") %>%
@@ -154,6 +167,18 @@ tidy_mirt <- function(x = NULL) {
                             is.na(.data$std.error))) %>%
         dplyr::mutate(group = grepl("GroupPars", .data$term),
                       term = sub("GroupPars[.]", "", .data$term))
+
+    if (is.na(difficulty)) {
+        message("The mirt package returns easiness (instead of difficulty) ",
+                "parameters and so does tidy(). Use\n",
+                "tidy(x, difficulty = TRUE)    to change this, or\n",
+                "tidy(x, difficulty = FALSE)   to silence this message.")
+    } else if (difficulty) {
+        est1 <- dplyr::mutate(
+            est1, estimate = unlist(
+                purrr::map_if(.data$estimate,
+                              grepl("[.]d$", .data$term), ~-.x)))
+    }
 
     est2 <- tidyr::nest(est1, data = c("term", "estimate", "std.error"))
 
