@@ -7,9 +7,9 @@ a BY X1@1, X2@1, X3@1, X4@1, X5@1;
 b BY X1@1, X2@1, X3@1, X4@1, X5@1;
 
 Equations:
-1 = (1-a)
-2 = a*(1-b)
-3 = a*b
+ 1 = a*b
+ 0 = a*(1-b)
+-1 = (1-a)
 
 Class:
 Tree
@@ -32,7 +32,8 @@ model2 <- irtree_model(m2)
 
 X <- irtree_gen_data(object = model1, N = 100,
                      sigma = diag(model1$S),
-                     itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
+                     itempar = list(beta = matrix(sort(rnorm(model1$J*model1$P)),
+                                                  model1$J, model1$P),
                                     alpha = matrix(1, model1$J, model1$P)),
                      .na_okay = FALSE)
 
@@ -92,7 +93,7 @@ data(column_glossary, package = "modeltests")
 test_that("tidy.irtree_fit()", {
 
     td1 <- tidy(res1)
-    td2 <- tidy(res2)
+    td2 <- tidy(res2, difficulty = TRUE)
 
     modeltests::check_tidy_output(subset(td1, select = -effect))
     modeltests::check_tidy_output(subset(td2, select = -effect))

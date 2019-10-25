@@ -28,15 +28,15 @@ a = c(0, 1, 2, 3)
 
 m3 <- "
 IRT:
-a BY Work@1, Comfort@1, Future@1, Benefitvar@1;
-b BY Work@1, Comfort@1, Future@1, Benefitvar@1;
+a BY x1@1, x2@1, x3@1, x4@1;
+b BY x1@1, x2@1, x3@1, x4@1;
 
 Class:
 PCM
 
 Weights:
-a = c(0, 1, 2, 3)
-b = c(1, 0, 0, 1.1)
+a = c(0, 1, 2, 3, 4)
+b = c(1, 0, 0, 0, 1)
 "
 
 model1 <- irtree_model(m1)
@@ -45,21 +45,29 @@ model3 <- irtree_model(m3)
 
 ##### Data #####
 
-X <- irtree_gen_data(object = model1, N = 100,
-                     sigma = diag(model1$S),
-                     itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
-                                    alpha = matrix(1, model1$J, model1$P)),
-                     .na_okay = FALSE)
+data1 <- irtree_gen_data(
+    object = model1, N = 100,
+    sigma = diag(model1$S),
+    itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
+                   alpha = matrix(1, model1$J, model1$P)),
+    .na_okay = FALSE)
 
 data(Science, package = "mirt")
 ScienceNew <- Science - 1
 names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 
+data3 <- irtree_gen_data(
+    object = model3, N = 100,
+    link = "logit",
+    sigma = diag(model3$S),
+    itempar = list(beta = matrix(sort(rnorm(model3$J*model3$P)), model3$J, model3$K - 1)),
+    .na_okay = FALSE)
+
 ##### Fit #####
 
 control_list <- list(snodes = 1000)
 
-res1 <- fit(data = X$data,
+res1 <- fit(data = data1$data,
             engine = "tam",
             object = model1,
             control = control_list,
@@ -76,7 +84,7 @@ res2x <- TAM::tam.mml(resp = ScienceNew, irtmodel = "PCM",
                       control = control_list,
                       verbose = FALSE)
 
-res3 <- fit(data = ScienceNew,
+res3 <- fit(data = data3$data,
             engine = "tam",
             object = model3,
             control = control_list,
@@ -124,7 +132,7 @@ test_that("tidy.irtree_fit()", {
 
     modeltests::check_dims(td1, 14, 4)  # optional but a good idea
     modeltests::check_dims(td2, 13, 4)  # optional but a good idea
-    modeltests::check_dims(td3, 16, 4)  # optional but a good idea
+    modeltests::check_dims(td3, 20, 4)  # optional but a good idea
 
     ### Own tests ###
 
@@ -152,31 +160,31 @@ test_that("glance.irtree_fit()", {
 
     ### Own tests ###
 
-    expect_equal(pull(gl1, nobs), nrow(X$data))
+    expect_equal(pull(gl1, nobs), nrow(data1$data))
     expect_equal(pull(gl2, nobs), nrow(ScienceNew))
-    expect_equal(pull(gl3, nobs), nrow(ScienceNew))
+    expect_equal(pull(gl3, nobs), nrow(data3$data))
 
 })
 
 test_that("implementation of augment.irtree_fit()", {
 
     modeltests::check_augment_function(
-        augment, model = res1, data = X$data, strict = FALSE
+        augment, res1, data = data1$data, strict = FALSE
     )
     modeltests::check_augment_function(
         augment, res2, data = ScienceNew, strict = FALSE
     )
     modeltests::check_augment_function(
-        augment, res3, data = ScienceNew, strict = FALSE
+        augment, res3, data = data3$data, strict = FALSE
     )
 
     ag1 <- augment(res1)
     ag2 <- augment(res2)
     ag3 <- augment(res3)
 
-    modeltests::check_dims(ag1, nrow(X$data), ncol(X$data) + model1$S*2)
+    modeltests::check_dims(ag1, nrow(data1$data), ncol(data1$data) + model1$S*2)
     modeltests::check_dims(ag2, nrow(ScienceNew), ncol(ScienceNew) + model2$S*2)
-    modeltests::check_dims(ag3, nrow(ScienceNew), ncol(ScienceNew) + model3$S*2)
+    modeltests::check_dims(ag3, data3$spec$N,     data3$spec$J + model3$S*2)
 
     checkmate::expect_numeric(ag1$.fitted.Dim1, finite = TRUE, any.missing = FALSE)
     checkmate::expect_numeric(ag1$.fitted.Dim2, finite = TRUE, any.missing = FALSE)

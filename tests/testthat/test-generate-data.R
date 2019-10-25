@@ -13,7 +13,20 @@ Class:
 Tree
 "
 
+m2 <- "
+# Comment
+IRT:
+a BY X1@1;
+
+Weights:
+a = seq(0, 9)
+
+Class:
+PCM
+"
+
 model1 <- irtree_model(m1)
+model2 <- irtree_model(m2)
 
 N <- 1
 J <- model1$J
@@ -43,4 +56,24 @@ test_that("irtree_gen_data() works if theta is not provided", {
     checkmate::qexpectr(X$data, "X[1,3]")
     checkmate::expect_data_frame(X$probs, nrows = N*J*3, ncols = 4)
     checkmate::qexpect(X$probs$prob, "N[0,1]")
+})
+
+test_that("irtree_gen_data() errors if some categories not observed", {
+    expect_error(
+        irtree_gen_data(object = model1,
+                        N = 2,
+                        sigma = diag(model1$S),
+                        itempar = list(beta = matrix(rnorm(J*model1$P), J, model1$P),
+                                       alpha = matrix(1, J, model1$P)),
+                        .na_okay = FALSE)
+    )
+    expect_error(
+        irtree_gen_data(object = model2,
+                        N = model2$K - 1,
+                        sigma = diag(model2$S),
+                        link = "logit",
+                        itempar = list(beta = matrix(rnorm(model2$J*(model2$K - 1)),
+                                                     model2$J, model2$K - 1)),
+                        .na_okay = FALSE)
+    )
 })
