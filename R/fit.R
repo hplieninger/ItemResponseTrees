@@ -5,10 +5,11 @@
 #'
 #' @section Methods: The methods `coef()`, `summary()`, and `print()` are
 #'   implemented for objects of class `irtree_fit`, and those wrap the
-#'   respective functions of [mirt][mirt-package] or
-#'   [MplusAutomation][MplusAutomation-package]. However,
-#'   [`glance()`][glance.irtree_fit], [`tidy()`][tidy.irtree_fit], and
-#'   [`augment()`][augment.irtree_fit] may be more helpful.
+#'   respective functions of [mirt][mirt::mirt-package],
+#'   [MplusAutomation][MplusAutomation::MplusAutomation-package], or
+#'   [TAM][TAM::TAM-package]. However, [`glance()`][glance.irtree_fit],
+#'   [`tidy()`][tidy.irtree_fit], and [`augment()`][augment.irtree_fit] may be
+#'   more helpful.
 #'
 #' @param object Object of class `irtree_model`. See [irtree_model] for more
 #'   information.
@@ -24,9 +25,8 @@
 #'   if it is not a proper IR-tree model. Set this only to `TRUE` if you really
 #'   know what you are doing.
 #' @return Returns a list of class `irtree_fit`. The first list element is the
-#'   return value of [MplusAutomation][MplusAutomation::readModels()] or
-#'   [mirt][mirt::mirt()], and further information is provided in the element
-#'   `spec`.
+#'   return value of [MplusAutomation::readModels()] or [mirt::mirt()], and
+#'   further information is provided in the element `spec`.
 #' @example inst/examples/example-fit.R
 #' @export
 #' @seealso The wrapped functions [irtree_fit_mplus()] and [irtree_fit_mirt()].

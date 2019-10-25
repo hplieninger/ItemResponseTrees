@@ -13,7 +13,7 @@ write_mplus_input(object = object, pseudoitems = NULL,
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more
 information.}
 
-\item{pseudoitems}{Data frame as returned from \code{\link{irtree_recode}}.}
+\item{pseudoitems}{Data frame as returned from \code{\link[=irtree_recode]{irtree_recode()}}.}
 
 \item{data_file}{String, the full file path of the data set.}
 
@@ -41,7 +41,4 @@ A list of of class \link[MplusAutomation:mplusObject]{MplusAutomation::mplusObje
 This is an internal function used by \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}}. It receives its
 inputs from the model object and the data set and returns an object of class
 \link[MplusAutomation:mplusObject]{MplusAutomation::mplusObject}.
-}
-\seealso{
-\link[MplusAutomation:mplusObject]{MplusAutomation::mplusObject}
 }

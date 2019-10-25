@@ -27,15 +27,14 @@ to the console.}
 \item{rm_mirt_internal}{Logical. \code{\link[mirt:mirt]{mirt::mirt()}} returns a lot of
 information including two functions that can take up a huge amount of space
 (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
-two functions are removed from the output if \code{rm_mirt_internal =
-  TRUE}.}
+two functions are removed from the output if \code{rm_mirt_internal = TRUE}.}
 
 \item{...}{Other arguments passed to \code{\link[mirt:mirt]{mirt::mirt()}}.}
 }
 \value{
-List with two elements. \code{mirt} contains the mirt output, namely
-an object of class \code{\link[mirt]{SingleGroupClass-class}} . \code{spec}
-contains the input specifications.
+List with two elements. \code{mirt} contains the mirt output, namely an
+object of class \link[mirt:SingleGroupClass-class]{mirt::SingleGroupClass}. \code{spec} contains the input
+specifications.
 }
 \description{
 This function takes a \code{data} frame and a model \code{object} and runs the model in mirt.
@@ -50,7 +49,7 @@ GRM
 model1 <- irtree_model(m1)
 data(Science, package = "mirt")
 
-fit1 <- fit(model1, Science, engine = "mirt")
+fit1 <- fit(model1, Science, engine = "mirt", quadpts = 15)
 
 glance(fit1)
 tidy(fit1)

@@ -16,7 +16,7 @@ clps <- function(collapse = " ", ..., sep = " ") {
 #'   giving any error messages.
 #' @references https://stackoverflow.com/a/4952908; https://stackoverflow.com/a/24569739
 #' @author https://stackoverflow.com/users/2161065
-#' @seealso \code{\link{tryCatch}}
+#' @seealso [tryCatch()]
 #' @keywords internal
 #' @examples
 #' ItemResponseTrees:::myTryCatch(log(1))
@@ -48,7 +48,7 @@ myTryCatch <- function(expr) {
 #' @return vector
 #' @references https://stackoverflow.com/a/35949294
 #' @author https://stackoverflow.com/users/3798973
-#' @seealso \code{\link[base]{setdiff}}
+#' @seealso [base::setdiff()]
 #' @keywords internal
 sym_diff <- function(x, y) {
     unique(c(setdiff(x, y), setdiff(y, x)))
@@ -60,7 +60,7 @@ sym_diff <- function(x, y) {
 #' @param x vector that should be sorted
 #' @param y vector providing the sort order
 #' @param x_names Logical. If `TRUE`, `x` is sorted but not on
-#'   `x` but on \code{names(x)}.
+#'   `x` but on `names(x)`.
 #' @param subset Logical. If `TRUE`, `x` must be a subset of `y`.
 #' @return sorted `x`
 #' @references https://stackoverflow.com/a/2117080

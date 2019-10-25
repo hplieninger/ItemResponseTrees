@@ -6,7 +6,7 @@
 \usage{
 irtree_gen_data(object = NULL, N = NULL, sigma = NULL,
   theta = NULL, itempar = NULL, link = c("probit", "logit"),
-  .na_okay = TRUE)
+  .na_okay = TRUE, .skip = FALSE)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more
@@ -28,13 +28,18 @@ one column per dimension (i.e., \code{object$S}). If provided, this overrides
 an element \code{beta} and an element \code{alpha}. Each of these is a
 matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
-section Processes in the \code{model} (see \code{\link{irtree_model}}).}
+section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
 
 \item{link}{Character. Link function to use.}
 
 \item{.na_okay}{Logical indicating whether variables with unobserved response
 categories are permitted. If not (\code{.na_okay = FALSE}), rejection sampling
 is used to ensure that all categories are observed.}
+
+\item{.skip}{Logical. Some features of the \link{irtree_model} syntax,
+which are available for model fitting (e.g., \code{Addendum}), are not
+implemented for data generation. Those parts of the model are ignored if
+\code{.skip = TRUE}.}
 }
 \value{
 A list with element \code{data} containing the data and an

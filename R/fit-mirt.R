@@ -7,14 +7,14 @@
 #' @param rm_mirt_internal Logical. [mirt::mirt()] returns a lot of
 #'   information including two functions that can take up a huge amount of space
 #'   (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
-#'   two functions are removed from the output if \code{rm_mirt_internal =
-#'   TRUE}.
+#'   two functions are removed from the output if `rm_mirt_internal =
+#'   TRUE`.
 #' @param ... Other arguments passed to [mirt::mirt()].
 #' @inheritParams fit.irtree_model
 #' @inheritParams mirt::mirt
-#' @return List with two elements. `mirt` contains the mirt output, namely
-#'   an object of class \code{\link[mirt]{SingleGroupClass-class}} . `spec`
-#'   contains the input specifications.
+#' @return List with two elements. `mirt` contains the mirt output, namely an
+#'   object of class [mirt::SingleGroupClass-class]. `spec` contains the input
+#'   specifications.
 #' @example inst/examples/example-fit.R
 #' @export
 irtree_fit_mirt <- function(object = NULL,
@@ -131,16 +131,14 @@ irtree_fit_mirt <- function(object = NULL,
 
 #' Prepare a mirt Model
 #'
-#' This is an internal function used by \code{\link{irtree_fit_mirt}}. It receives its
+#' This is an internal function used by [irtree_fit_mirt()]. It receives its
 #' inputs from the model object and the data set and returns a
-#' \code{\link[mirt]{mirt.model}} object.
+#' [mirt::mirt.model] object.
 #'
 #' @inheritParams irtree_fit_mirt
-#' @return A list with four elements. `mirt_string` is the
-#'   \code{\link[mirt]{mirt.model}} object; `itemtype` and `values`
-#'   are used as arguments for \code{\link[mirt]{mirt}}; `lambda` is the
-#'   modified lambda matrix from the `object`-argument.
-# @examples
+#' @return A list with four elements. `mirt_string` is the [mirt::mirt.model]
+#'   object; `itemtype` and `values` are used as arguments for [mirt::mirt()];
+#'   `lambda` is the modified lambda matrix from the `object`-argument.
 #' @export
 write_mirt_input <- function(object = NULL,
                              data = NULL) {

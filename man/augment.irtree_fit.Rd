@@ -51,7 +51,7 @@ GRM
 model1 <- irtree_model(m1)
 data(Science, package = "mirt")
 
-fit1 <- fit(model1, Science, engine = "mirt")
+fit1 <- fit(model1, Science, engine = "mirt", quadpts = 15)
 
 glance(fit1)
 tidy(fit1)

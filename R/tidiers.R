@@ -15,7 +15,7 @@
 #'
 #' @param x object of class `irtree_fit` as returned from [`fit()`][fit.irtree_model].
 #' @param ... Additional arguments. Not used.
-#' @return A one-row [tibble][tibble::tibble-package] with columns such as \code{AIC} and \code{BIC}.
+#' @return A one-row [tibble][tibble::tibble-package] with columns such as `AIC` and `BIC`.
 #' @example inst/examples/example-fit.R
 #' @seealso [broom::glance()], [`mirt::extract.mirt(x,
 #'   "secondordertest")`][mirt::extract.mirt]
@@ -108,11 +108,11 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #' @return A [tibble][tibble::tibble-package] with one row for each model
 #'   parameter and the following columns:
 #' \describe{
-#'   \item{\code{term}}{The name of the model parameter.}
-#'   \item{\code{estimate}}{The estimated value of the term.}
-#'   \item{\code{std.error}}{The standard error of the term.}
-#'   \item{\code{statistic}}{The value of the test statistic of the term (Mplus only).}
-#'   \item{\code{p.value}}{The p-value associated with the statistic.}
+#'   \item{`term`}{The name of the model parameter.}
+#'   \item{`estimate`}{The estimated value of the term.}
+#'   \item{`std.error`}{The standard error of the term.}
+#'   \item{`statistic`}{The value of the test statistic of the term (Mplus only).}
+#'   \item{`p.value`}{The p-value associated with the statistic.}
 #' }
 #' @example inst/examples/example-fit.R
 #' @seealso [broom::tidy()]

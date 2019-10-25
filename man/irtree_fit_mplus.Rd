@@ -57,28 +57,31 @@ Defaults to \code{TRUE} to be consistent with prior behavior.
 If \code{FALSE} and the file to write the data to already exists,
 it will throw an error.}
 
-\item{...}{Additional parameters passed to \code{\link[MplusAutomation]{runModels}}.}
+\item{...}{Additional parameters passed to \code{\link[MplusAutomation:runModels]{MplusAutomation::runModels()}}.}
 
 \item{.warnings2messages}{Logial, whether Mplus errors and warnings should be
 signaled as warnings (the default) or messages.}
 }
 \value{
-List with two elements. \code{mplus} contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. \code{spec} contains the input specifications.
+List with two elements. \code{mplus} contains the Mplus output read into R
+via \code{\link[MplusAutomation:readModels]{MplusAutomation::readModels()}}. \code{spec} contains the input
+specifications.
 }
 \description{
 This function takes a data frame and a model string and runs the model in Mplus.
 }
 \examples{
-\dontrun{
-  m1 <- "
-  IRT:
-  attitude BY Comfort, Work, Future, Benefit;
-  Class:
-  GRM
-  "
-  model1 <- irtree_model(m1)
-  data(Science, package = "mirt")
+\donttest{
+m1 <- "
+IRT:
+attitude BY Comfort, Work, Future, Benefit;
 
-  fit1 <- fit(model1, Science, engine = "mplus")
+Class:
+GRM
+"
+model1 <- irtree_model(m1)
+data(Science, package = "mirt")
+
+fit1 <- fit(model1, Science, engine = "mplus")
 }
 }

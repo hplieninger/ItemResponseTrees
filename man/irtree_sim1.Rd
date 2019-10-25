@@ -31,7 +31,7 @@ parameters is taken from the section Processes in the model \code{object} (see
 an element \code{beta} and an element \code{alpha}. Each of these is a
 matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
-section Processes in the \code{model} (see \code{\link{irtree_model}}).}
+section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
 
 \item{link}{Character. Link function to use.}
 
@@ -48,7 +48,7 @@ file.}
 \code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
 
 \item{R}{Integer used to number the saved output if \code{save_rdata = TRUE}.
-Really only useful when used from \link{irtree_sim}.}
+Really only useful when used from \code{\link[=irtree_sim]{irtree_sim()}}.}
 
 \item{reduce_output}{Logical indicating whether the returned object should be
 reduced (i.e., the output of \code{\link[=fit.irtree_model]{fit()}} is removed and
@@ -76,10 +76,11 @@ element for each \code{fit_model} that contains the output of
 and \code{augmented} (see \code{\link[=glance]{glance()}}, \code{\link[=tidy]{tidy()}}, and \code{\link[=augment]{augment()}}).
 }
 \description{
-This function generates data from \code{gen_model}, subsequently fits the
-\code{fit_model} in Mplus, and returns the results or saves them to an
+This function generates data from \code{gen_model}, subsequently fits all the
+models in \code{fit_model}, and returns the results and/or saves them to an
 external RData file.
 }
 \seealso{
-The wrapped functions \code{\link[=fit.irtree_model]{fit()}} and \code{\link[=irtree_gen_data]{irtree_gen_data()}}.
+\code{\link[=irtree_sim]{irtree_sim()}}, and the wrapped functions
+\code{\link[=fit.irtree_model]{fit()}} and \code{\link[=irtree_gen_data]{irtree_gen_data()}}.
 }

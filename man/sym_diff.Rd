@@ -23,7 +23,7 @@ Symmetric difference
 https://stackoverflow.com/a/35949294
 }
 \seealso{
-\code{\link[base]{setdiff}}
+\code{\link[base:setdiff]{base::setdiff()}}
 }
 \author{
 https://stackoverflow.com/users/3798973

@@ -5,7 +5,7 @@
 #' @param link String specifying the link function. Only `logit` is
 #'   implemented in TAM.
 #' @param ... Other arguments passed to [TAM::tam.mml()].
-#' @param .set_min_to_0 Logical. [TAM][TAM::tam.mml] expects the data to be scored 0,
+#' @param .set_min_to_0 Logical. [TAM::tam.mml()] expects the data to be scored 0,
 #'   ..., K. If `.set_min_to_0 = TRUE`, the minimum of the data is subtracted from
 #'   each response, which will likely both satisfy TAM and do no harm to the
 #'   data.

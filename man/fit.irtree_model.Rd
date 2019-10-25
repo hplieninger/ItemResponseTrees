@@ -30,9 +30,8 @@ know what you are doing.}
 }
 \value{
 Returns a list of class \code{irtree_fit}. The first list element is the
-return value of \link[MplusAutomation:readModels]{MplusAutomation} or
-\link[mirt:mirt]{mirt}, and further information is provided in the element
-\code{spec}.
+return value of \code{\link[MplusAutomation:readModels]{MplusAutomation::readModels()}} or \code{\link[mirt:mirt]{mirt::mirt()}}, and
+further information is provided in the element \code{spec}.
 }
 \description{
 This function takes a \code{data} frame and an \code{object} of class \link{irtree_model},
@@ -41,10 +40,11 @@ and runs the model in either Mplus or mirt.
 \section{Methods}{
  The methods \code{coef()}, \code{summary()}, and \code{print()} are
 implemented for objects of class \code{irtree_fit}, and those wrap the
-respective functions of \link[=mirt-package]{mirt} or
-\link[=MplusAutomation-package]{MplusAutomation}. However,
-\code{\link[=glance.irtree_fit]{glance()}}, \code{\link[=tidy.irtree_fit]{tidy()}}, and
-\code{\link[=augment.irtree_fit]{augment()}} may be more helpful.
+respective functions of \link[mirt:mirt-package]{mirt},
+\link[MplusAutomation:MplusAutomation-package]{MplusAutomation}, or
+\link[TAM:TAM-package]{TAM}. However, \code{\link[=glance.irtree_fit]{glance()}},
+\code{\link[=tidy.irtree_fit]{tidy()}}, and \code{\link[=augment.irtree_fit]{augment()}} may be
+more helpful.
 }
 
 \examples{
@@ -57,7 +57,7 @@ GRM
 model1 <- irtree_model(m1)
 data(Science, package = "mirt")
 
-fit1 <- fit(model1, Science, engine = "mirt")
+fit1 <- fit(model1, Science, engine = "mirt", quadpts = 15)
 
 glance(fit1)
 tidy(fit1)

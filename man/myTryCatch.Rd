@@ -26,7 +26,7 @@ ItemResponseTrees:::myTryCatch(log("a"))
 https://stackoverflow.com/a/4952908; https://stackoverflow.com/a/24569739
 }
 \seealso{
-\code{\link{tryCatch}}
+\code{\link[=tryCatch]{tryCatch()}}
 }
 \author{
 https://stackoverflow.com/users/2161065

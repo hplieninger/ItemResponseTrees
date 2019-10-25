@@ -1,7 +1,7 @@
 #' Generate IR-Tree Data and Fit Model
 #'
-#' This function generates data from \code{gen_model}, subsequently fits the
-#' \code{fit_model} in Mplus, and returns the results or saves them to an
+#' This function generates data from `gen_model`, subsequently fits all the
+#' models in `fit_model`, and returns the results and/or saves them to an
 #' external RData file.
 #'
 #' @param gen_model Object of class `irtree_model` describing the
@@ -16,7 +16,7 @@
 #'   `save_rdata = TRUE`. Note that the file ending is automatically set to
 #'   `.rda`. This argument is also passed to [irtree_fit_mplus()] if applicable.
 #' @param R Integer used to number the saved output if `save_rdata = TRUE`.
-#'   Really only useful when used from [irtree_sim].
+#'   Really only useful when used from [irtree_sim()].
 #' @param dots Nested list used to pass further arguments to downstream
 #'   methods/functions (i.e., [`fit()`][fit.irtree_model],
 #'   [`tidy()`][tidy.irtree_fit]). This is a named list, where the name of
@@ -36,13 +36,8 @@
 #'   element for each `fit_model` that contains the output of
 #'   [`fit()`][fit.irtree_model] as well as the elements `glanced`, `tidied`,
 #'   and `augmented` (see [glance()], [tidy()], and [augment()]).
-#' @seealso The wrapped functions [`fit()`][fit.irtree_model] and [irtree_gen_data()].
-# @examples
-# \dontrun{
-# if(interactive()){
-#  #EXAMPLE1
-#  }
-# }
+#' @seealso [irtree_sim()], and the wrapped functions
+#'   [`fit()`][fit.irtree_model] and [irtree_gen_data()].
 #' @export
 irtree_sim1 <- function(gen_model = NULL,
                         fit_model = gen_model,
@@ -120,6 +115,7 @@ irtree_sim1 <- function(gen_model = NULL,
         fits[[mii]]$fit <- do.call("fit", do_call_args)
 
         fits[[mii]]$glanced <- glance(fits[[mii]]$fit)
+        # fits[[mii]]$tidied <- tidy(fits[[mii]]$fit)
         fits[[mii]]$tidied <- do.call("tidy",
                                       c(list(x = fits[[mii]]$fit),
                                         dots$tidy))
@@ -157,14 +153,14 @@ irtree_sim1 <- function(gen_model = NULL,
 #'
 #' The function [irtree_sim1()] generates a data set from an IR-tree
 #' model and fits one or more models to that data set. Herein, this
-#' process is repeated `R` times, and the argument \code{plan} allows to
+#' process is repeated `R` times, and the argument `plan` allows to
 #' run the simulation in parallel.
 #'
 #' @param R Number of replications. Can be either a single number indicating the
 #'   number of replications (e.g., `R = 100`), or can be a range (e.g., `R =
 #'   1:100`).
 #' @param plan Parameter passed as argument `strategy` to [future::plan()]. May
-#'   be set to, for example, `multisession` in order to run the simulations in
+#'   be set to, for example, `multiprocess` in order to run the simulations in
 #'   parallel.
 #' @param future_args Named list. Parameters passed [future::plan()].
 # @param in_memory Logical. If `TRUE`, results are stored in memory and
@@ -176,14 +172,11 @@ irtree_sim1 <- function(gen_model = NULL,
 #'   memory (note the argument `save_rdata`, which is not affected by
 #'   `in_memory`).
 #' @param ... Other parameters passed [irtree_sim1()].
+#' @return Returns a list of length `R`, where each element is the output of
+#'   [irtree_sim1()]. If `in_memory = "nothing"`, returns `NULL`.
 #' @inheritParams irtree_sim1
-# @return
-# @examples
-# \dontrun{
-# if(interactive()){
-#  #EXAMPLE1
-#  }
-# }
+#' @seealso [irtree_sim1()]
+#' @example inst/examples/example-sim.R
 #' @export
 irtree_sim <- function(gen_model = NULL,
                        fit_model = gen_model,
@@ -191,14 +184,13 @@ irtree_sim <- function(gen_model = NULL,
                        sigma = NULL,
                        itempar = NULL,
                        link = c("probit", "logit"),
-                       engine = c("mirt", "mplus"),
+                       engine = c("mirt", "mplus", "tam"),
                        verbose = FALSE,
                        save_rdata = TRUE,
                        file = NULL,
                        R = 1,
                        plan = NULL,
                        future_args = list(),
-                       # in_memory = !save_rdata,
                        in_memory = c("reduced", "everything", "nothing"),
                        # ...,
                        dots = list(),
@@ -215,7 +207,6 @@ irtree_sim <- function(gen_model = NULL,
     } else {
         Rseq <- R
     }
-    # checkmate::qassert(in_memory, "B1")
     in_memory <- match.arg(in_memory)
     if (save_rdata == FALSE & in_memory == "nothing") {
         warning("You probably want to either write the results to disk ",
@@ -234,8 +225,6 @@ irtree_sim <- function(gen_model = NULL,
     res1 <- listenv::listenv()
 
     p <- progress::progress_bar$new(
-        # format = "[:bar] :percent ~:eta remaining",
-        # format = "[:bar] :current/:total ~:eta remaining",
         format = "[:bar] :percent; :elapsedfull",
         # show_after = 30,
         total = length(Rseq), clear = TRUE, incomplete = " ", complete = "-")
@@ -246,21 +235,20 @@ irtree_sim <- function(gen_model = NULL,
 
             res1[[which(rr == Rseq)]] <-
                 future::future({
-                    irtree_sim1(
-                        gen_model = gen_model,
-                        fit_model = fit_model,
-                        N = N,
-                        sigma = sigma,
-                        itempar = itempar,
-                        link = link,
-                        engine = engine,
-                        verbose = verbose,
-                        save_rdata = save_rdata,
-                        # file = file,
-                        R = rr,
-                        .dir = .dir,
-                        reduce_output = switch(in_memory, reduced = TRUE, FALSE),
-                        ...
+                    irtree_sim1(gen_model = gen_model,
+                                fit_model = fit_model,
+                                N = N,
+                                sigma = sigma,
+                                itempar = itempar,
+                                link = link,
+                                engine = engine,
+                                verbose = verbose,
+                                save_rdata = save_rdata,
+                                R = rr,
+                                .dir = .dir,
+                                reduce_output = switch(in_memory,
+                                                       reduced = TRUE, FALSE),
+                                dots = dots
                     )
                 })
 
@@ -270,8 +258,7 @@ irtree_sim <- function(gen_model = NULL,
         res <- lapply(res1, FUN = future::value)
 
         tmp1 <- difftime(Sys.time(), time1)
-        message(sprintf("Time difference of %.1f %s.",
-                        tmp1, units(tmp1)))
+        message(sprintf("Time difference of %.1f %s.", tmp1, units(tmp1)))
 
         names(res) <- paste0("sim", Rseq)
         return(res)
@@ -281,28 +268,25 @@ irtree_sim <- function(gen_model = NULL,
         for (rr in Rseq) {
 
             future::future({
-                irtree_sim1(# R = rr,
-                    gen_model = gen_model,
-                    fit_model = fit_model,
-                    N = N,
-                    sigma = sigma,
-                    itempar = itempar,
-                    link = link,
-                    engine = engine,
-                    verbose = verbose,
-                    save_rdata = save_rdata,
-                    # file = file,
-                    R = rr,
-                    .dir = .dir,
-                    ...)
+                irtree_sim1(gen_model = gen_model,
+                            fit_model = fit_model,
+                            N = N,
+                            sigma = sigma,
+                            itempar = itempar,
+                            link = link,
+                            engine = engine,
+                            verbose = verbose,
+                            save_rdata = save_rdata,
+                            R = rr,
+                            .dir = .dir,
+                            dots = dots)
             })
 
             p$tick()
         }
 
         tmp1 <- difftime(Sys.time(), time1)
-        message(sprintf("Time difference of %.1f %s.",
-                        tmp1, units(tmp1)))
+        message(sprintf("Time difference of %.1f %s.", tmp1, units(tmp1)))
 
         return(invisible(NULL))
     }

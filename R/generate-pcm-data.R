@@ -41,7 +41,7 @@ irtree_gen_pcm <- function(object = NULL,
                            itempar = NULL,
                            link = "logit",
                            .na_okay = TRUE,
-                           .skip = FALSe
+                           .skip = FALSE
     ) {
 
     spec <- c(as.list(environment()))

@@ -26,7 +26,7 @@ be printed during iterations. This argument replaces \code{control$progress}.
 
 \item{...}{Other arguments passed to \code{\link[TAM:tam.mml]{TAM::tam.mml()}}.}
 
-\item{.set_min_to_0}{Logical. \link[TAM:tam.mml]{TAM} expects the data to be scored 0,
+\item{.set_min_to_0}{Logical. \code{\link[TAM:tam.mml]{TAM::tam.mml()}} expects the data to be scored 0,
 ..., K. If \code{.set_min_to_0 = TRUE}, the minimum of the data is subtracted from
 each response, which will likely both satisfy TAM and do no harm to the
 data.}
@@ -49,7 +49,7 @@ GRM
 model1 <- irtree_model(m1)
 data(Science, package = "mirt")
 
-fit1 <- fit(model1, Science, engine = "mirt")
+fit1 <- fit(model1, Science, engine = "mirt", quadpts = 15)
 
 glance(fit1)
 tidy(fit1)

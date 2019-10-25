@@ -15,13 +15,12 @@ column per variable. The variable names must correspond to those used in
 \code{object}.}
 }
 \value{
-A list with four elements. \code{mirt_string} is the
-\code{\link[mirt]{mirt.model}} object; \code{itemtype} and \code{values}
-are used as arguments for \code{\link[mirt]{mirt}}; \code{lambda} is the
-modified lambda matrix from the \code{object}-argument.
+A list with four elements. \code{mirt_string} is the \link[mirt:mirt.model]{mirt::mirt.model}
+object; \code{itemtype} and \code{values} are used as arguments for \code{\link[mirt:mirt]{mirt::mirt()}};
+\code{lambda} is the modified lambda matrix from the \code{object}-argument.
 }
 \description{
-This is an internal function used by \code{\link{irtree_fit_mirt}}. It receives its
+This is an internal function used by \code{\link[=irtree_fit_mirt]{irtree_fit_mirt()}}. It receives its
 inputs from the model object and the data set and returns a
-\code{\link[mirt]{mirt.model}} object.
+\link[mirt:mirt.model]{mirt::mirt.model} object.
 }

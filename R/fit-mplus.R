@@ -19,25 +19,28 @@
 #'   ANALYSIS. For example: `analysis_list = list(MITERATIONS = "1000")`.
 # @param processors Integer, passed to argument 'PROCESSORS' in Mplus.
 #' @param run Logical, whether to indeed run Mplus.
-#' @param ... Additional parameters passed to \code{\link[MplusAutomation]{runModels}}.
+#' @param ... Additional parameters passed to [MplusAutomation::runModels()].
 #' @param .warnings2messages Logial, whether Mplus errors and warnings should be
 #'   signaled as warnings (the default) or messages.
 #' @inheritParams fit.irtree_model
 #' @inheritParams MplusAutomation::runModels
 #' @inheritParams MplusAutomation::prepareMplusData
-#' @return List with two elements. `mplus` contains the Mplus output read into R via \code{\link[MplusAutomation]{readModels}}. `spec` contains the input specifications.
+#' @return List with two elements. `mplus` contains the Mplus output read into R
+#'   via [MplusAutomation::readModels()]. `spec` contains the input
+#'   specifications.
 #' @examples
-#' \dontrun{
-#'   m1 <- "
-#'   IRT:
-#'   attitude BY Comfort, Work, Future, Benefit;
-#'   Class:
-#'   GRM
-#'   "
-#'   model1 <- irtree_model(m1)
-#'   data(Science, package = "mirt")
+#' \donttest{
+#' m1 <- "
+#' IRT:
+#' attitude BY Comfort, Work, Future, Benefit;
 #'
-#'   fit1 <- fit(model1, Science, engine = "mplus")
+#' Class:
+#' GRM
+#' "
+#' model1 <- irtree_model(m1)
+#' data(Science, package = "mirt")
+#'
+#' fit1 <- fit(model1, Science, engine = "mplus")
 #' }
 #' @export
 irtree_fit_mplus <- function(object = NULL,
@@ -257,7 +260,10 @@ irtree_fit_mplus <- function(object = NULL,
                                            ...)
             ))
 
-        res <- MplusAutomation::readModels(outp_file, quiet = TRUE)
+        invisible(
+            capture.output(
+                res <- suppressMessages(
+                    MplusAutomation::readModels(outp_file, quiet = TRUE))))
 
         if (.warnings2messages) {
             # This is useful for testing with testthat because Mplus
@@ -303,14 +309,12 @@ irtree_fit_mplus <- function(object = NULL,
 #' inputs from the model object and the data set and returns an object of class
 #' [MplusAutomation::mplusObject].
 #'
-#' @param pseudoitems Data frame as returned from \code{\link{irtree_recode}}.
+#' @param pseudoitems Data frame as returned from [irtree_recode()].
 #' @param data_file String, the full file path of the data set.
 #' @param fsco_file String, the file name used by Mplus to store the factor scores.
-# @param addendum String as returned from \code{\link{irtree_model}}.
 #' @inheritParams irtree_fit_mplus
 #' @return A list of of class [MplusAutomation::mplusObject]
 #' @export
-#' @seealso [MplusAutomation::mplusObject]
 write_mplus_input <- function(object = object,
                               # lambda = NULL,
                               # addendum = NULL,

@@ -28,7 +28,7 @@ one column per dimension (i.e., \code{object$S}). If provided, this overrides
 an element \code{beta} and an element \code{alpha}. Each of these is a
 matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
-section Processes in the \code{model} (see \code{\link{irtree_model}}).}
+section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
 
 \item{link}{Character. Link function to use.}
 
