@@ -98,8 +98,11 @@ irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
     e1$expr <- lapply(e1$equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
     names(e1$expr) <- e1$equations[1, ]
     e1$K <- length(e1$expr)
-
-
+    e1$k_names <- as.integer(e1$equations[1, ])
+    tmp1 <- diff(sort(e1$k_names))
+    if (any(tmp1 != 1)) {
+        stop("Categories in the model equations must be consecutive integers.")
+    }
 
     checkmate::assert_matrix(e1$equations, mode = "character",
                              nrows = 2, ncols = e1$K)
@@ -268,7 +271,7 @@ irtree_model_mapping <- function(e1 = new.env()) {
     if (!is.null(e1$equations)) {
 
         mapping_matrix <- matrix(NA, e1$K, e1$P, dimnames = list(NULL, e1$p_names))
-        mapping_matrix <- cbind(cate = seq_len(e1$K), mapping_matrix)
+        mapping_matrix <- cbind(cate = e1$k_names, mapping_matrix)
 
         for (ii in seq_along(e1$p_names)) {
             pseudoitem <- ifelse(vapply(e1$equations[2, ],

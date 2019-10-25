@@ -207,7 +207,7 @@ irtree_gen_tree <- function(object = NULL,
     dat1 <- data.frame(
         pers = gl(N, J*K, length = J*K*N),
         item = gl(J, K,   length = J*K*N, labels = j_names),
-        cate = gl(K, 1,    length = J*K*N)
+        cate = gl(K, 1,   length = J*K*N, labels = object$k_names)
     )
 
     if (is.null(theta)) {
@@ -288,7 +288,7 @@ irtree_gen_tree <- function(object = NULL,
 
     dat10 <- aggregate(prob ~ pers + item,
                        data = probs,
-                       function(x) which(rmultinom(n = 1, size = 1, prob = x) == 1))
+                       function(x) object$k_names[rmultinom(n = 1, size = 1, prob = x) == 1])
     X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
     X <- dplyr::select(X, -.data$pers)
 
@@ -297,7 +297,7 @@ irtree_gen_tree <- function(object = NULL,
         while (!.check_all_categ_observed(X, object$K)) {
             dat10 <- aggregate(prob ~ pers + item,
                                data = probs,
-                               function(x) which(rmultinom(n = 1, size = 1, prob = x) == 1))
+                               function(x) object$k_names[rmultinom(n = 1, size = 1, prob = x) == 1])
             X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
             X <- dplyr::select(X, -.data$pers)
             ii <- ii + 1
@@ -425,7 +425,7 @@ irtree_recode <- function(object = NULL,
 
 .check_all_categ_observed <- function(data, K) {
     tmp1 <- apply(data, 2, function(x) {
-        table(factor(x, 1:K))
+        table(factor(x, seq(min(data), length.out = K)))
     })
 
     return(!any(tmp1 == 0))
