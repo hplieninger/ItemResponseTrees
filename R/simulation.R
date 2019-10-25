@@ -17,7 +17,13 @@
 #'   `.rda`. This argument is also passed to [irtree_fit_mplus()] if applicable.
 #' @param R Integer used to number the saved output if `save_rdata = TRUE`.
 #'   Really only useful when used from [irtree_sim].
-#' @param ... Other parameters passed to [`fit()`][fit.irtree_model].
+#' @param dots Nested list used to pass further arguments to downstream
+#'   methods/functions (i.e., [`fit()`][fit.irtree_model],
+#'   [`tidy()`][tidy.irtree_fit]). This is a named list, where the name of
+#'   each top-level element corresponds to the respective function. Each
+#'   top-level element is again a list, where the names of each element
+#'   correspond to the arguments. For example: `dots = list(fit = list(SE =
+#'   FALSE), tidy = list(difficulty = TRUE))`.
 #' @param .dir Path name that is used to save the results of every run if
 #'   `save_rdata = TRUE`.
 #' @param reduce_output Logical indicating whether the returned object should be
@@ -50,7 +56,8 @@ irtree_sim1 <- function(gen_model = NULL,
                         file = NULL,
                         R = 1,
                         reduce_output = FALSE,
-                        ...,
+                        # ...,
+                        dots = list(),
                         .dir = tempdir(),
                         .na_okay = TRUE) {
 
@@ -80,34 +87,17 @@ irtree_sim1 <- function(gen_model = NULL,
     spec$pid  <- Sys.getpid()
     spec$user <- Sys.getenv(c("USERDOMAIN", "USERNAME"))
 
-    checkmate::assert_class(gen_model, "irtree_model")
-    if (is.character(fit_model) | is.null(fit_model)) {
-        checkmate::assert_class(fit_model, "irtree_model")
-    } else if ("irtree_model" %in% class(fit_model)) {
+    if (checkmate::test_class(fit_model, "irtree_model")) {
         fit_model <- list(fit_model)
-    } else {
-        for (ii in seq_along(fit_model)) {
-            checkmate::assert_class(fit_model[[ii]], "irtree_model")
-        }
+    }
+    for (ii in seq_along(fit_model)) {
+        checkmate::assert_class(fit_model[[ii]], "irtree_model")
     }
 
+    checkmate::qassert(dots, "L<3")
+    checkmate::assert_subset(names(dots), c("fit", "tidy"))
+
     # Fit ---------------------------------------------------------------------
-
-    dots <- list(...)
-
-    mplus_args <- unique(c(names(formals(fit.irtree_model)),
-                           names(formals(irtree_fit_mplus)),
-                           names(formals(MplusAutomation::runModels)))) %>%
-        setdiff("...")
-
-    mirt_args <- unique(c(names(formals(fit.irtree_model)),
-                          names(formals(irtree_fit_mirt)),
-                          names(formals(mirt::mirt))))
-
-    tam_args <- unique(c(names(formals(fit.irtree_model)),
-                          names(formals(irtree_fit_tam)),
-                          names(formals(TAM::tam.mml)))) %>%
-        setdiff("...")
 
     fits <- list()
 
@@ -115,66 +105,25 @@ irtree_sim1 <- function(gen_model = NULL,
 
         mii <- paste0("m", ii)
 
-        if (engine == "mplus") {
-
-            tmp1 <- setdiff(names(dots), mplus_args)
-            if (length(tmp1) > 0) {
-                warning("The following arguments were not used: ",
-                        clps(", ", tmp1), ".", call. = FALSE)
-            }
-
-            tfile <- sprintf("%s_m%1d",
-                             tools::file_path_sans_ext(file), ii)
-
-            fits[[mii]]$fit <-
-                do.call(
-                    "fit",
-                    c(list(object = fit_model[[ii]],
-                           data = X$data,
-                           engine = engine,
-                           verbose = verbose,
-                           file = tfile,
-                           link = link),
-                      dots[names(dots) %in% mplus_args]))
-        } else if (engine == "mirt") {
-
-            tmp1 <- setdiff(names(dots), mirt_args)
-            if (length(tmp1) > 0) {
-                warning("The following arguments were not used: ",
-                        clps(", ", tmp1), ".", call. = FALSE)
-            }
-
-            fits[[mii]]$fit <-
-                do.call("fit",
-                        c(list(object = fit_model[[ii]],
+        do_call_args <- c(list(object = fit_model[[ii]],
                                data = X$data,
                                engine = engine,
                                verbose = verbose,
                                link = link),
-                          dots[names(dots) %in% mirt_args]))
+                          dots$fit)
+        if (engine == "mplus") {
+            do_call_args$file <- sprintf("%s_m%1d",
+                                         tools::file_path_sans_ext(file), ii)
         } else if (engine == "tam") {
-
-            tmp1 <- setdiff(names(dots), tam_args)
-            if (length(tmp1) > 0) {
-                warning("The following arguments were not used: ",
-                        clps(", ", tmp1), ".", call. = FALSE)
-            }
-
-            fits[[mii]]$fit <-
-                do.call("fit",
-                        c(list(object        = fit_model[[ii]],
-                               data          = X$data,
-                               engine        = engine,
-                               verbose       = verbose,
-                               link          = link,
-                               .set_min_to_0 = TRUE),
-                          dots[names(dots) %in% tam_args]))
-        } else {
-            .stop_not_implemented()
+            do_call_args$.set_min_to_0 <- TRUE
         }
+        fits[[mii]]$fit <- do.call("fit", do_call_args)
 
         fits[[mii]]$glanced <- glance(fits[[mii]]$fit)
-        fits[[mii]]$tidied <- tidy(fits[[mii]]$fit)
+        fits[[mii]]$tidied <- do.call("tidy",
+                                      c(list(x = fits[[mii]]$fit),
+                                        dots$tidy))
+
         tmp1 <- augment(fits[[mii]]$fit)
         fits[[mii]]$augmented <- spec$personpar %>%
             tibble::as_tibble() %>%
@@ -251,7 +200,8 @@ irtree_sim <- function(gen_model = NULL,
                        future_args = list(),
                        # in_memory = !save_rdata,
                        in_memory = c("reduced", "everything", "nothing"),
-                       ...,
+                       # ...,
+                       dots = list(),
                        .dir = tempdir(),
                        .na_okay = TRUE) {
 

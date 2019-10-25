@@ -8,7 +8,7 @@ irtree_sim(gen_model = NULL, fit_model = gen_model, N = NULL,
   sigma = NULL, itempar = NULL, link = c("probit", "logit"),
   engine = c("mirt", "mplus"), verbose = FALSE, save_rdata = TRUE,
   file = NULL, R = 1, plan = NULL, future_args = list(),
-  in_memory = c("reduced", "everything", "nothing"), ...,
+  in_memory = c("reduced", "everything", "nothing"), dots = list(),
   .dir = tempdir(), .na_okay = TRUE)
 }
 \arguments{
@@ -61,7 +61,12 @@ parallel.}
 memory (note the argument \code{save_rdata}, which is not affected by
 \code{in_memory}).}
 
-\item{...}{Other parameters passed \code{\link[=irtree_sim1]{irtree_sim1()}}.}
+\item{dots}{Nested list used to pass further arguments to downstream
+methods/functions (i.e., \code{\link[=fit.irtree_model]{fit()}},
+\code{\link[=tidy.irtree_fit]{tidy()}}). This is a named list, where the name of
+each top-level element corresponds to the respective function. Each
+top-level element is again a list, where the names of each element
+correspond to the arguments. For example: \code{dots = list(fit = list(SE = FALSE), tidy = list(difficulty = TRUE))}.}
 
 \item{.dir}{Path name that is used to save the results of every run if
 \code{save_rdata = TRUE}.}
@@ -69,6 +74,8 @@ memory (note the argument \code{save_rdata}, which is not affected by
 \item{.na_okay}{Logical indicating whether variables with unobserved response
 categories are permitted. If not (\code{.na_okay = FALSE}), rejection sampling
 is used to ensure that all categories are observed.}
+
+\item{...}{Other parameters passed \code{\link[=irtree_sim1]{irtree_sim1()}}.}
 }
 \description{
 The function \code{\link[=irtree_sim1]{irtree_sim1()}} generates a data set from an IR-tree
@@ -76,3 +83,5 @@ model and fits one or more models to that data set. Herein, this
 process is repeated \code{R} times, and the argument \code{plan} allows to
 run the simulation in parallel.
 }
+\seealso{
+\code{\link[=irtree_sim1]{irtree_sim1()}}

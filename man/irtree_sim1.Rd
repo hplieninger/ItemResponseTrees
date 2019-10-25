@@ -8,7 +8,7 @@ irtree_sim1(gen_model = NULL, fit_model = gen_model, N = NULL,
   sigma = NULL, itempar = NULL, link = c("probit", "logit"),
   engine = c("mirt", "mplus", "tam"), verbose = TRUE,
   save_rdata = FALSE, file = NULL, R = 1, reduce_output = FALSE,
-  ..., .dir = tempdir(), .na_okay = TRUE)
+  dots = list(), .dir = tempdir(), .na_okay = TRUE)
 }
 \arguments{
 \item{gen_model}{Object of class \code{irtree_model} describing the
@@ -54,7 +54,12 @@ Really only useful when used from \link{irtree_sim}.}
 reduced (i.e., the output of \code{\link[=fit.irtree_model]{fit()}} is removed and
 only summary information is retained).}
 
-\item{...}{Other parameters passed to \code{\link[=fit.irtree_model]{fit()}}.}
+\item{dots}{Nested list used to pass further arguments to downstream
+methods/functions (i.e., \code{\link[=fit.irtree_model]{fit()}},
+\code{\link[=tidy.irtree_fit]{tidy()}}). This is a named list, where the name of
+each top-level element corresponds to the respective function. Each
+top-level element is again a list, where the names of each element
+correspond to the arguments. For example: \code{dots = list(fit = list(SE = FALSE), tidy = list(difficulty = TRUE))}.}
 
 \item{.dir}{Path name that is used to save the results of every run if
 \code{save_rdata = TRUE}.}
