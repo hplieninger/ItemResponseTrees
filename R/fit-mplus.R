@@ -101,6 +101,13 @@ irtree_fit_mplus <- function(object = NULL,
     checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
                                  ncols = object$J)
     data <- tibble::as_tibble(data)
+    if (is.numeric(quadpts)) {
+        if (quadpts^object$S > 20000) {
+            stop("Using that many quadrature points may cause problems.\n",
+                 "This error can be disabled by supplying the number of 'quadpts' ",
+                 "as a character string (e.g., quadpts = '15').")
+        }
+    }
 
     # ellipsis::check_dots_used()
 
