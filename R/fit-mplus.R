@@ -399,7 +399,7 @@ write_mplus_input <- function(object = object,
 
     ##### ANALYSIS Statement #####
 
-    helper1 <- "_-_"
+    helper1 <- "\n"
     if (length(analysis_list) > 0) {
         analysis2 <- paste(names(analysis_list), paste0(analysis_list, ";"),
                            sep = " = ", collapse = helper1)
@@ -411,16 +411,13 @@ write_mplus_input <- function(object = object,
                            "ESTIMATOR = {estimator};",
                            "INTEGRATION = {quadpts};",
                            "LINK = {link};",
-                           # "PROCESSORS = {processors};",
                            analysis2,
-                           .sep = helper1)
-    ANALYSIS <- strsplit(ANALYSIS, helper1, fixed = TRUE)[[1]]
+                           .sep = "\n")
 
     ##### SAVEDATA Statement #####
 
     if (save_fscores) {
-        SAVEDATA <- c(glue::glue("FILE = {fsco_file};"),
-                      glue::glue("SAVE = FSCORES;"))
+        SAVEDATA <- c(glue::glue("FILE = {fsco_file};\nSAVE = FSCORES;"))
     } else {
         SAVEDATA <- NULL
     }
@@ -477,20 +474,12 @@ write_mplus_input <- function(object = object,
         OUTPUT = "STDYX TECH1 TECH4 TECH8;",
         SAVEDATA = SAVEDATA,
         # PLOT = NULL,
-        # usevariables = names(pseudoitems),
+        usevariables = names(pseudoitems),
         rdata = pseudoitems,
         # autov = TRUE,
         autov = FALSE,
         MODELCONSTRAINT = model_constr
     )
-    mplus_input$usevariables <- names(pseudoitems)
-
-    # mplus_input <- MplusAutomation:::update.mplusObject(
-    # mplus_input <- MplusAutomation::update(
-    #     mplus_input,
-    #     VARIABLE = ~ +"CATEGORICAL = ALL;")
-
-    # cat(MplusAutomation::createSyntax(mplus_input))
 
     return(list(mplus_input = mplus_input, lambda = lambda))
 }

@@ -110,7 +110,8 @@ test_that("Model constraints work independently of names", {
                 quadpts = 6,
                 analysis_list = list(LOGCRITERION = ".01",
                                      COVERAGE = "0"),
-                .warnings2messages = TRUE)
+                .warnings2messages = TRUE,
+                verbose = FALSE)
     res2 <- fit(data = dat_1[names(dat_1) %in% names(model2$j_names)][rx],
                 engine = "mplus",
                 object = model2,
@@ -118,7 +119,8 @@ test_that("Model constraints work independently of names", {
                 quadpts = 6,
                 analysis_list = list(LOGCRITERION = ".01",
                                      COVERAGE = "0"),
-                .warnings2messages = TRUE)
+                .warnings2messages = TRUE,
+                verbose = FALSE)
 
     expect_s3_class(res1$mplus, "mplus.model")
     expect_s3_class(res2$mplus, "mplus.model")

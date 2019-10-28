@@ -318,11 +318,11 @@ augment.irtree_fit <- function(x = NULL,
 
             fscores <- as.data.frame(x$mplus[["savedata"]])
             est <- dplyr::select(fscores,
-                                 dplyr::last_col(seq(to = 1, by = -2,
-                                                     length.out = tmp1/2)))
+                                 ncol(fscores) - seq(to = 1, by = -2,
+                                                     length.out = tmp1/2))
             se <- dplyr::select(fscores,
-                                dplyr::last_col(seq(to = 0, by = -2,
-                                                    length.out = tmp1/2)))
+                                ncol(fscores) - seq(to = 0, by = -2,
+                                                    length.out = tmp1/2))
             names(est) <- paste0(".fitted", names(est))
             names(se) <- paste0(".se.fit",
                                 sub("_SE$", "", names(se)))
