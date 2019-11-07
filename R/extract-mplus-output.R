@@ -26,7 +26,7 @@ NULL
 #'   instead.
 #'
 #' @export
-extract_mplus_output <- function(results = NULL,
+extract_mplus_output <- function(results = NULL, # nocov start
                                  object = NULL,
                                  class = NULL,
                                  .errors2messages = FALSE) {
@@ -199,4 +199,4 @@ extract_mplus_output <- function(results = NULL,
     )
 
     return(out)
-}
+} # nocov end

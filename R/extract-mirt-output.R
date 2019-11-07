@@ -26,7 +26,7 @@ NULL
 #'   instead.
 #'
 #' @export
-extract_mirt_output <- function(results = NULL,
+extract_mirt_output <- function(results = NULL, # nocov start
                                 object = NULL,
                                 method = "MAP",
                                 class = NULL,
@@ -103,4 +103,4 @@ extract_mirt_output <- function(results = NULL,
     )
 
     return(out)
-}
+} # nocov end
