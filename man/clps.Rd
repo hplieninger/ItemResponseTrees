@@ -8,20 +8,16 @@ clps(collapse = " ", ..., sep = " ")
 }
 \arguments{
 \item{collapse}{an optional character string to separate the results.  Not
-    \code{\link{NA_character_}}.}
+    \code{\link[base]{NA_character_}}.}
 
-\item{...}{one or more \R objects, to be converted to character vectors.}
+\item{...}{
+  Arguments passed on to \code{\link[base:paste]{base::paste}}
+  \describe{
+    \item{\code{}}{}
+  }}
 
 \item{sep}{a character string to separate the terms.  Not
-    \code{\link{NA_character_}}.}
-
-\item{...}{Arguments passed on to \code{base::paste}
-\describe{
-  \item{sep}{a character string to separate the terms.  Not
-    \code{\link{NA_character_}}.}
-  \item{collapse}{an optional character string to separate the results.  Not
-    \code{\link{NA_character_}}.}
-}}
+    \code{\link[base]{NA_character_}}.}
 }
 \description{
 Wrapper Around Paste to Collapse a Character Vector
