@@ -4,8 +4,15 @@
 \alias{irtree_fit_tam}
 \title{Fit an IR-Tree Model using TAM.}
 \usage{
-irtree_fit_tam(object = NULL, data = NULL, link = "logit",
-  verbose = interactive(), ..., .set_min_to_0 = FALSE)
+irtree_fit_tam(
+  object = NULL,
+  data = NULL,
+  link = "logit",
+  verbose = interactive(),
+  ...,
+  .set_min_to_0 = FALSE,
+  .improper_okay = FALSE
+)
 }
 \arguments{
 \item{object}{

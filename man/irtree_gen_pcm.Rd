@@ -4,8 +4,16 @@
 \alias{irtree_gen_pcm}
 \title{Generate Data From a Partial Credit Model}
 \usage{
-irtree_gen_pcm(object = NULL, N = NULL, sigma = NULL, theta = NULL,
-  itempar = NULL, link = "logit", .na_okay = TRUE, .skip = FALSE)
+irtree_gen_pcm(
+  object = NULL,
+  N = NULL,
+  sigma = NULL,
+  theta = NULL,
+  itempar = NULL,
+  link = "logit",
+  .na_okay = TRUE,
+  .skip = FALSE
+)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more

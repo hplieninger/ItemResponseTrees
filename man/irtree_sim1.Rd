@@ -4,11 +4,23 @@
 \alias{irtree_sim1}
 \title{Generate IR-Tree Data and Fit Model}
 \usage{
-irtree_sim1(gen_model = NULL, fit_model = gen_model, N = NULL,
-  sigma = NULL, itempar = NULL, link = c("probit", "logit"),
-  engine = c("mirt", "mplus", "tam"), verbose = TRUE,
-  save_rdata = FALSE, file = NULL, R = 1, reduce_output = FALSE,
-  dots = list(), .dir = tempdir(), .na_okay = TRUE)
+irtree_sim1(
+  gen_model = NULL,
+  fit_model = gen_model,
+  N = NULL,
+  sigma = NULL,
+  itempar = NULL,
+  link = c("probit", "logit"),
+  engine = c("mirt", "mplus", "tam"),
+  verbose = TRUE,
+  save_rdata = FALSE,
+  file = NULL,
+  R = 1,
+  reduce_output = FALSE,
+  dots = list(),
+  .dir = tempdir(),
+  .na_okay = TRUE
+)
 }
 \arguments{
 \item{gen_model}{Object of class \code{irtree_model} describing the

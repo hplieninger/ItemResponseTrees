@@ -4,9 +4,15 @@
 \alias{irtree_gen_tree}
 \title{Generate Data From an IR-Tree Model}
 \usage{
-irtree_gen_tree(object = NULL, N = NULL, sigma = NULL,
-  theta = NULL, itempar = NULL, link = c("probit", "logit"),
-  .na_okay = TRUE)
+irtree_gen_tree(
+  object = NULL,
+  N = NULL,
+  sigma = NULL,
+  theta = NULL,
+  itempar = NULL,
+  link = c("probit", "logit"),
+  .na_okay = TRUE
+)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more

@@ -15,7 +15,7 @@
 #' Details for all the required and optional sections of the `model` string are
 #' given in the following.
 #'
-#' @section IRT:
+#' ## IRT
 #'
 #'   The `model` must contain a section with heading **IRT**. Therein, the IRT
 #'   structure of the model is described in a way resembling the MODEL part of
@@ -36,7 +36,7 @@
 #'   e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 #'   m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
 #'
-#' @section Equations:
+#' ## Equations
 #'
 #'   The `model` must contain a section with heading **Equations** if **Class** is
 #'   Tree.
@@ -60,41 +60,7 @@
 #'   4 = (1-m)*t*(1-e)
 #'   5 = (1-m)*t*e}
 #'
-# @section Processes:
-#
-#   The `model` must contain a section with heading Processes.
-#   It is essentially a listing of all processes/parameters/latent variables
-#   present in section **IRT** in the correct order.
-#   That is, the first process in that listing is the first column in the
-#   matrix of person parameters etc.
-#   This section does not contain any new information wrt to the model but
-#   simply safeguards against ambiguities in the model syntax.
-#
-#   It is advised to choose relatively short names for the processes and items,
-#   because Mplus allows only names of up to eight characters. For example:
-#
-#   \preformatted{
-#   Processes:
-#   e, m, t}
-#
-# @section Items:
-#
-#   The `model` must contain a section with heading Items.
-#   It is essentially a listing of all observed variables present in the data
-#   set in the desired order.
-#   That is, the first, second, ... item in that listing is the first, second,
-#   ... row in the matrix of item parameters etc.
-#   This section does not contain any new information wrt to the model but
-#   simply safeguards against ambiguities in the model syntax.
-#
-#   It is advised to choose relatively short names for the processes and items,
-#   because Mplus allows only names of up to eight characters. For example:
-#
-#   \preformatted{
-#   Items:
-#   x1, x2, x3, x4, x5}
-#'
-#' @section Class:
+#' ## Class
 #'
 #'   The `model` must contain a section with heading **Class** to specify the
 #'   type/class of IRT model to use.
@@ -105,7 +71,7 @@
 #'   Class:
 #'   Tree}
 #'
-#' @section Subtree:
+#' ## Subtree
 #'
 #'   The `model` may contain a section with heading **Subtree**.
 #'   This is necessary if a process in the model equations (section **Equations**)
@@ -133,7 +99,7 @@
 #'   Subtree:
 #'   t = t1 + t2 + t3 + t4 + t5}
 #'
-#' @section Constraints:
+#' ## Constraints
 #'
 #'   The `model` may contain a section with heading **Constraints** to specify
 #'   equality constraints of latent variables.
@@ -154,7 +120,7 @@
 #'   LV1 = LV2
 #'   LV1 = LV3}
 #'
-#' @section Addendum:
+#' ## Addendum
 #'
 #'   The `model` may contain a section with heading **Addendum** if
 #'   `engine = "mplus"` is used for estimation.
@@ -168,10 +134,10 @@
 #'   e WITH t@0;
 #'   m WITH t@0;}
 #'
-#' @section Weights:
+#' ## Weights
 #'
 #'   The `model` may contain a section with heading **Weights** if model
-#'   **Class** is PCM.
+#'   **Class** is PCM and `engine = "tam"` is used for estimation.
 #'   This allows to specify (uni- and) multidimensional partial credit models.
 #'   They have been proposed, for example, by Wetzel and Carstensen (2017), as
 #'   an alternative to IR-tree models.

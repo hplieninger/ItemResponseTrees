@@ -4,10 +4,17 @@
 \alias{write_mplus_input}
 \title{Prepare an Mplus Input File}
 \usage{
-write_mplus_input(object = object, pseudoitems = NULL,
-  data_file = NULL, fsco_file = NULL, save_fscores = FALSE,
-  quadpts = NULL, estimator = NULL, link = NULL,
-  analysis_list = list())
+write_mplus_input(
+  object = object,
+  pseudoitems = NULL,
+  data_file = NULL,
+  fsco_file = NULL,
+  save_fscores = FALSE,
+  quadpts = NULL,
+  estimator = NULL,
+  link = NULL,
+  analysis_list = list()
+)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more

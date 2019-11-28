@@ -4,9 +4,14 @@
 \alias{fit.irtree_model}
 \title{Fit an IR-Tree model.}
 \usage{
-\method{fit}{irtree_model}(object = NULL, data = NULL,
-  engine = c("mplus", "mirt", "tam"), verbose = interactive(), ...,
-  .improper_okay = FALSE)
+\method{fit}{irtree_model}(
+  object = NULL,
+  data = NULL,
+  engine = c("mplus", "mirt", "tam"),
+  verbose = interactive(),
+  ...,
+  .improper_okay = FALSE
+)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more

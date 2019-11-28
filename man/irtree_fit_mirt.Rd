@@ -4,8 +4,16 @@
 \alias{irtree_fit_mirt}
 \title{Fit an IR-Tree Model using mirt.}
 \usage{
-irtree_fit_mirt(object = NULL, data = NULL, link = "logit",
-  SE = TRUE, verbose = interactive(), rm_mirt_internal = TRUE, ...)
+irtree_fit_mirt(
+  object = NULL,
+  data = NULL,
+  link = "logit",
+  SE = TRUE,
+  verbose = interactive(),
+  rm_mirt_internal = TRUE,
+  ...,
+  .improper_okay = FALSE
+)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more

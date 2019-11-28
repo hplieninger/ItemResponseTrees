@@ -4,12 +4,25 @@
 \alias{irtree_sim}
 \title{Run a Simulation by Generating From and Fitting a Tree Model}
 \usage{
-irtree_sim(gen_model = NULL, fit_model = gen_model, N = NULL,
-  sigma = NULL, itempar = NULL, link = c("probit", "logit"),
-  engine = c("mirt", "mplus", "tam"), verbose = FALSE,
-  save_rdata = TRUE, file = NULL, R = 1, plan = NULL,
-  future_args = list(), in_memory = c("reduced", "everything",
-  "nothing"), dots = list(), .dir = tempdir(), .na_okay = TRUE)
+irtree_sim(
+  gen_model = NULL,
+  fit_model = gen_model,
+  N = NULL,
+  sigma = NULL,
+  itempar = NULL,
+  link = c("probit", "logit"),
+  engine = c("mirt", "mplus", "tam"),
+  verbose = FALSE,
+  save_rdata = TRUE,
+  file = NULL,
+  R = 1,
+  plan = NULL,
+  future_args = list(),
+  in_memory = c("reduced", "everything", "nothing"),
+  dots = list(),
+  .dir = tempdir(),
+  .na_okay = TRUE
+)
 }
 \arguments{
 \item{gen_model}{Object of class \code{irtree_model} describing the

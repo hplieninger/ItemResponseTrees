@@ -4,12 +4,24 @@
 \alias{irtree_fit_mplus}
 \title{Fit an IR-Tree Model using Mplus}
 \usage{
-irtree_fit_mplus(object = NULL, data = NULL,
-  file = tempfile("irtree_"), quadpts = 15, estimator = "MLR",
-  link = c("probit", "logit"), run = TRUE, cleanup = run,
-  save_fscores = TRUE, analysis_list = list(COVERAGE = "0"),
-  verbose = interactive(), replaceOutfile = "always",
-  overwrite = FALSE, ..., .warnings2messages = FALSE)
+irtree_fit_mplus(
+  object = NULL,
+  data = NULL,
+  file = tempfile("irtree_"),
+  quadpts = 15,
+  estimator = "MLR",
+  link = c("probit", "logit"),
+  run = TRUE,
+  cleanup = run,
+  save_fscores = TRUE,
+  analysis_list = list(COVERAGE = "0"),
+  verbose = interactive(),
+  replaceOutfile = "always",
+  overwrite = FALSE,
+  ...,
+  .warnings2messages = FALSE,
+  .improper_okay = FALSE
+)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more

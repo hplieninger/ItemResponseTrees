@@ -27,23 +27,20 @@ class \code{irtree_model} that represents the full model as needed by the packag
 \enumerate{
 \item The \code{model} string must contain at least the sections \strong{IRT}, \strong{Class}, and (if class is tree) \strong{Equations}.
 \item Section headings must appear on a seperate line ending with a colon (:).
-\item The model may contain empty lines and comments, which begin with \code{#}.
+\item The model may contain empty lines and comments, which begin with \verb{#}.
 \item Line breaks are only allowed in section \strong{IRT}.
 }
 Details for all the required and optional sections of the \code{model} string are
 given in the following.
-}
-
-\section{IRT}{
-
+\subsection{IRT}{
 
 The \code{model} must contain a section with heading \strong{IRT}. Therein, the IRT
 structure of the model is described in a way resembling the MODEL part of
-an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
+an Mplus input file. It has a structure of \verb{LV BY item1*, item2@1},
 where \code{LV} is the name of the latent variable/parameter/process, and
 \code{item} is the name of the observed variable in the data set, which
 is followed by the loading. The loading may either be fixed (e.g., to 1)
-using \code{@1} or it may be set free using \code{*} or omitting the
+using \verb{@1} or it may be set free using \code{*} or omitting the
 loading completely.
 
 Each measurement model (i.e., the LV and its items) must appear on a
@@ -57,8 +54,7 @@ commas. Linebreaks are allowed. For example:
   m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
 }
 
-\section{Equations}{
-
+\subsection{Equations}{
 
 The \code{model} must contain a section with heading \strong{Equations} if \strong{Class} is
 Tree.
@@ -83,8 +79,7 @@ Each equation must appear on a separate, non-broken line. For example:
   5 = (1-m)*t*e}
 }
 
-\section{Class}{
-
+\subsection{Class}{
 
 The \code{model} must contain a section with heading \strong{Class} to specify the
 type/class of IRT model to use.
@@ -96,8 +91,7 @@ example:
   Tree}
 }
 
-\section{Subtree}{
-
+\subsection{Subtree}{
 
 The \code{model} may contain a section with heading \strong{Subtree}.
 This is necessary if a process in the model equations (section \strong{Equations})
@@ -125,8 +119,7 @@ Use one line for each definition. For example:
   t = t1 + t2 + t3 + t4 + t5}
 }
 
-\section{Constraints}{
-
+\subsection{Constraints}{
 
 The \code{model} may contain a section with heading \strong{Constraints} to specify
 equality constraints of latent variables.
@@ -148,8 +141,7 @@ Use one line for each definition. For example:
   LV1 = LV3}
 }
 
-\section{Addendum}{
-
+\subsection{Addendum}{
 
 The \code{model} may contain a section with heading \strong{Addendum} if
 \code{engine = "mplus"} is used for estimation.
@@ -164,11 +156,10 @@ Note that the addendum is ignored in \code{\link[=irtree_gen_data]{irtree_gen_da
   m WITH t@0;}
 }
 
-\section{Weights}{
-
+\subsection{Weights}{
 
 The \code{model} may contain a section with heading \strong{Weights} if model
-\strong{Class} is PCM.
+\strong{Class} is PCM and \code{engine = "tam"} is used for estimation.
 This allows to specify (uni- and) multidimensional partial credit models.
 They have been proposed, for example, by Wetzel and Carstensen (2017), as
 an alternative to IR-tree models.
@@ -185,6 +176,7 @@ Use one line for each definition. For example:
   t = c(0, 1, 2, 3, 4)
   e = c(1, 0, 0, 0, 1)
   m = c(0, 0, 1, 0, 0)}
+}
 }
 
 \examples{
