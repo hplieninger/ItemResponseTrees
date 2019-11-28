@@ -57,9 +57,13 @@ irtree_fit_mplus <- function(object = NULL,
                              replaceOutfile = "always",
                              overwrite = FALSE,
                              ...,
-                             .warnings2messages = FALSE) {
+                             .warnings2messages = FALSE,
+                             .improper_okay = FALSE) {
 
     link <- match.arg(link)
+
+    assert_irtree_equations(object)
+    assert_irtree_proper(object, .improper_okay = .improper_okay)
 
     if (run) {
         checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)

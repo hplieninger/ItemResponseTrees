@@ -23,7 +23,8 @@ irtree_fit_mirt <- function(object = NULL,
                             SE = TRUE,
                             verbose = interactive(),
                             rm_mirt_internal = TRUE,
-                            ...) {
+                            ...,
+                            .improper_okay = FALSE) {
 
     checkmate::assert_class(object, "irtree_model")
     checkmate::assert_data_frame(data,
@@ -32,6 +33,10 @@ irtree_fit_mirt <- function(object = NULL,
     checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
                                  ncols = object$J)
     data <- tibble::as_tibble(data)
+
+    assert_irtree_equations(object)
+    assert_irtree_proper(object, .improper_okay = .improper_okay)
+
     # checkmate::assert_set_equal(names(data), y = levels(j_names))
     checkmate::assert_subset(names(object$j_names), choices = names(data))
 

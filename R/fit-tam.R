@@ -21,9 +21,14 @@ irtree_fit_tam <- function(object = NULL,
                            link = "logit",
                            verbose = interactive(),
                            ...,
-                           .set_min_to_0 = FALSE) {
+                           .set_min_to_0 = FALSE,
+                           .improper_okay = FALSE) {
 
     checkmate::assert_class(object, "irtree_model")
+
+    assert_irtree_equations(object)
+    assert_irtree_proper(object, .improper_okay = .improper_okay)
+
     if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
         stop("2Pl is not implemented in TAM.")
     }
