@@ -281,7 +281,6 @@ tidy_mplus <- function(x = NULL) {
 #' @param ... Additional arguments passed to [mirt::fscores()] or
 #'   [`TAM:::IRT.factor.scores()`][TAM::IRT.factor.scores.tam.mml] if
 #'   applicable.
-#' @inheritParams mirt::fscores
 #' @return Returns a [tibble][tibble::tibble-package] with one row for each
 #'   observation and one (two) additional columns for each latent variable if
 #'   `se.fit = FALSE` (if `se.fit = TRUE`). The names of the new columns start
@@ -357,7 +356,7 @@ augment.irtree_fit <- function(x = NULL,
 
         out <- tryCatch(
             {
-                tmp1 <- TAM:::IRT.factor.scores.tam.mml(x$tam)
+                tmp1 <- TAM:::IRT.factor.scores.tam.mml(x$tam, type = method, ...)
                 names(tmp1) <- sub("^EAP(.*)", ".fitted\\1", names(tmp1))
                 names(tmp1) <- sub("^SD.EAP(.*)", ".se.fit\\1", names(tmp1))
 

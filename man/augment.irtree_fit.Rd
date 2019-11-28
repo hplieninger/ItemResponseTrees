@@ -4,8 +4,7 @@
 \alias{augment.irtree_fit}
 \title{Augment data with information from an irtree_fit object.}
 \usage{
-\method{augment}{irtree_fit}(x = NULL, data = NULL, se.fit = TRUE,
-  method = "EAP", ...)
+\method{augment}{irtree_fit}(x = NULL, data = NULL, se.fit = TRUE, method = "EAP", ...)
 }
 \arguments{
 \item{x}{object of class irtree_fit as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
