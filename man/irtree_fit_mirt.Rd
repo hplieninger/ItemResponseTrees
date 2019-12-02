@@ -38,6 +38,10 @@ information including two functions that can take up a huge amount of space
 two functions are removed from the output if \code{rm_mirt_internal = TRUE}.}
 
 \item{...}{Other arguments passed to \code{\link[mirt:mirt]{mirt::mirt()}}.}
+
+\item{.improper_okay}{Logical indicating whether the model should also be fit
+if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
+know what you are doing.}
 }
 \value{
 List with two elements. \code{mirt} contains the mirt output, namely an

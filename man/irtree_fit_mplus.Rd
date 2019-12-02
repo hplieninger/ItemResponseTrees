@@ -73,6 +73,10 @@ it will throw an error.}
 
 \item{.warnings2messages}{Logial, whether Mplus errors and warnings should be
 signaled as warnings (the default) or messages.}
+
+\item{.improper_okay}{Logical indicating whether the model should also be fit
+if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
+know what you are doing.}
 }
 \value{
 List with two elements. \code{mplus} contains the Mplus output read into R

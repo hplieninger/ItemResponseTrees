@@ -37,6 +37,10 @@ be printed during iterations. This argument replaces \code{control$progress}.
 ..., K. If \code{.set_min_to_0 = TRUE}, the minimum of the data is subtracted from
 each response, which will likely both satisfy TAM and do no harm to the
 data.}
+
+\item{.improper_okay}{Logical indicating whether the model should also be fit
+if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
+know what you are doing.}
 }
 \value{
 List with two elements. \code{tam} contains the TAM output, namely
