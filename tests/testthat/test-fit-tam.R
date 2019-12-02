@@ -77,8 +77,7 @@ res2 <- fit(data = ScienceNew,
             engine = "tam",
             object = model2,
             control = control_list,
-            verbose = FALSE,
-            .set_min_to_0 = TRUE)
+            verbose = FALSE)
 
 res2x <- TAM::tam.mml(resp = ScienceNew, irtmodel = "PCM",
                       control = control_list,

@@ -3,25 +3,24 @@
 m1 <- "
 # Comment
  IRT:
-b BY X1@1, X2@1, X3@1, X4longname@1, X10@1;
-aprocessvar BY X1@1, X2@1, X3@1, X4longname@1, X10@1;
+b BY X1@1, X2@1, X3@1, X4@1, X10@1;
+a BY X1@1, X2@1, X3@1, X4@1, X10@1;
 
  Equations:
-1 = (1-aprocessvar)
-2 = aprocessvar*(1-b)
-3 = aprocessvar*b
+1 = (1-a)
+2 = a*(1-b)
+3 = a*b
 Class:
 Tree
 
 Addendum:
-aprocessvar WITH b@0;
-aprocessvar WITH y1;
+b WITH a@0;
+b WITH y1;
 "
 
 m2 <- "
 IRT:
-# a BY Comfort@1, Work, Future, Benefit;
-a BY Work, Comfort@1, Future, Benefitvar;
+a BY Work, Comfort@1, Future, Benefit;
 
 Class:
 GRM
@@ -29,13 +28,13 @@ GRM
 
 m3 <- "
 IRT:
-a BY Comfort@1, Work, Future;
+t BY Comfort@1, Work, Future;
 
 Class:
 GRM
 
 Addendum:
-a WITH Benefit;
+t WITH Benefit;
 "
 
 # m4 <- "
@@ -68,22 +67,14 @@ X <- irtree_gen_data(object = model1, N = 100,
                      itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                                     alpha = matrix(1, model1$J, model1$P)),
                      .na_okay = FALSE, .skip = TRUE)
-tmp1 <- names(model1$j_names)
-names(tmp1) <- model1$j_names
-names(X$data) <- stringr::str_replace_all(names(X$data), tmp1)
+# tmp1 <- names(model1$j_names)
+# names(tmp1) <- model1$j_names
+# names(X$data) <- stringr::str_replace_all(names(X$data), tmp1)
 df1 <- sample(data.frame(X$data, y1 = rnorm(100)))
 
 data(Science, package = "mirt")
-ScienceNew <- Science
-names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 
-# counts <- ScienceNew %>%
-#     purrr::map_dfr(~table(factor(., levels = 1:4))) %>%
-#     dplyr::mutate(category = 1:4) %>%
-#     reshape2::melt(value.name = "count", id.vars = "category")
-# counts$variable <- toupper(as.character(counts$variable))
-
-counts <- ScienceNew %>%
+counts <- Science %>%
     lapply(function(x) data.frame(table(factor(x, 1:4)))) %>%
     tibble::enframe(name = "variable") %>%
     tidyr::unnest(value) %>%
@@ -104,7 +95,7 @@ res1 <- fit(data = df1,
             .warnings2messages = TRUE,
             run = run)
 
-res2 <- fit(data = ScienceNew,
+res2 <- fit(data = Science,
             verbose = FALSE,
             engine = "mplus",
             object = model2,
@@ -212,8 +203,8 @@ test_that("tidy.irtree_fit()", {
     ### Own tests ###
 
     tmp1 <- tibble::deframe(select(td3, term, estimate))
-    tmp2 <- tmp1[["A<->BENEFIT"]]/sqrt(tmp1[["BENEFIT<->BENEFIT"]])/sqrt(tmp1[["A<->A"]])
-    expect_equal(tmp2, tmp1[["COR_A<->BENEFIT"]], tolerance = .002)
+    tmp2 <- tmp1[["T<->BENEFIT"]]/sqrt(tmp1[["BENEFIT<->BENEFIT"]])/sqrt(tmp1[["T<->T"]])
+    expect_equal(tmp2, tmp1[["COR_T<->BENEFIT"]], tolerance = .002)
 
     tmp1 <- dplyr::filter(td3, grepl("Thresholds", term)) %>%
         select(3) %>%
@@ -254,7 +245,7 @@ test_that("augment.irtree_fit()", {
         augment.irtree_fit, res1, data = df1, strict = FALSE
     )
     modeltests::check_augment_function(
-        augment.irtree_fit, res2, data = ScienceNew, strict = FALSE
+        augment.irtree_fit, res2, data = Science, strict = FALSE
     )
     modeltests::check_augment_function(
         augment.irtree_fit, res3, data = Science, strict = FALSE
@@ -267,12 +258,12 @@ test_that("augment.irtree_fit()", {
     ag3 <- augment(res3)
 
     modeltests::check_dims(ag1, nrow(df1), ncol(df1) + model1$S*2)
-    modeltests::check_dims(ag2, nrow(Science), ncol(ScienceNew) + model2$S*2)
+    modeltests::check_dims(ag2, nrow(Science), ncol(Science) + model2$S*2)
     modeltests::check_dims(ag3, nrow(Science), ncol(Science) + model2$S*2)
 
-    checkmate::expect_numeric(ag1$.se.fitAB, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag1$.se.fitBAP, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.se.fitB, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.se.fitA, lower = 0, finite = TRUE, all.missing = FALSE)
     checkmate::expect_numeric(ag2$.se.fitA, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag3$.se.fitA, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag3$.se.fitT, lower = 0, finite = TRUE, all.missing = FALSE)
 
 })

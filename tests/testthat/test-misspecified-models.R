@@ -39,11 +39,12 @@ Equations:
 Class:
 Tree
 "
+m2 <- irtree_model(m2)
 
 dat <- setNames(data.frame(matrix(1:4, 10, 6)), paste0("x", 1:6))
 
 test_that("Mismatch of categories between model and data throws error", {
-    expect_error(irtree_fit_mirt(dat, m2))
+    expect_error(irtree_fit_mirt(m2, dat))
 })
 
 m3 <- "
@@ -163,4 +164,65 @@ test_that("Mixture and improper models throw errors", {
     expect_error(fit(model5b, data.frame()))
     expect_warning(irtree_model(m5c))
     expect_error(fit(model5c, data.frame()))
+})
+
+
+# PCM ---------------------------------------------------------------------
+
+m6a <- "
+IRT:
+a BY X1, X2;
+b BY X1, X2;
+
+Weights:
+a = 1:2
+b = 1:3
+
+Class:
+PCM
+"
+
+m6b <- "
+IRT:
+a BY X1, X2;
+
+Weights:
+a = 0:2
+
+Class:
+PCM
+"
+
+m6c <- "
+IRT:
+a BY X1, X2;
+
+Weights:
+a = 0:3
+
+Class:
+PCM
+"
+
+m6d <- "
+IRT:
+a BY X1, X2;
+
+Weights:
+b = 0:3
+
+Class:
+PCM
+"
+
+dat6b  <- setNames(data.frame(matrix(1:4, 6, 2)), paste0("X", 1:2))
+dat6c  <- setNames(data.frame(matrix(1:4, 6, 2)), paste0("X", 1:2))
+dat6c2 <- setNames(data.frame(matrix(0:4, 5, 2)), paste0("X", 1:2))
+
+test_that("Misspecified PCM model syntax throw errors", {
+    expect_error(irtree_model(m6a))
+    expect_error(fit(irtree_model(m6b), dat6b,  engine = "tam"))
+    expect_error(fit(irtree_model(m6c), dat6c,  engine = "tam"))
+    expect_error(fit(irtree_model(m6c), dat6c2, engine = "tam"))
+    expect_error(irtree_model(m6d))
 })

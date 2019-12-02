@@ -4,8 +4,8 @@ a BY x1@1, x2@1, x3@1, x4@1;
 # b BY x1@1, x2@1, x3@1, x4@1;
 
 Equations:
-1 = 1- a
-2 = a
+0 = 1- a
+1 = a
 # 2 = a*(1-b)
 # 3 = a*b
 
@@ -18,7 +18,7 @@ IRT:
 a BY x1@1, x2@1, x3@1, x4@1;
 
 Weights:
-a = c(0, 1)
+a = 0:1
 
 Class:
 PCM

@@ -25,8 +25,29 @@ Class:
 GRM
 "
 
+m3 <- "
+IRT:
+a BY Work@1, Comfort@1, Future@1, Benefit@1;
+b BY Work@1, Comfort@1, Future@1, Benefit@1;
+c BY Work@1, Comfort@1, Future@1, Benefit@1;
+
+Equations:
+1 = (1-a)
+2 = a*(1-b)
+3 = a*b*(1-c)
+4 = a*b*c
+
+Class:
+Tree
+
+Constraints:
+a = b
+a = c
+"
+
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
+model3 <- irtree_model(m3)
 
 ##### Data #####
 
@@ -47,39 +68,49 @@ res1 <- fit(data = X$data,
             engine = "mirt",
             object = model1,
             SE = FALSE,
-            method = "QMCEM",
-            quadpts = 1000,
+            TOL = .01,
             verbose = FALSE)
 
 res2 <- fit(data = ScienceNew,
             engine = "mirt",
             object = model2,
             SE = FALSE,
-            method = "QMCEM",
-            quadpts = 1000,
+            TOL = .01,
             verbose = FALSE)
 
-res2x <- mirt::mirt(ScienceNew, 1, "graded", SE = FALSE,
-                    method = "QMCEM", quadpts = 1000, verbose = FALSE,
-                    constrain = list(c(1, 5, 9)))
+res2x <- mirt::mirt(ScienceNew, 1, "graded", SE = FALSE, TOL = .01,
+                    constrain = list(c(1, 5, 9)), verbose = FALSE)
+
+res3 <- fit(data = Science,
+            engine = "mirt",
+            object = model3,
+            SE = FALSE,
+            TOL = .01,
+            verbose = FALSE)
+
+res3x <- mirt::mirt(Science, 1, "Tutz", SE = FALSE, TOL = .01, verbose = FALSE)
+
+
 
 ##### Tests #####
 
 test_that("irtree_model() works", {
     expect_s3_class(model1, "irtree_model")
     expect_s3_class(model2, "irtree_model")
+    expect_s3_class(model3, "irtree_model")
 })
 
 test_that("irtree_fit_mirt() works", {
     expect_s4_class(res1$mirt, "SingleGroupClass")
     expect_s4_class(res2$mirt, "SingleGroupClass")
     expect_equal(mirt::coef(res2$mirt), mirt::coef(res2x))
+    expect_s4_class(res3$mirt, "SingleGroupClass")
 })
 
 test_that("Methods work for output of irtree_fit_mirt()", {
     expect_condition(capture.output(print(res1)), NA)
-    expect_condition(capture.output(summary(res1)), NA)
-    expect_condition(capture.output(coef(res1)), NA)
+    expect_condition(capture.output(summary(res2)), NA)
+    expect_condition(capture.output(coef(res3)), NA)
 })
 
 # Tidiers -----------------------------------------------------------------
@@ -94,12 +125,15 @@ test_that("tidy.irtree_fit()", {
 
     td1 <- tidy(res1)
     td2 <- tidy(res2, difficulty = TRUE)
+    td3 <- tidy(res3, difficulty = FALSE)
 
     modeltests::check_tidy_output(subset(td1, select = -effect))
     modeltests::check_tidy_output(subset(td2, select = -effect))
+    modeltests::check_tidy_output(subset(td3, select = -effect))
 
     modeltests::check_dims(td1, 26, 4)  # optional but a good idea
     modeltests::check_dims(td2, 18, 4)  # optional but a good idea
+    modeltests::check_dims(td3, 26, 4)  # optional but a good idea
 
     ### Own tests ###
 
@@ -113,6 +147,7 @@ test_that("tidy.irtree_fit()", {
 
     checkmate::expect_numeric(td1$std.error, lower = 0, finite = TRUE)
     checkmate::expect_numeric(td2$std.error, lower = 0, finite = TRUE)
+    checkmate::expect_numeric(td3$std.error, lower = 0, finite = TRUE)
 
 })
 
@@ -120,13 +155,15 @@ test_that("glance.irtree_fit()", {
 
     gl1 <- glance(res1)
     gl2 <- glance(res2)
+    gl3 <- glance(res3)
 
-    modeltests::check_glance_outputs(gl1, gl2, strict = TRUE)
+    modeltests::check_glance_outputs(gl1, gl2, gl3, strict = TRUE)
 
     ### Own tests ###
 
     expect_equal(pull(gl1, nobs), nrow(X$data))
     expect_equal(pull(gl2, nobs), nrow(ScienceNew))
+    expect_equal(pull(gl3, nobs), nrow(Science))
 
 })
 
@@ -141,12 +178,17 @@ test_that("implementation of augment.irtree_fit()", {
 
     ag1 <- augment(res1)
     ag2 <- augment(res2)
+    ag3 <- augment(res3)
 
     modeltests::check_dims(ag1, nrow(X$data), ncol(X$data) + model1$S*2)
     modeltests::check_dims(ag2, nrow(ScienceNew), ncol(ScienceNew) + model2$S*2)
+    modeltests::check_dims(ag3, nrow(Science), ncol(Science) + model3$S*2)
 
     checkmate::expect_numeric(ag1$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
     checkmate::expect_numeric(ag1$.se.fitF2, lower = 0, finite = TRUE, all.missing = FALSE)
     checkmate::expect_numeric(ag2$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag3$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
+
+    expect_gt(cor(ag3$.fittedF1, mirt::fscores(res3x)), .99)
 
 })
