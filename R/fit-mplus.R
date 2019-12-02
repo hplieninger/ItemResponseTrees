@@ -62,52 +62,26 @@ irtree_fit_mplus <- function(object = NULL,
 
     link <- match.arg(link)
 
+    checkmate::assert_class(object, "irtree_model")
+    assert_irtree_data(data = data, object = object, engine = "mplus")
+    data <- tibble::as_tibble(data)
+
     assert_irtree_equations(object)
     assert_irtree_proper(object, .improper_okay = .improper_okay)
 
-    if (run) {
-        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
-    }
+    assert_nchar(object$lambda$new_name)
+    assert_nchar(levels(object$lambda$theta))
 
     checkmate::assert_list(analysis_list,  types = "character",
                            names = "unique")
     checkmate::qassertr(analysis_list, "S1")
-    checkmate::assert_class(object, "irtree_model")
+    if (run) {
+        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+    }
 
-    spec <- c(as.list(environment())
-              # , list(...)
-    )
+    spec <- c(as.list(environment()))
     spec$engine <- "mplus"
 
-    checkmate::assert_character(object$covariates, min.chars = 1,
-                                pattern = "^[[:alpha:]][[:alnum:]_]*$",
-                                any.missing = FALSE, unique = TRUE,
-                                null.ok = TRUE, .var.name = "Addendum in object")
-    checkmate::assert_subset(x = c(names(object$j_names), object$covariates),
-                             choices = names(data),
-                             empty.ok = FALSE)
-    tmp1 <- checkmate::check_set_equal(names(data),
-                                       c(names(object$j_names), object$covariates))
-    if (tmp1 != TRUE) {
-        rlang::warn(paste0("Assertion on 'names(data)' is suspicious: ",
-                           sub("Must", "Expected to", tmp1)),
-                    .subclass = "data_has_add_vars")
-    }
-    check_nchar <- function(x, max.chars = 8, any.missing = TRUE) {
-        if (any(nchar(x, allowNA = any.missing) > max.chars)) {
-            paste("All elements must have at most", max.chars, "characters")
-        } else {
-            TRUE
-        }
-    }
-    assert_nchar <- checkmate::makeAssertionFunction(check_nchar)
-    assert_nchar(object$j_names, 8)
-    assert_nchar(object$covariates, 8)
-    checkmate::assert_data_frame(data, all.missing = FALSE, min.rows = 1,
-                                 min.cols = object$J + length(object$covariates))
-    checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
-                                 ncols = object$J)
-    data <- tibble::as_tibble(data)
     if (is.numeric(quadpts)) {
         if (quadpts^object$S > 20000) {
             stop("Using that many quadrature points may cause problems.\n",
@@ -115,8 +89,6 @@ irtree_fit_mplus <- function(object = NULL,
                  "as a character string (e.g., quadpts = '15').")
         }
     }
-
-    # ellipsis::check_dots_used()
 
     spec$object$j_names <- object$j_names <- sort2(object$j_names, names(data))
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
@@ -162,20 +134,9 @@ irtree_fit_mplus <- function(object = NULL,
     ##### Pseudoitems #####
 
     if (object$class == "tree") {
-        categ_dat <- unique(na.omit(unlist(data[, names(object$j_names)], use.names = FALSE)))
-        categ_mod <- as.integer(names(object$expr))
-        if (length(sym_diff(categ_dat, categ_mod)) > 0) {
-            stop("'data' has categories ", clps(", ", sort(categ_dat)),
-                 " but 'object' has equations for categories ", clps(", ", categ_mod), "."
-                 , call. = FALSE)
-        }
         pseudoitems <- irtree_recode(object = object, data = data, keep = TRUE)
     } else if (object$class == "grm") {
         pseudoitems <- data
-        tmp1 <- object$j_names
-        names(tmp1) <- paste0("^", names(tmp1), "$")
-        names(pseudoitems) <- stringr::str_replace_all(names(pseudoitems), tmp1)
-        # attr(pseudoitems, "pseudoitem_names") <- object$j_names
     } else {
         .stop_not_implemented()
     }
@@ -185,8 +146,6 @@ irtree_fit_mplus <- function(object = NULL,
     tmp1 <- suppressMessages(
         write_mplus_input(
             object        = object,
-            # lambda       = object$lambda,
-            # addendum     = object$addendum,
             pseudoitems   = pseudoitems,
             data_file     = data_file,
             quadpts       = quadpts,
@@ -194,7 +153,6 @@ irtree_fit_mplus <- function(object = NULL,
             link          = link,
             save_fscores  = save_fscores,
             fsco_file     = basename(fsco_file),
-            # processors    = processors,
             analysis_list = analysis_list))
 
     mplus_input <- tmp1$mplus_input
@@ -219,16 +177,10 @@ irtree_fit_mplus <- function(object = NULL,
         .stop_not_implemented()
     }
 
-    # tmp1 <- attr(pseudoitems, "mapping_matrix")
-    # tmp1 <- tmp1[, !is.element(colnames(tmp1), "cate"), drop = FALSE]
-    #
-    # tmp2 <- sapply(seq_len(ncol(tmp1)), function(x) paste0("  pseudoitem", x, ":  ",
-    #                                               clps(, ifelse(is.na(tmp1[, x]), "-", tmp1[, x]))))
     tmp3 <- glue::glue("{'  '}#Parameters:  N = {nrow(data)}; J = {object$J}; K = {object$K}; \\
                        P = {object$P}; S = {object$S};")
     tmp4 <- substr(paste0("  Items:        ", clps(, object$j_names)), 1, 90)
 
-    # TITLE <- paste(c(paste0("  Tree Model;   R = ", R), tmp3, tmp4, tmp2), collapse = "\n")
     TITLE <- paste(c("  Tree Model",
                      paste0("  ", file_name),
                      tmp3, tmp4, tmp2),

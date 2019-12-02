@@ -295,6 +295,7 @@ irtree_model_weights <- function(model_list = NULL, e1 = new.env()) {
     weights <- lapply(w_vec, function(x) eval(parse(text = x[2])))
     names(weights) <- vapply(w_vec, `[[`, 1, FUN.VALUE = "a")
     e1$K <- length(weights[[1]])
+    e1$k_names <- seq.int(0, length.out = e1$K)
     checkmate::qassertr(weights, paste0("N", e1$K, "(,)"))
     e1$weights <- weights
 }

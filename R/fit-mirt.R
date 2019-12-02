@@ -26,45 +26,24 @@ irtree_fit_mirt <- function(object = NULL,
                             ...,
                             .improper_okay = FALSE) {
 
+    link <- match.arg(link)
+
     checkmate::assert_class(object, "irtree_model")
-    checkmate::assert_data_frame(data,
-                                 # types = "numeric",
-                                 all.missing = FALSE, min.rows = 1, min.cols = object$J)
-    checkmate::assert_data_frame(data[, names(object$j_names)], types = "integerish",
-                                 ncols = object$J)
+    assert_irtree_data(data = data, object = object, engine = "mirt")
     data <- tibble::as_tibble(data)
 
     assert_irtree_equations(object)
     assert_irtree_proper(object, .improper_okay = .improper_okay)
 
-    # checkmate::assert_set_equal(names(data), y = levels(j_names))
-    checkmate::assert_subset(names(object$j_names), choices = names(data))
-
-    # ellipsis::check_dots_used()
-
     object$j_names <- sort2(object$j_names, names(data))
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 
-    # SE <- force(SE)
-    # verbose <- force(verbose)
 
-    link <- match.arg(link)
-
-    spec <- c(as.list(environment())
-              # , list(...)
-    )
+    spec <- c(as.list(environment()))
     spec$engine <- "mirt"
 
     if (object$class == "tree") {
-        # categ_dat <- as.integer(names(table(as.matrix(data))))
-        categ_dat <- unique(unlist(data, use.names = FALSE))
-        categ_mod <- as.integer(names(object$expr))
-        if (length(sym_diff(categ_dat, categ_mod)) > 0) {
-            stop("'data' has categories ", clps(", ", sort(categ_dat)),
-                 " but 'object' has equations for categories ", clps(", ", categ_mod), "."
-                 , call. = FALSE)
-        }
         pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
     } else if (object$class == "grm") {
         pseudoitems <- data

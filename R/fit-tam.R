@@ -24,7 +24,18 @@ irtree_fit_tam <- function(object = NULL,
                            .set_min_to_0 = FALSE,
                            .improper_okay = FALSE) {
 
+    link <- match.arg(link)
+
     checkmate::assert_class(object, "irtree_model")
+
+    if (.set_min_to_0 && min(data[object$j_names], na.rm = TRUE) != 0) {
+        data[object$j_names] <- data[object$j_names] -
+            min(data[object$j_names], na.rm = TRUE)
+    }
+
+    assert_irtree_data(data = data, object = object, engine = "tam",
+                       .set_min_to_0 = .set_min_to_0)
+    data <- tibble::as_tibble(data)
 
     assert_irtree_equations(object)
     assert_irtree_proper(object, .improper_okay = .improper_okay)
@@ -32,47 +43,24 @@ irtree_fit_tam <- function(object = NULL,
     if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
         stop("2Pl is not implemented in TAM.")
     }
-    checkmate::assert_data_frame(data,
-                                 # types = "numeric",
-                                 all.missing = FALSE, min.rows = 1, min.cols = object$J)
-    checkmate::assert_data_frame(data[names(object$j_names)], types = "integerish",
-                                 ncols = object$J)
-    data <- tibble::as_tibble(data)
-    checkmate::assert_subset(names(object$j_names), choices = names(data))
 
     object$j_names <- sort2(object$j_names, names(data))
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 
-    link <- match.arg(link)
 
     spec <- c(as.list(environment()))
     spec$engine <- "tam"
 
     if (object$class == "tree") {
 
-        categ_dat <- unique(unlist(data, use.names = FALSE))
-        categ_mod <- as.integer(names(object$expr))
-        if (length(sym_diff(categ_dat, categ_mod)) > 0) {
-            stop("'data' has categories ", clps(", ", sort(categ_dat)),
-                 " but 'object' has equations for categories ", clps(", ", categ_mod), "."
-                 , call. = FALSE)
-        }
         pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
 
         Q <- .make_tam_Q(object = object, pseudoitems = pseudoitems)
 
     } else if (object$class == "pcm") {
 
-        if (.set_min_to_0) {
-            pseudoitems <- data - min(data[names(object$j_names)])
-        } else {
-            pseudoitems <- data
-            if (min(data[names(object$j_names)]) != 0) {
-                warning("Minimum of data is not equal to zero. ",
-                        "You should probably recode your data or set '.set_min_to_0 = TRUE'.", call. = FALSE)
-            }
-        }
+        pseudoitems <- data
 
         B <- .make_tam_B(object, array = TRUE)
 
