@@ -89,6 +89,20 @@ irtree_sim1 <- function(gen_model = NULL,
         checkmate::assert_class(fit_model[[ii]], "irtree_model")
     }
 
+    tmp1 <- vapply(fit_model, `[[`, "K", FUN.VALUE = 1)
+    if (isTRUE(var(tmp1, na.rm = TRUE) > 0)) {
+        stop("Inconsistencies of categories K across fit_model.")
+    }
+
+    tmp2 <- vapply(fit_model,
+                   function(x) ifelse(is.null(x$k_names), NA, min(x$k_names)),
+                   FUN.VALUE = 1)
+    if (isTRUE(var(tmp2, na.rm = TRUE) > 0)) {
+        stop("Inconsistencies across fit_model. ",
+             "Note that the lowest category is '0' for some models, ",
+             "which must then be used consistently across models.")
+    }
+
     checkmate::qassert(dots, "L<3")
     checkmate::assert_subset(names(dots), c("fit", "tidy"))
 
