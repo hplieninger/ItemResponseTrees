@@ -79,7 +79,8 @@ sort2 <- function(x = NULL, y = NULL, x_names = FALSE, subset = TRUE) {
         if (subset) checkmate::assert_subset(names(x), y)
         x[order(match(names(x), y))]
     } else {
-        checkmate::assert_character(x, min.chars = 1, any.missing = FALSE)
+        checkmate::assert_character(x, min.chars = 1, any.missing = FALSE,
+                                    names = "unnamed")
         if (subset) checkmate::assert_subset(x, y)
         x[order(match(x, y))]
     }

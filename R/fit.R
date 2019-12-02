@@ -44,15 +44,14 @@ fit.irtree_model <- function(object = NULL,
         out <- irtree_fit_mplus(object = object, data = data,
                                 verbose = verbose, ...)
     } else if (engine == "mirt") {
-        .must_have(object, "subtree", FALSE, .engine = engine)
-        .must_have(object, "constraints", FALSE, .engine = engine)
         .must_have(object, "addendum", FALSE, .engine = engine)
         .must_have(object, "weights", FALSE, .engine = engine)
         out <- irtree_fit_mirt(object = object, data = data,
                                verbose = verbose, ...)
     } else if (engine == "tam") {
-        .must_have(object, "subtree", FALSE, .engine = engine)
-        .must_have(object, "constraints", FALSE, .engine = engine)
+        if (object$class == "pcm") {
+            .must_have(object, "constraints", FALSE, .engine = engine)
+        }
         .must_have(object, "addendum", FALSE, .engine = engine)
         out <- irtree_fit_tam(object = object, data = data,
                               verbose = verbose, ...)

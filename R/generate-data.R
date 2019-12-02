@@ -138,7 +138,7 @@ irtree_gen_tree <- function(object = NULL,
     J <- object$J
     j_names <- object$j_names
     P <- object$P
-    p_names <- object$p_names
+    p_names <- levels(object$lambda$mpt)
     # if (is.null(object$K)) {
     #     checkmate::qassert(K, "X1[2,)")
     # } else {
@@ -191,7 +191,7 @@ irtree_gen_tree <- function(object = NULL,
 
     beta_names  <- paste0("beta",  1:P)
     alpha_names <- paste0("alpha", 1:P)
-    theta_names <- paste0("theta", 1:P)
+    # theta_names <- paste0("theta", 1:P)
 
     betas  <- data.frame(item = factor(j_names, levels = j_names),
                          setNames(data.frame(itempar$beta), nm = beta_names))
@@ -214,7 +214,7 @@ irtree_gen_tree <- function(object = NULL,
     if (is.null(theta)) {
         theta <- MASS::mvrnorm(ifelse(N == 1, 1.001, N), mu = rep(0, S), Sigma = sigma)
     }
-    colnames(theta) <- object$lv_names
+    colnames(theta) <- levels(lambda$theta)
     spec$personpar <- theta
     spec$theta <- NULL
 
@@ -232,30 +232,38 @@ irtree_gen_tree <- function(object = NULL,
                     idvar = c("pers", "item", "cate"),
                     varying = list(which(!is.element(names(dat2), c("pers", "item", "cate")))),
                     times = setdiff(names(dat2), c("pers", "item", "cate")),
-                    timevar = "trait", v.names = "value")
-    dat3$trait <- factor(dat3$trait, unique(dat3$trait))
+                    timevar = "theta", v.names = "value")
+    dat3$theta <- factor(dat3$theta, unique(dat3$theta))
     rownames(dat3) <- NULL
 
-    dat5 <- dplyr::inner_join(dat3, lambda, by = c("item", "trait"))
+    dat5 <- dplyr::inner_join(dat3, lambda, by = c("item", "theta"))
 
-    for (ii in seq_len(nrow(subtree))) {
-        tmpx <- gsub(subtree[ii, 2], subtree[ii, 1], levels(dat5$trait))
-        levels(dat5$trait) <- tmpx
-    }
-
-    dat5$trait <- factor(dat5$trait, levels = levels(dat5$trait),
-                         labels = theta_names)
+    # for (ii in seq_len(nrow(subtree))) {
+    #     tmpx <- gsub(subtree[ii, 2], subtree[ii, 1], levels(dat5$theta))
+    #     levels(dat5$theta) <- tmpx
+    # }
+    #
+    # dat5$theta <- factor(dat5$theta, levels = levels(dat5$theta),
+    #                      labels = theta_names)
 
     # dat6 <- reshape2::dcast(dat5, pers + item + cate ~ trait, value.var = "value")
     # dat6 <- tidyr::spread(dplyr::select(dat5, pers, item, cate, trait, value),
     #                       trait, value)
     dat6 <- reshape(
-        dplyr::select(dat5, .data$pers, .data$item, .data$cate, .data$trait, .data$value),
+        dplyr::select(dat5, .data$pers, .data$item, .data$cate, .data$mpt,
+                      .data$value),
         direction = "wide",
         idvar = c("pers", "item", "cate"),
         v.names = "value",
-        timevar = "trait")
+        timevar = "mpt")
     names(dat6) <- sub("^value[.]", "", names(dat6))
+
+    if (any(is.na(dat6))) {
+        tmp1 <- which(is.na(dat6[, p_names]), arr.ind = TRUE)
+        stop("Problem in 'model': Every process must be measured by all items. ",
+             "However, item '", dat6[tmp1[1, 1], "item"], "' is not listed for ",
+             "process '", p_names[tmp1[1, 2]], "', for example.", call. = FALSE)
+    }
 
     # Add item parameters and calculate probabilities
 
@@ -265,7 +273,7 @@ irtree_gen_tree <- function(object = NULL,
     for (ii in seq_len(P)) {
         dat7[, as.character(p_names[ii])] <- do.call(link,
                                                      list(dplyr::pull(dat7, alpha_names[ii])*(
-                                                         dplyr::pull(dat7, theta_names[ii]) -
+                                                         dplyr::pull(dat7, p_names[ii]) -
                                                              dplyr::pull(dat7, beta_names[ii]))))
     }
 
@@ -366,18 +374,18 @@ irtree_recode <- function(object = NULL,
     # PIs1: cast the pseudoitems back to wide format; this data frame has P*J columns
     # PIs2: cbind pseudoitems and original polytomous responses
 
-    # dat2 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, names(j_names)]),
+    # dat2 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, j_names]),
     #                         id.vars = "pers",
     #                         variable.name = "item",
     #                         value.name = "cate")
-    # dat2$item <- factor(dat2$item, levels = names(j_names), labels = j_names)
-    tmp1 <- data.frame(pers = seq_len(nrow(data)), data[, names(j_names), drop = FALSE])
+    # dat2$item <- factor(dat2$item, levels = j_names, labels = j_names)
+    tmp1 <- data.frame(pers = seq_len(nrow(data)), data[, j_names, drop = FALSE])
     dat2 <- reshape(tmp1, direction = "long",
                     idvar = "pers",
                     varying = list(which(names(tmp1) != "pers")),
-                    times = names(data[, names(j_names), drop = FALSE]),
+                    times = names(data[, j_names, drop = FALSE]),
                     timevar = "item", v.names = "cate")
-    dat2$item <- factor(dat2$item, levels = names(j_names), labels = j_names)
+    dat2$item <- factor(dat2$item, levels = j_names, labels = j_names)
     rownames(dat2) <- NULL
 
     dat3 <- dplyr::left_join(dat2, data.frame(mapping_matrix), by = "cate")
@@ -417,7 +425,7 @@ irtree_recode <- function(object = NULL,
     if (keep) {
         PIs2 <- cbind(PIs1, data)
     } else {
-        PIs2 <- cbind(PIs1, data[, !names(data) %in% names(j_names), drop = FALSE])
+        PIs2 <- cbind(PIs1, data[, !names(data) %in% j_names, drop = FALSE])
     }
 
     # attr(PIs2, "mapping_matrix") <- mapping_matrix

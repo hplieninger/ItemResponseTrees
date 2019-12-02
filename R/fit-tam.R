@@ -40,9 +40,9 @@ irtree_fit_tam <- function(object = NULL,
     data <- tibble::as_tibble(data)
     checkmate::assert_subset(names(object$j_names), choices = names(data))
 
-    object$j_names <- sort2(object$j_names, names(data), x_names = TRUE)
+    object$j_names <- sort2(object$j_names, names(data))
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
-    object$lambda <- object$lambda[order(object$lambda$item, object$lambda$trait), ]
+    object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 
     link <- match.arg(link)
 
@@ -105,29 +105,32 @@ irtree_fit_tam <- function(object = NULL,
 
 .make_tam_Q <- function(object = NULL, pseudoitems = NULL) {
 
-    df1 <- data.frame(object$lambda, dim = 1) %>%
-        dplyr::select(.data$trait, .data$new_name, .data$dim) %>%
+    Q <- data.frame(object$lambda, dim = 1) %>%
+        dplyr::select(.data$theta, .data$new_name, .data$dim) %>%
         reshape(direction = "wide", v.names = "dim",
-                idvar = "new_name", timevar = "trait")
+                idvar = "new_name", timevar = "theta") %>%
+        dplyr::mutate(new_name = factor(.data$new_name, levels = names(pseudoitems))) %>%
+        dplyr::mutate_at(-1, tidyr::replace_na, 0)
 
-    df1$new_name <- factor(df1$new_name, levels = names(pseudoitems))
-    df1 <- df1[order(df1$new_name), ]
+    tmp1 <- paste0("dim.", levels(object$lambda$theta))
+    tmp2 <- tmp1[tmp1 %in% names(Q)[-1]]
 
-    Q <- dplyr::select(df1, dplyr::starts_with("dim.")) %>%
-        dplyr::mutate_all(tidyr::replace_na, 0) %>%
-        as.matrix
-    return(Q)
+    Q <- Q[order(Q$new_name), tmp2]
+
+    return(as.matrix(Q, rownames.force = FALSE))
 }
 
 .make_tam_B <- function(object = NULL, array = TRUE) {
 
-    weights_df <- tibble::enframe(object$weights, "trait")
-    weights_df$trait <- factor(weights_df$trait, levels(object$lambda$trait))
+    weights_df <- tibble::enframe(object$weights, "theta", "weights")
+    weights_df$theta <- factor(weights_df$theta, levels(object$lambda$theta))
 
-    B1 <- dplyr::full_join(object$lambda, weights_df, by = "trait")
-    B2 <- tidyr::pivot_wider(B1, id_cols = "item", names_from = "trait", values_from = "value")
+    B1 <- dplyr::full_join(object$lambda, weights_df, by = "theta")
+    B2 <- tidyr::pivot_wider(B1, id_cols = "item", names_from = "theta",
+                             values_from = "weights",
+                             values_fill = list(weights = list(rep(0, object$K))))
     B3 <- tidyr::unnest(B2, cols = -.data$item)
-    B4 <- dplyr::select(B3, -1)
+    B4 <- B3[levels(object$lambda$theta)]
     B   <- Matrix::Matrix(as.matrix(B4))
 
     if (array) {

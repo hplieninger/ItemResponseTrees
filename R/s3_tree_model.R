@@ -255,7 +255,6 @@ irtree_model <- function(model = NULL) {
     flag <- integer()
 
     for (ii in seq_along(model_list)) {
-        # tmp1 <- grepl(paste0("^", names(model_list)[ii], ":$"), model2, ignore.case = TRUE)
         tmp1 <- is.element(tolower(model2), paste0(names(model_list)[ii], ":"))
         if (any(tmp1, na.rm = TRUE)) {
             model_list[[ii]] <- model2[(1 + which(tmp1)):(posx[1 + which(posx == which(tmp1))] - 1)]
@@ -295,6 +294,10 @@ irtree_model <- function(model = NULL) {
 
     irtree_model_items(e1 = e1)
 
+    ##### Weights #####
+
+    irtree_model_weights(model_list, e1)
+
     ##### Subtree #####
 
     irtree_model_subtree(model_list = model_list, e1 = e1)
@@ -311,215 +314,17 @@ irtree_model <- function(model = NULL) {
 
     irtree_model_constraints(model_list, e1)
 
-    ##### Weights #####
-
-    irtree_model_weights(model_list, e1)
-
-    ##### Labels for Items and Processes #####
-
-    # Mplus allows names of max 8 characters.
-    # Thus, data provided by user exceeding this limit have to be recoded.
-    # Additionally, in the creation of the pseudoitems, names of LVs and names
-    # of items are concatenated making the names even longer.
-    # Therefore, if names are too long, the LVs are renamed. If names are still
-    # too long, the items are renamed as well. This is done in a new model_list
-    # 'model_list_new', which is subsequently processed to get everything right
-    # such as the equations/expressions and the parts passed to Mplus.
-
-    model_list_new <- model_list
-
-    ##### _Create New Names for Items #####
-
-    if (e1$class == "tree") {
-        flag1 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
-                           max(nchar(e1$j_names))))
-    } else if (e1$class %in% c("grm", "pcm")) {
-        flag1 <- 8 < max(nchar(e1$j_names))
-    }
-
-    if (flag1) {
-
-        tmp1 <- floor(log10(e1$J)) + 1
-        tmp2 <- gsub("\\d+$", "", e1$j_names)
-        tmp2[tmp2 == ""] <- "V"
-        tmp3 <- 8
-        if (e1$class == "tree") {
-            tmp3 <- 7 - min(c(3,
-                              max(c(nchar(e1$p_names), nchar(e1$lv_names)))))
-        }
-        j_names_new <- paste0(substr(tmp2, 1, tmp3 - tmp1),
-                              # 1:e1$J,
-                              formatC(1:e1$J, width = tmp1, format = "d", flag = "0"))
-
-        names(j_names_new) <- e1$j_names
-        j_names_new2 <- j_names_new
-        names(j_names_new2) <- paste0("(?<!\\w)", e1$j_names, "(?!\\w)")
-
-        model_list_new$irt <-
-            stringr::str_replace_all(model_list_new$irt, j_names_new2)
-        if (!is.null(model_list$addendum)) {
-            model_list_new$addendum <-
-                stringr::str_replace_all(model_list_new$addendum, j_names_new2)
-        }
-    } else {
-        j_names_new <- e1$j_names
-    }
-
-    ##### _Create New Names for LVs #####
-
-    if (e1$class == "tree") {
-        # flag2 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
-        #                    max(nchar(e1$j_names))))
-        flag2 <- 7 < sum(c(max(c(nchar(e1$p_names), nchar(e1$lv_names))),
-                           max(nchar(j_names_new))))
-    } else if (e1$class %in% c("grm", "pcm")) {
-        flag2 <- 8 < max(nchar(e1$lv_names))
-    }
-
-    if (flag2) {
-        if (e1$S > 26) {
-            stop("Fatal error, please contact package maintainer. ",
-                 "Renaming of names of processes only implemented for < 27 processes.")
-        }
-
-        lv_names_new <- e1$lv_names
-        p_names_new <- e1$p_names
-        for (ii in seq_len(nrow(e1$subtree))) {
-            lv_names_new <- gsub(e1$subtree[ii, 2], e1$subtree[ii, 1], lv_names_new)
-        }
-        tmp1 <- factor(lv_names_new, levels = unique(lv_names_new))
-
-        for (ii in seq_along(levels(tmp1))) {
-            nsubp <- sum(tmp1 == levels(tmp1)[ii])
-            p_names_new[p_names_new == levels(tmp1)[ii]] <-
-                # paste0(LETTERS[ii], substr(p_names_new[ii], 1, 2))
-                paste0(LETTERS[ii],
-                       substr(p_names_new[p_names_new == levels(tmp1)[ii]],
-                              1, 2))
-
-            if (nsubp == 1) {
-                lv_names_new[tmp1 == levels(tmp1)[ii]] <-
-                    paste0(LETTERS[ii], substr(levels(tmp1)[ii], 1, 2))
-            } else if (nsubp > 1) {
-                lv_names_new[tmp1 == levels(tmp1)[ii]] <-
-                    paste0(LETTERS[ii],
-                           seq_len(nsubp),
-                           substr(levels(tmp1)[ii], 1, 1))
-            }
-        }
-
-        lv_names_new2 <- lv_names_new
-        names(lv_names_new2) <- paste0("(?<!\\w)", names(lv_names_new2), "(?!\\w)")
-        p_names_new2 <- p_names_new
-        names(p_names_new2) <- paste0("(?<!\\w)", names(p_names_new2), "(?!\\w)")
-
-        model_list_new$irt <-
-            stringr::str_replace_all(model_list_new$irt, lv_names_new2)
-        if (!is.null(model_list$equations)) {
-            model_list_new$equations <-
-                stringr::str_replace_all(model_list_new$equations, p_names_new2)
-        }
-        if (!is.null(model_list$subtree)) {
-            model_list_new$subtree <-
-                stringr::str_replace_all(model_list_new$subtree, p_names_new2)
-            model_list_new$subtree <-
-                stringr::str_replace_all(model_list_new$subtree, lv_names_new2)
-        }
-        if (!is.null(model_list$addendum)) {
-            model_list_new$addendum <-
-                stringr::str_replace_all(model_list_new$addendum, lv_names_new2)
-        }
-        if (!is.null(model_list$constraints)) {
-            model_list_new$constraints <-
-                stringr::str_replace_all(model_list_new$constraints, lv_names_new2)
-        }
-    } else {
-        lv_names_new <- e1$lv_names
-        p_names_new  <- e1$p_names
-    }
-
-    # ### Create New Names for Items ###
-    #
-    # if (e1$class == "tree" & flag1) {
-    #     flag2 <- 7 < sum(c(max(c(nchar(p_names_new), nchar(lv_names_new))),
-    #                        max(nchar(e1$j_names))))
-    # } else if (e1$class == "grm") {
-    #     flag2 <- 8 < max(nchar(e1$j_names))
-    # }
-    #
-    # if (flag2) {
-    #
-    #     tmp1 <- floor(log10(e1$J)) + 1
-    #     tmp2 <- gsub("\\d+", "", e1$j_names)
-    #     tmp2[tmp2 == ""] <- "V"
-    #     j_names_new <- paste0(substr(tmp2, 1, 4 - tmp1), 1:e1$J)
-    #
-    #     names(j_names_new) <- e1$j_names
-    #     j_names_new2 <- j_names_new
-    #     names(j_names_new2) <- paste0("(?<!\\w)", e1$j_names, "(?!\\w)")
-    #
-    #     model_list_new$irt <-
-    #         stringr::str_replace_all(model_list_new$irt, j_names_new2)
-    #     if (!is.null(model_list$addendum)) {
-    #         model_list_new$addendum <-
-    #             stringr::str_replace_all(model_list_new$addendum, j_names_new2)
-    #     }
-    # }
-
-    ##### _Update Everything Based on New model_list #####
-
-    if (any(c(flag1, flag2))) {
-
-        irtree_model_irt(model_list_new, e1)
-        irtree_model_equations(model_list_new, e1)
-        # irtree_model_items(model_list_new, e1)    # not necessary
-        irtree_model_subtree(model_list_new, e1)
-        irtree_model_addendum(model_list_new, e1)
-        irtree_model_constraints(model_list_new, e1)
-        irtree_model_mapping(e1 = e1)
-
-        # Update *_names seperately such that names of the character vectors are the old names
-        e1$j_names  <- j_names_new
-        e1$lv_names <- lv_names_new
-        e1$p_names  <- p_names_new
-        tmp1 <- setNames(names(j_names_new), nm = j_names_new)
-        e1$irt_items <- lapply(e1$irt_items, function(x) {
-            names(x) <- stringr::str_replace_all(names(x), tmp1)
-            x
-        })
-        e1$covariates <- setdiff(e1$covariates, c(e1$j_names, e1$lv_names))
-    }
-
     ##### Lambda Matrix #####
 
-    # lambda <- reshape2::melt(e1$irt_items, value.name = "item")
-    lambda <- dplyr::bind_rows(
-        lapply(
-            seq_along(e1$irt_items),
-            function(x) {
-                data.frame(
-                    item = e1$irt_items[[x]],
-                    trait = names(e1$irt_items)[x],
-                    row.names = NULL, stringsAsFactors = FALSE)
-                }))
-    lambda$item <- factor(lambda$item, levels = e1$j_names)
-    # names(lambda) <- sub("L1", "trait", names(lambda))
-    lambda$trait <- factor(lambda$trait, levels = e1$lv_names)
+    lambda <- tibble::enframe(e1$irt_items, "irt", "item")[2:1] %>%
+        dplyr::left_join(e1$latent_names, by = "irt") %>%
+        tidyr::unnest(.data$item) %>%
+        dplyr::mutate(item = factor(.data$item, levels = e1$j_names)) %>%
+        dplyr::mutate_at(c("irt", "mpt", "theta"), function(x) factor(x, unique(x)))
     lambda$loading <- ifelse(is.na(unlist(e1$irt_loadings)), "*", unlist(e1$irt_loadings))
 
-    lambda$p <- lambda$trait
-    if (nrow(e1$subtree) > 0) {
-        tmp1 <- as.character(e1$subtree$trait)
-        names(tmp1) <- e1$subtree$facet
-        levels(lambda$p) <- stringr::str_replace_all(levels(lambda$trait), tmp1)
-    }
-    lambda$p <- factor(lambda$p, levels = e1$p_names)
-
-    lambda <- lambda[order(lambda$p, lambda$trait, lambda$item), ]
-    lambda$trait <- factor(lambda$trait, levels = unique(lambda$trait))
-
     if (e1$class == "tree") {
-        lambda$new_name <- glue::glue_data(lambda, "{p}_{item}")
+        lambda$new_name <- glue::glue_data(lambda, "{mpt}_{item}")
     } else if (e1$class %in% c("grm", "pcm")) {
         lambda$new_name <- glue::glue_data(lambda, "{item}")
     }
@@ -527,17 +332,8 @@ irtree_model <- function(model = NULL) {
 
     lambda$label <- paste0("a", 1:nrow(lambda))
 
-    e1$lv_names <- sort2(e1$lv_names, levels(lambda$trait))
-
-    # tmp1 <- aggregate(loading ~ trait, data = lambda,
-    #                   function(x) any(grepl(x = x, pattern = "@\\d+", perl = TRUE)))
-    # if (any(tmp1$loading == FALSE)) {
-    #     message("At least one loading for each trait must be fixed im Mplus, (e.g., @1). ",
-    #          "Please fix the following: ",
-    #          paste(tmp1[!tmp1$loading, "trait"], collapse = ", "), ".")
-    # }
-
     e1$lambda <- lambda
+
     e1$proper_model <- TRUE
 
     out1 <- as.list(e1)
@@ -553,7 +349,6 @@ irtree_model <- function(model = NULL) {
                                  itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
                                                 alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
                                  .skip = TRUE
-                                 # , K = ifelse(is.null(e1$K), NULL, e1$K)
                                  ),
                  improper_model = function(cnd) {
                      with(tmp1, out1$proper_model <- FALSE)

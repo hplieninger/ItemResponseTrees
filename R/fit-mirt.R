@@ -42,9 +42,9 @@ irtree_fit_mirt <- function(object = NULL,
 
     # ellipsis::check_dots_used()
 
-    object$j_names <- sort2(object$j_names, names(data), x_names = TRUE)
+    object$j_names <- sort2(object$j_names, names(data))
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
-    object$lambda <- object$lambda[order(object$lambda$item, object$lambda$trait), ]
+    object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 
     # SE <- force(SE)
     # verbose <- force(verbose)
@@ -71,35 +71,6 @@ irtree_fit_mirt <- function(object = NULL,
     } else {
         .stop_not_implemented()
     }
-
-    # lambda <- object$lambda
-    #
-    # lambda <- lambda[order(lambda$trait, lambda$item), ]
-    # lambda$new_name <- names(pseudoitems)
-    # spec$object$lambda <- object$lambda <- lambda
-    #
-    # mirt1 <- split(lambda, lambda$trait)
-    #
-    # mirt2 <- vapply(seq_along(mirt1), function(x) {
-    #     glue::glue_collapse(c(glue::glue("{names(mirt1[x])} = "),
-    #                           # glue::glue(" {mirt1[[x]]$new_name}", ",")
-    #                           glue::glue_collapse(glue::glue("{mirt1[[x]]$new_name}"), sep = ", ")
-    #     ))
-    # }, FUN.VALUE = "")
-    #
-    # itemtype <- ifelse(lambda$loading == "@1", "Rasch", "2PL")
-    #
-    # tmp1 <- vapply(object$s_names,
-    #                function(x) paste(rep(x, 2), collapse = "*"),
-    #                FUN.VALUE = "",
-    #                USE.NAMES = FALSE)
-    # tmp2 <- clps("*", object$s_names)
-    # mirt3 <- paste0("COV = ", clps(", ", c(tmp1, tmp2)))
-    #
-    # string1 <- paste(c(mirt2, mirt3), collapse = "\n")
-    # cat(string1)
-    #
-    # mirt_string <- mirt.object(string1, itemnames = names(pseudoitems))
 
     mirt_input <- write_mirt_input(object = object, data = pseudoitems)
 
@@ -155,12 +126,12 @@ write_mirt_input <- function(object = NULL,
 
     lambda <- object$lambda
 
-    lambda <- lambda[order(lambda$trait, lambda$item), ]
+    lambda <- lambda[order(lambda$irt, lambda$item), ]
     lambda$new_name <- names(data)
 
     # spec$object$lambda <- object$lambda <- lambda
 
-    mirt1 <- split(lambda, lambda$trait)
+    mirt1 <- split(lambda, lambda$theta)
 
     mirt2 <- vapply(seq_along(mirt1), function(x) {
         glue::glue_collapse(c(glue::glue("{names(mirt1[x])} = "),
@@ -183,7 +154,7 @@ write_mirt_input <- function(object = NULL,
         itemtype <- "graded"
         if (!all(lambda$loading == "*")) {
             tmp0 <- lambda[lambda$loading != "*", ]
-            tmp1 <- split(tmp0$new_name, tmp0$trait)
+            tmp1 <- split(tmp0$new_name, tmp0$theta)
             tmp2 <- vapply(seq_along(tmp1), function(x) paste0("(",
                                                                paste(tmp1[[x]], collapse = ", "),
                                                                ", a", x, ")"), FUN.VALUE = "")
@@ -214,7 +185,7 @@ write_mirt_input <- function(object = NULL,
                        1,
                        function(x) paste0("COV_",
                                           paste(x, collapse = "")))
-    var_free <- tapply(lambda$loading, lambda$trait, function(x) all(x == "@1"))
+    var_free <- tapply(lambda$loading, lambda$theta, function(x) all(x == "@1"))
 
     values[values$name %in% var_names[var_free], "est"] <- TRUE
 

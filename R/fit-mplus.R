@@ -118,7 +118,7 @@ irtree_fit_mplus <- function(object = NULL,
 
     # ellipsis::check_dots_used()
 
-    spec$object$j_names <- object$j_names <- sort2(object$j_names, names(data), TRUE)
+    spec$object$j_names <- object$j_names <- sort2(object$j_names, names(data))
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     # CAVE: The following line is super important. It is the only safeguard that
     # assures that the items in the 'MODEL'-statement of the mplus input are in
@@ -126,7 +126,9 @@ irtree_fit_mplus <- function(object = NULL,
     # This in turn assures that the item thresholds in the output are in that
     # same order---and this is necessary, because otherwise checking the order
     # whilst reading in the output is very cumbersome.
-    spec$object$lambda <- object$lambda <- object$lambda[order(object$lambda$trait, object$lambda$item), ]
+    spec$object$lambda <-
+        object$lambda <-
+        object$lambda[order(object$lambda$irt, object$lambda$item), ]
 
     ##### file #####
 
@@ -333,37 +335,10 @@ write_mplus_input <- function(object = object,
                               analysis_list = list()) {
 
     lambda <- object$lambda
-    # lambda <- lambda[order(lambda$trait, lambda$item), ]
-
-    ##### Apply Constraints #####
-
-    if (!is.null(object$constraints)) {
-        lambda$trait <- factor(lambda$trait,
-                               levels = levels(lambda$trait),
-                               labels = stringr::str_replace_all(
-                                   levels(lambda$trait),
-                                   object$constraints))
-
-        tmp1 <- object$constraints
-        names(tmp1) <- paste0("(?<!\\w)", names(tmp1), "(?!\\w)")
-
-        object$addendum <- stringr::str_replace_all(object$addendum, tmp1)
-    }
 
     ##### MODEL Statement #####
 
-    # lambda$new_name <- attr(pseudoitems, "pseudoitem_names")
-    # lambda$mplus <- glue::glue_data(lambda, "{new_name}{loading}")
-    #
-    # lambda$label <- paste0("a", 1:nrow(lambda))
-
-    mplus1 <- split(lambda, lambda$trait)
-
-    # mplus2 <- vapply(seq_along(mplus1), function(x) {
-    #     glue::glue_collapse(c(glue::glue("{names(mplus1[x])} BY"),
-    #                           glue::glue(" {mplus1[[x]]$mplus} ({mplus1[[x]]$label})"), ";"),
-    #                         sep = "\n")
-    # }, FUN.VALUE = "")
+    mplus1 <- split(lambda, lambda$theta)
 
     mplus2 <- lapply(seq_along(mplus1), function(x) {
         c(paste(names(mplus1[x]), "BY"),
