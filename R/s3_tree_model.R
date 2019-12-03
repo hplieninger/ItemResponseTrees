@@ -45,7 +45,7 @@
 #'   They have a structure similar to `Cat = p1*(1-p2)`, where `Cat`
 #'   is any observed response category in the data set.
 #'   The names of the parameters must be equal to those of the latent variables
-#'   in the section **IRT** (combined with **Subtree** if specified).
+#'   in the section **IRT** (combined with **Constraints** if specified).
 #'
 #'   The equations may contain only products and not sums.
 #'   That is, it is not possible to estimate genuine mixture models as, for
@@ -74,16 +74,23 @@
 #'   Tree
 #'   ```
 #'
-#' ## Subtree
+#' ## Constraints
 #'
-#'   The `model` may contain a section with heading **Subtree**.
-#'   This is necessary if a process in the model equations (section **Equations**)
-#'   may correspond to different latent variables (section **IRT**).
-#'   For example, when analyzing a Big Five data set, one may wish to specify
-#'   only one extremity process e for all items but multiple target traits t,
-#'   namely, one for each of the five scales.
-#'   In such a case, the section **Equations** would list only the parameter t,
-#'   while the section **IRT** would list the parameters t1, ..., t5.
+#'   The `model` may contain a section with heading **Constraints** to specify
+#'   equality constraints of latent variables.
+#'   Constraints may be useful for multidimensional questionnaires to link
+#'   **IRT** and **Equations** in a specific way.
+#'   Or, latent variables in **IRT** may be constrained to equality.
+#'
+#' ### Constraints in order to link sections IRT and Equations
+#'
+#'   A process in the model equations (section **Equations**) may correspond to
+#'   multiple latent variables (section **IRT**).
+#'   For example, when analyzing a Big Five data set, one may wish to specify only
+#'   one extremity process *e* for all items but multiple target traits *t*, namely,
+#'   one for each of the five scales.
+#'   In such a case, the section **Equations** would list only the parameter *t*,
+#'   while the section **IRT** would list the parameters *t1*, ..., *t5*.
 #'
 #'   In the framework of MPT, one would think of such a situation in terms of
 #'   multiple albeit similar trees with specific parameter contraints across
@@ -92,20 +99,19 @@
 #'   response style parameters to equality across trees but not the target trait
 #'   parameters.
 #'
-#'   Each line in this section has a structure of `process = subprocess +
-#'   subprocess`, where `process` is the name of the process used only in
-#'   section **Equations** and `subprocess` it the name of the process used only in
+#'   Each line in this section has a structure of `param = lv |
+#'   lv`, where `param` is the name of the process used only in section
+#'   **Equations** and `lv` it the name of the process used only in
 #'   section **IRT**.
 #'   Use one line for each definition. For example:
 #'
-#'   \preformatted{
-#'   Subtree:
-#'   t = t1 + t2 + t3 + t4 + t5}
+#'   ```
+#'   Constraints:
+#'   t = t1 | t2 | t3 | t4 | t5
+#'   ```
 #'
-#' ## Constraints
+#' ### Constraints within section IRT
 #'
-#'   The `model` may contain a section with heading **Constraints** to specify
-#'   equality constraints of latent variables.
 #'   For example, in a sequential model as proposed by Tutz as well as Verhelst,
 #'   one would specify two processes for a 3-point item. The first process would
 #'   correspond to a pseudoitem of `0-1-1` and the second process to a
@@ -113,8 +119,8 @@
 #'   However, the latent variables corresponding to these processes would
 #'   typically be assumed to be equal and need thus be constrained accordingly.
 #'
-#'   Each line in this section has a structure of `LV1 = LV2`, where
-#'   `LV1` and `LV2` are the names of the latent variables used in
+#'   Each line in this section has a structure of `lv1 = lv2`, where
+#'   `lv1` and `lv2` are the names of the latent variables used in
 #'   section **IRT**.
 #'   Use one line for each definition. For example:
 #'
@@ -176,8 +182,8 @@
 #' e  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 #' m  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 #'
-#' Subtree:
-#' t = t1 + t2
+#' Constraints:
+#' t = t1 | t2
 #'
 #' Equations:
 #' 1 = (1-m)*(1-t)*e
@@ -215,9 +221,6 @@ irtree_model <- function(model = NULL) {
 
     model_list <- list("irt" = NULL,
                        "equations" = NULL,
-                       # "processes" = NULL,
-                       "subtree" = NULL,
-                       # "items" = NULL,
                        "class" = NULL,
                        "addendum" = NULL,
                        "constraints" = NULL,
@@ -304,9 +307,9 @@ irtree_model <- function(model = NULL) {
 
     irtree_model_weights(model_list, e1)
 
-    ##### Subtree #####
+    ##### Constraints #####
 
-    irtree_model_subtree(model_list = model_list, e1 = e1)
+    irtree_model_constraints(model_list, e1)
 
     ##### Mapping Matrix #####
 
@@ -315,10 +318,6 @@ irtree_model <- function(model = NULL) {
     ##### Addendum #####
 
     irtree_model_addendum(model_list, e1)
-
-    ##### Constraints #####
-
-    irtree_model_constraints(model_list, e1)
 
     ##### Lambda Matrix #####
 

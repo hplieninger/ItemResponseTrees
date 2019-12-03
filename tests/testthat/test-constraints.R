@@ -26,10 +26,8 @@ Equations:
 Class:
 Tree
 
-Subtree:
-t = a1 + a2
-
 Constraints:
+t = a1 | a2
 e = m
 "
 
@@ -47,9 +45,9 @@ t = 0:4
 Class:
 PCM
 
-Subtree:
-t = a1 + a2
-# e = b1 + b2
+Constraints:
+t = a1 | a2
+# e = b1 | b2
 "
 
 m3 <- "
@@ -60,8 +58,8 @@ a2 BY C5@1, C10@1, C15@1, C20@1, C25@1, C30@1, C35@1, C40@1, C45@1, C50@1;
 Class:
 GRM
 
-Subtree:
-t = a1 + a2
+Constraints:
+t = a1 | a2
 "
 
 model1 <- irtree_model(m1)

@@ -139,7 +139,6 @@ irtree_gen_tree <- function(object = NULL,
     checkmate::qassert(object$K, "X1[2,)")
     K <- object$K
     lambda <- object$lambda
-    subtree <- object$subtree
     expr <- object$expr
 
     checkmate::assert_int(N, lower = 1, null.ok = !is.null(theta))

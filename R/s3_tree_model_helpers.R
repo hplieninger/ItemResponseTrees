@@ -149,70 +149,6 @@ irtree_model_items <- function(e1 = new.env()) {
                                 any.missing = FALSE, names = "unnamed")
 }
 
-irtree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
-
-    if (!is.null(model_list$subtree)) {
-        subtree1 <- vapply(model_list$subtree,
-                           function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
-                           FUN.VALUE = character(2))
-        subtree2 <- subtree1[1, ]
-        subtree3 <- vapply(subtree1[2, ],
-                           gsub, pattern = "\\s*[+]\\s*", replacement = "|",
-                           FUN.VALUE = "")
-        tmp1 <- strsplit(subtree3, "|", TRUE)[[1]]
-        lapply(tmp1,
-               checkmate::assert_subset, choices = e1$latent_names$irt,
-               .var.name = "Subtree")
-        subtree <- data.frame(trait = subtree2, facet = subtree3, row.names = NULL)
-
-        if (e1$class == "pcm") {
-            # Apply subtree structure to weights; that is
-            # (t = 0:4) together with (t = a1 + a2) becomes
-            # (a1 = 0:4, a2 = 0:4)
-            e1$weights <- subtree %>%
-                dplyr::mutate(trait = as.character(trait)) %>%
-                dplyr::right_join(tibble::enframe(e1$weights, "trait", "weights"),
-                                  by = "trait") %>%
-                tidyr::separate_rows(facet, sep = "\\|") %>%
-                dplyr::mutate(facet = dplyr::coalesce(.data$facet, .data$trait)) %>%
-                {tibble::deframe(x = .[, 2:3])}
-        }
-    } else {
-        subtree <- data.frame()
-    }
-    p_names <- e1$latent_names$irt
-    for (ii in seq_len(nrow(subtree))) {
-        p_names <- gsub(subtree[ii, 2], subtree[ii, 1], p_names)
-    }
-    e1$latent_names$mpt     <- p_names
-    e1$P       <- length(unique(p_names))
-    e1$subtree <- subtree
-
-    ### names of MPT-parameters ###
-
-    if (e1$class == "tree") {
-        mpt_names <-
-            all.vars(
-                as.formula(
-                    paste("~", e1$equations[2, ], collapse = " + ")))
-
-        flag1 <- sym_diff(p_names, mpt_names)
-        if (length(flag1) > 0) {
-            stop("Problem in 'model': All parameters in 'Equations' must be present in 'IRT' ",
-                 "combined with 'Subtree 'and vice versa. Problem with ",
-                 paste(flag1, collapse = ", "), ".", call. = FALSE)
-
-        }
-    } else if (e1$class == "pcm") {
-        flag1 <- sym_diff(names(e1$weights), e1$latent_names$irt)
-        if (length(flag1) > 0) {
-            stop("Problem in 'model': All parameters in 'Weights' must be present in 'IRT' ",
-                 "combined with 'Subtree 'and vice versa. Problem with ",
-                 paste(flag1, collapse = ", "), ".", call. = FALSE)
-        }
-
-    }
-}
 
 irtree_model_addendum <- function(model_list = NULL, e1 = new.env()) {
     if (!is.null(model_list$addendum)) {
@@ -239,12 +175,29 @@ irtree_model_addendum <- function(model_list = NULL, e1 = new.env()) {
 
 irtree_model_constraints <- function(model_list = NULL, e1 = new.env()) {
     if (!is.null(model_list$constraints)) {
+        constr <- split(model_list$constraints,
+                        ifelse(
+                            grepl("\\|", model_list$constraints),
+                            "sub", "equ"))
+    } else {
+        constr <- NULL
+    }
+
+    irtree_model_constr_equ(constr$equ, e1 = e1)
+    irtree_model_constr_sub(constr$sub, e1 = e1)
+
+    return(invisible(NULL))
+}
+
+irtree_model_constr_equ <- function(equ = NULL, e1 = new.env()) {
+    if (!is.null(equ)) {
+
         lv_names <- unique(e1$latent_names$irt)
         tmp1 <- paste0("^(", clps("|", lv_names),
                        ")=(", clps("|", lv_names), ")$")
-        tmp2 <- vapply(model_list$constraints, gsub,
-                                 pattern = "\\s+",
-                                 replacement = "", FUN.VALUE = character(1))
+        tmp2 <- vapply(equ, gsub,
+                       pattern = "\\s+",
+                       replacement = "", FUN.VALUE = character(1))
         if (any(!stringr::str_detect(tmp2, tmp1))) {
             stop("Problem in model: Constraints must be specified in the form of: ",
                  "Name_of_LV = Name_of_LV")
@@ -266,6 +219,71 @@ irtree_model_constraints <- function(model_list = NULL, e1 = new.env()) {
 
     } else {
         return(invisible(NULL))
+    }
+}
+
+irtree_model_constr_sub <- function(sub = NULL, e1 = new.env()) {
+
+    if (!is.null(sub)) {
+        subtree1 <- vapply(sub,
+                           function(x) strsplit(x, "\\s*[=]\\s*")[[1]],
+                           FUN.VALUE = character(2))
+        subtree2 <- subtree1[1, ]
+        subtree3 <- vapply(subtree1[2, ],
+                           gsub, pattern = "\\s*\\|\\s*", replacement = "|",
+                           FUN.VALUE = "")
+        tmp1 <- strsplit(subtree3, "|", TRUE)[[1]]
+        lapply(tmp1,
+               checkmate::assert_subset, choices = e1$latent_names$irt,
+               .var.name = "Subtree")
+        subtree <- data.frame(trait = subtree2, facet = subtree3, row.names = NULL)
+
+        if (e1$class == "pcm") {
+            # Apply subtree structure to weights; that is
+            # (t = 0:4) together with (t = a1 + a2) becomes
+            # (a1 = 0:4, a2 = 0:4)
+            e1$weights <- subtree %>%
+                dplyr::mutate(trait = as.character(.data$trait)) %>%
+                dplyr::right_join(tibble::enframe(e1$weights, "trait", "weights"),
+                                  by = "trait") %>%
+                tidyr::separate_rows(.data$facet, sep = "\\|") %>%
+                dplyr::mutate(facet = dplyr::coalesce(.data$facet, .data$trait)) %>%
+                {tibble::deframe(x = .[, 2:3])}
+        }
+    } else {
+        subtree <- data.frame()
+    }
+    p_names <- e1$latent_names$irt
+    for (ii in seq_len(nrow(subtree))) {
+        p_names <- gsub(subtree[ii, 2], subtree[ii, 1], p_names)
+    }
+    e1$latent_names$mpt     <- p_names
+    e1$P       <- length(unique(p_names))
+    e1$subtree <- subtree
+
+    ### names of MPT-parameters ###
+
+    if (e1$class == "tree") {
+        mpt_names <-
+            all.vars(
+                as.formula(
+                    paste("~", e1$equations[2, ], collapse = " + ")))
+
+        flag1 <- sym_diff(p_names, mpt_names)
+        if (length(flag1) > 0) {
+            stop("Problem in 'model': All parameters in 'Equations' must be present in 'IRT' ",
+                 "combined with 'Constraints 'and vice versa. Problem with ",
+                 paste(flag1, collapse = ", "), ".", call. = FALSE)
+
+        }
+    } else if (e1$class == "pcm") {
+        flag1 <- sym_diff(names(e1$weights), e1$latent_names$irt)
+        if (length(flag1) > 0) {
+            stop("Problem in 'model': All parameters in 'Weights' must be present in 'IRT' ",
+                 "combined with 'Constraints 'and vice versa. Problem with ",
+                 paste(flag1, collapse = ", "), ".", call. = FALSE)
+        }
+
     }
 }
 

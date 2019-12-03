@@ -7,8 +7,8 @@ e  BY X1@1, x2@1, X3@1, X4@1, X5@1,
 m  BY X1@1, x2@1, X3@1, X4@1, X5@1,
 X6@1;
 
-Subtree:
-t = t1 + T2
+Constraints:
+t = t1 | T2
 
 Equations:
 1 = (1-m)*(1-t)*e

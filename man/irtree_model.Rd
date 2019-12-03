@@ -45,13 +45,11 @@ loading completely.
 
 Each measurement model (i.e., the LV and its items) must appear on a
 seperate line ending with a semicolon. Items must be seperated by
-commas. Linebreaks are allowed. For example:
-
-\preformatted{
-  IRT:
-  t BY x1, x2, x3, x4, x5, x6;
-  e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
-  m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
+commas. Linebreaks are allowed. For example:\preformatted{IRT:
+t BY x1, x2, x3, x4, x5, x6;
+e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
+m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
+}
 }
 
 \subsection{Equations}{
@@ -62,21 +60,19 @@ Therein, the model equations are described.
 They have a structure similar to \code{Cat = p1*(1-p2)}, where \code{Cat}
 is any observed response category in the data set.
 The names of the parameters must be equal to those of the latent variables
-in the section \strong{IRT} (combined with \strong{Subtree} if specified).
+in the section \strong{IRT} (combined with \strong{Constraints} if specified).
 
 The equations may contain only products and not sums.
 That is, it is not possible to estimate genuine mixture models as, for
 example, in the package \href{https://github.com/hplieninger/mpt2irt}{mpt2irt}.
 
-Each equation must appear on a separate, non-broken line. For example:
-
-\preformatted{
-  Equations:
-  1 = (1-m)*(1-t)*e
-  2 = (1-m)*(1-t)*(1-e)
-  3 = m
-  4 = (1-m)*t*(1-e)
-  5 = (1-m)*t*e}
+Each equation must appear on a separate, non-broken line. For example:\preformatted{Equations:
+1 = (1-m)*(1-t)*e
+2 = (1-m)*(1-t)*(1-e)
+3 = m
+4 = (1-m)*t*(1-e)
+5 = (1-m)*t*e
+}
 }
 
 \subsection{Class}{
@@ -84,23 +80,27 @@ Each equation must appear on a separate, non-broken line. For example:
 The \code{model} must contain a section with heading \strong{Class} to specify the
 type/class of IRT model to use.
 Currently, may be either \code{Tree} or \code{GRM} (graded response model). For
-example:
-
-\preformatted{
-  Class:
-  Tree}
+example:\preformatted{Class:
+Tree
+}
 }
 
-\subsection{Subtree}{
+\subsection{Constraints}{
 
-The \code{model} may contain a section with heading \strong{Subtree}.
-This is necessary if a process in the model equations (section \strong{Equations})
-may correspond to different latent variables (section \strong{IRT}).
-For example, when analyzing a Big Five data set, one may wish to specify
-only one extremity process e for all items but multiple target traits t,
-namely, one for each of the five scales.
-In such a case, the section \strong{Equations} would list only the parameter t,
-while the section \strong{IRT} would list the parameters t1, ..., t5.
+The \code{model} may contain a section with heading \strong{Constraints} to specify
+equality constraints of latent variables.
+Constraints may be useful for multidimensional questionnaires to link
+\strong{IRT} and \strong{Equations} in a specific way.
+Or, latent variables in \strong{IRT} may be constrained to equality.
+\subsection{Constraints in order to link sections IRT and Equations}{
+
+A process in the model equations (section \strong{Equations}) may correspond to
+multiple latent variables (section \strong{IRT}).
+For example, when analyzing a Big Five data set, one may wish to specify only
+one extremity process \emph{e} for all items but multiple target traits \emph{t}, namely,
+one for each of the five scales.
+In such a case, the section \strong{Equations} would list only the parameter \emph{t},
+while the section \strong{IRT} would list the parameters \emph{t1}, ..., \emph{t5}.
 
 In the framework of MPT, one would think of such a situation in terms of
 multiple albeit similar trees with specific parameter contraints across
@@ -109,20 +109,16 @@ For example, one would use one tree for each Big Five scale and fix the
 response style parameters to equality across trees but not the target trait
 parameters.
 
-Each line in this section has a structure of \code{process = subprocess + subprocess}, where \code{process} is the name of the process used only in
-section \strong{Equations} and \code{subprocess} it the name of the process used only in
+Each line in this section has a structure of \code{param = lv | lv}, where \code{param} is the name of the process used only in section
+\strong{Equations} and \code{lv} it the name of the process used only in
 section \strong{IRT}.
-Use one line for each definition. For example:
-
-\preformatted{
-  Subtree:
-  t = t1 + t2 + t3 + t4 + t5}
+Use one line for each definition. For example:\preformatted{Constraints:
+t = t1 | t2 | t3 | t4 | t5
+}
 }
 
-\subsection{Constraints}{
+\subsection{Constraints within section IRT}{
 
-The \code{model} may contain a section with heading \strong{Constraints} to specify
-equality constraints of latent variables.
 For example, in a sequential model as proposed by Tutz as well as Verhelst,
 one would specify two processes for a 3-point item. The first process would
 correspond to a pseudoitem of \code{0-1-1} and the second process to a
@@ -130,15 +126,15 @@ pseudoitem of \code{NA-0-1}.
 However, the latent variables corresponding to these processes would
 typically be assumed to be equal and need thus be constrained accordingly.
 
-Each line in this section has a structure of \code{LV1 = LV2}, where
-\code{LV1} and \code{LV2} are the names of the latent variables used in
+Each line in this section has a structure of \code{lv1 = lv2}, where
+\code{lv1} and \code{lv2} are the names of the latent variables used in
 section \strong{IRT}.
-Use one line for each definition. For example:
+Use one line for each definition. For example:\preformatted{Constraints:
+lv1 = lv2
+lv1 = lv3
+}
+}
 
-\preformatted{
-  Constraints:
-  LV1 = LV2
-  LV1 = LV3}
 }
 
 \subsection{Addendum}{
@@ -148,12 +144,10 @@ The \code{model} may contain a section with heading \strong{Addendum} if
 Any code in this section is directly pasted in the \code{MODEL} section of
 the Mplus input file.
 Use a semicolon at the end of each line; lines must not exceed 90 characters.
-Note that the addendum is ignored in \code{\link[=irtree_gen_data]{irtree_gen_data()}}. For example:
-
-\preformatted{
-  Addendum:
-  e WITH t@0;
-  m WITH t@0;}
+Note that the addendum is ignored in \code{\link[=irtree_gen_data]{irtree_gen_data()}}. For example:\preformatted{Addendum:
+e WITH t@0;
+m WITH t@0;
+}
 }
 
 \subsection{Weights}{
@@ -169,13 +163,11 @@ Each line in this section has a structure of \code{LV = weights}, where \code{LV
 the name of the processes used in section \strong{IRT}.
 \code{weights} must be valid R code, namely, a vector of weights (see, e.g.,
 Table 1 in Wetzel & Carstensen, 2017, or Table 2 in Falk & Cai, 2015).
-Use one line for each definition. For example:
-
-\preformatted{
-  Weights:
-  t = c(0, 1, 2, 3, 4)
-  e = c(1, 0, 0, 0, 1)
-  m = c(0, 0, 1, 0, 0)}
+Use one line for each definition. For example:\preformatted{Weights:
+t = c(0, 1, 2, 3, 4)
+e = c(1, 0, 0, 0, 1)
+m = c(0, 0, 1, 0, 0)
+}
 }
 }
 
@@ -188,8 +180,8 @@ t2 BY x4@1, x5*, x6*;
 e  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 m  BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 
-Subtree:
-t = t1 + t2
+Constraints:
+t = t1 | t2
 
 Equations:
 1 = (1-m)*(1-t)*e
