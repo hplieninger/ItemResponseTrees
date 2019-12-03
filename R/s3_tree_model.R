@@ -30,11 +30,12 @@
 #'   seperate line ending with a semicolon. Items must be seperated by
 #'   commas. Linebreaks are allowed. For example:
 #'
-#'   \preformatted{
+#'   ```
 #'   IRT:
 #'   t BY x1, x2, x3, x4, x5, x6;
 #'   e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
-#'   m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;}
+#'   m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
+#'   ```
 #'
 #' ## Equations
 #'
@@ -52,13 +53,14 @@
 #'
 #'   Each equation must appear on a separate, non-broken line. For example:
 #'
-#'   \preformatted{
+#'   ```
 #'   Equations:
 #'   1 = (1-m)*(1-t)*e
 #'   2 = (1-m)*(1-t)*(1-e)
 #'   3 = m
 #'   4 = (1-m)*t*(1-e)
-#'   5 = (1-m)*t*e}
+#'   5 = (1-m)*t*e
+#'   ```
 #'
 #' ## Class
 #'
@@ -67,9 +69,10 @@
 #'   Currently, may be either `Tree` or `GRM` (graded response model). For
 #'   example:
 #'
-#'   \preformatted{
+#'   ```
 #'   Class:
-#'   Tree}
+#'   Tree
+#'   ```
 #'
 #' ## Subtree
 #'
@@ -115,10 +118,11 @@
 #'   section **IRT**.
 #'   Use one line for each definition. For example:
 #'
-#'   \preformatted{
+#'   ```
 #'   Constraints:
-#'   LV1 = LV2
-#'   LV1 = LV3}
+#'   lv1 = lv2
+#'   lv1 = lv3
+#'   ```
 #'
 #' ## Addendum
 #'
@@ -129,10 +133,11 @@
 #'   Use a semicolon at the end of each line; lines must not exceed 90 characters.
 #'   Note that the addendum is ignored in [irtree_gen_data()]. For example:
 #'
-#'   \preformatted{
+#'   ```
 #'   Addendum:
 #'   e WITH t@0;
-#'   m WITH t@0;}
+#'   m WITH t@0;
+#'   ```
 #'
 #' ## Weights
 #'
@@ -149,11 +154,12 @@
 #'   Table 1 in Wetzel & Carstensen, 2017, or Table 2 in Falk & Cai, 2015).
 #'   Use one line for each definition. For example:
 #'
-#'   \preformatted{
+#'   ```
 #'   Weights:
 #'   t = c(0, 1, 2, 3, 4)
 #'   e = c(1, 0, 0, 0, 1)
-#'   m = c(0, 0, 1, 0, 0)}
+#'   m = c(0, 0, 1, 0, 0)
+#'   ```
 #'
 #' @param model String with a specific structure as described below.
 #' @return List of class `irtree_model`. It contains the information extracted
