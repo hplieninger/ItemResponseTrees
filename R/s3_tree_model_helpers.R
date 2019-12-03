@@ -164,6 +164,19 @@ irtree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
                checkmate::assert_subset, choices = e1$latent_names$irt,
                .var.name = "Subtree")
         subtree <- data.frame(trait = subtree2, facet = subtree3, row.names = NULL)
+
+        if (e1$class == "pcm") {
+            # Apply subtree structure to weights; that is
+            # (t = 0:4) together with (t = a1 + a2) becomes
+            # (a1 = 0:4, a2 = 0:4)
+            e1$weights <- subtree %>%
+                dplyr::mutate(trait = as.character(trait)) %>%
+                dplyr::right_join(tibble::enframe(e1$weights, "trait", "weights"),
+                                  by = "trait") %>%
+                tidyr::separate_rows(facet, sep = "\\|") %>%
+                dplyr::mutate(facet = dplyr::coalesce(.data$facet, .data$trait)) %>%
+                {tibble::deframe(x = .[, 2:3])}
+        }
     } else {
         subtree <- data.frame()
     }
@@ -191,12 +204,13 @@ irtree_model_subtree <- function(model_list = NULL, e1 = new.env()) {
 
         }
     } else if (e1$class == "pcm") {
-        flag1 <- sym_diff(names(e1$weights), p_names)
+        flag1 <- sym_diff(names(e1$weights), e1$latent_names$irt)
         if (length(flag1) > 0) {
             stop("Problem in 'model': All parameters in 'Weights' must be present in 'IRT' ",
                  "combined with 'Subtree 'and vice versa. Problem with ",
                  paste(flag1, collapse = ", "), ".", call. = FALSE)
         }
+
     }
 }
 
