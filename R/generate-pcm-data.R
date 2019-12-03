@@ -56,7 +56,6 @@ irtree_gen_pcm <- function(object = NULL,
 
     # INPUT CHECKING ----------------------------------------------------------
 
-    .must_have(object, "subtree", FALSE, .skip = .skip)
     .must_have(object, "constraints", FALSE, .skip = .skip)
     .must_have(object, "addendum", FALSE, .skip = .skip)
 
@@ -104,7 +103,7 @@ irtree_gen_pcm <- function(object = NULL,
     if (is.null(theta)) {
         theta <- MASS::mvrnorm(ifelse(N == 1, 1.001, N), mu = rep(0, S), Sigma = sigma)
     }
-    colnames(theta) <- object$lv_names
+    colnames(theta) <- object$latent_names$theta
     spec$personpar <- theta
     spec$theta <- NULL
     theta <- Matrix::Matrix(t(theta))
@@ -119,21 +118,6 @@ irtree_gen_pcm <- function(object = NULL,
     # [ITEMS*CATEG x DIM] MATRIX
 
     B <- .make_tam_B(object, array = FALSE)
-
-    # weights_df <- tibble::enframe(object$weights, "trait")
-    # weights_df$trait <- factor(weights_df$trait, levels(lambda$trait))
-    #
-    # # B <- dplyr::full_join(lambda, weights_df, by = "trait") %>%
-    # #     tidyr::pivot_wider(id_cols = "item", names_from = "trait", values_from = "value") %>%
-    # #     tidyr::unnest(cols = -.data$item) %>%
-    # #     dplyr::select(-1) %>%
-    # #     as.matrix
-    #
-    # .B1 <- dplyr::full_join(lambda, weights_df, by = "trait")
-    # .B2 <- tidyr::pivot_wider(.B1, id_cols = "item", names_from = "trait", values_from = "value")
-    # .B3 <- tidyr::unnest(.B2, cols = -.data$item)
-    # .B4 <- dplyr::select(.B3, -1)
-    # B   <- Matrix::Matrix(as.matrix(.B4))
 
     # A-MATRIX -----------------------------------------------------------------
     # [ITEMS*CATEG x ITEMS*(CATEG-1)] MATRIX

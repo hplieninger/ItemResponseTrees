@@ -59,8 +59,6 @@ irtree_gen_data <- function(object = NULL,
 
     checkmate::assert_class(object, "irtree_model")
 
-    # .must_have(object, "subtree", FALSE)
-    .must_have(object, "constraints", FALSE, .skip = .skip)
     .must_have(object, "addendum", FALSE, .skip = .skip)
 
     link <- match.arg(link)
@@ -133,18 +131,13 @@ irtree_gen_tree <- function(object = NULL,
                    probit = setNames("pnorm", link),
                    logit  = setNames("plogis", link))
 
-
     S <- object$S
     J <- object$J
     j_names <- object$j_names
     P <- object$P
     p_names <- levels(object$lambda$mpt)
-    # if (is.null(object$K)) {
-    #     checkmate::qassert(K, "X1[2,)")
-    # } else {
     checkmate::qassert(object$K, "X1[2,)")
     K <- object$K
-    # }
     lambda <- object$lambda
     subtree <- object$subtree
     expr <- object$expr
@@ -191,7 +184,6 @@ irtree_gen_tree <- function(object = NULL,
 
     beta_names  <- paste0("beta",  1:P)
     alpha_names <- paste0("alpha", 1:P)
-    # theta_names <- paste0("theta", 1:P)
 
     betas  <- data.frame(item = factor(j_names, levels = j_names),
                          setNames(data.frame(itempar$beta), nm = beta_names))
@@ -238,17 +230,6 @@ irtree_gen_tree <- function(object = NULL,
 
     dat5 <- dplyr::inner_join(dat3, lambda, by = c("item", "theta"))
 
-    # for (ii in seq_len(nrow(subtree))) {
-    #     tmpx <- gsub(subtree[ii, 2], subtree[ii, 1], levels(dat5$theta))
-    #     levels(dat5$theta) <- tmpx
-    # }
-    #
-    # dat5$theta <- factor(dat5$theta, levels = levels(dat5$theta),
-    #                      labels = theta_names)
-
-    # dat6 <- reshape2::dcast(dat5, pers + item + cate ~ trait, value.var = "value")
-    # dat6 <- tidyr::spread(dplyr::select(dat5, pers, item, cate, trait, value),
-    #                       trait, value)
     dat6 <- reshape(
         dplyr::select(dat5, .data$pers, .data$item, .data$cate, .data$mpt,
                       .data$value),
@@ -295,9 +276,6 @@ irtree_gen_tree <- function(object = NULL,
             .subclass = "improper_model")
     }
 
-    # dat10 <- aggregate(prob ~ pers + item,
-    #                    data = probs,
-    #                    function(x) which(rmultinom(n = 1, size = 1, prob = x) == 1))
     dat10 <- aggregate(prob ~ pers + item,
                        data = probs,
                        function(x) object$k_names[rmultinom(n = 1, size = 1, prob = x) == 1])
