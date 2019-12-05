@@ -25,16 +25,19 @@
 #' #> "
 #' @export
 irtree_create_template <- function(variables = NULL,
-                            rasch = TRUE) {
+                                   rasch = TRUE) {
     if (is.data.frame(variables)) {
         variables <- names(variables)
     }
     checkmate::qassert(variables, "S+")
     checkmate::qassert(rasch, "B1")
+    irt <- paste0("... BY ",
+                  paste0(variables, ifelse(rasch, "@1", ""), collapse = ", "),
+                  ";")
+    irt <- strwrap(irt, exdent = 7)
+    irt <- paste0("\n", irt, collapse = "")
     message("model1 <- \"\nIRT:",
-            replicate(2, paste0("\n... BY ",
-                                paste0(variables, ifelse(rasch, "@1", ""), collapse = ", "),
-                                ";")),
+            replicate(2, irt),
             "\n\nEquations:\n0 = ...\n1 = ...\n\n",
             "Class:\nTree\n\"")
     return(invisible(NULL))
