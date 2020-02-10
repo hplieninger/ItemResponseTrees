@@ -65,6 +65,7 @@ res2 <- irtree_sim(gen_model = model1,
 
 ##### Tests #####
 
+data(column_glossary, package = "modeltests")
 
 test_that("irtree_sim() works", {
 
@@ -96,8 +97,6 @@ test_that("irtree_sim() works", {
     modeltests::check_glance_outputs(res11$fits$m1$glanced, strict = TRUE)
 
     skip_if_not_installed("modeltests")
-
-    data(column_glossary, package = "modeltests")
 
     modeltests::check_tidy_output(
         subset(

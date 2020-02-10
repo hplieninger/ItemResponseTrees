@@ -7,7 +7,7 @@
 #'   converged or not. For Mplus, this is `TRUE` if the output contained the
 #'   phrase "The model estimation terminated normally". For mirt, this is equal
 #'   to the output of [`mirt::extract.mirt(x,
-#'   "converged")`][mirt::extract.mirt]. You are encoured to check any warnings
+#'   "converged")`][mirt::extract.mirt]. You are encouraged to check any warnings
 #'   or errors in any case.
 #'
 #' @section Iterations: `iterations` is `NA` for Mplus models since respective

@@ -26,7 +26,7 @@ class \code{irtree_model} that represents the full model as needed by the packag
 
 \enumerate{
 \item The \code{model} string must contain at least the sections \strong{IRT}, \strong{Class}, and (if class is tree) \strong{Equations}.
-\item Section headings must appear on a seperate line ending with a colon (:).
+\item Section headings must appear on a separate line ending with a colon (:).
 \item The model may contain empty lines and comments, which begin with \verb{#}.
 \item Line breaks are only allowed in section \strong{IRT}.
 }
@@ -44,8 +44,8 @@ using \verb{@1} or it may be set free using \code{*} or omitting the
 loading completely.
 
 Each measurement model (i.e., the LV and its items) must appear on a
-seperate line ending with a semicolon. Items must be seperated by
-commas. Linebreaks are allowed. For example:\preformatted{IRT:
+separate line ending with a semicolon. Items must be separated by
+commas. Line breaks are allowed. For example:\preformatted{IRT:
 t BY x1, x2, x3, x4, x5, x6;
 e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;

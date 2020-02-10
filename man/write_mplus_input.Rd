@@ -26,10 +26,10 @@ information.}
 
 \item{fsco_file}{String, the file name used by Mplus to store the factor scores.}
 
-\item{save_fscores}{Logical, wheter to save FSCORES or not.}
+\item{save_fscores}{Logical, whether to save FSCORES or not.}
 
 \item{quadpts}{This is passed to argument 'INTEGRATION'. Thus, it may be an
-integer specifiying the number of integration points for the Mplus default
+integer specifying the number of integration points for the Mplus default
 of rectangular numerical integration (e.g., \code{quadpts = 15}). Or it may be a
 string, which gives more fine grained control (e.g., \code{quadpts = "MONTECARLO(2000)"}).}
 

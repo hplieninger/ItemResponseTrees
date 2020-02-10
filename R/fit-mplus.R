@@ -6,7 +6,7 @@
 #'   file. Do not provide file endings, those will be automatically appended by
 #'   the function.
 #' @param quadpts This is passed to argument 'INTEGRATION'. Thus, it may be an
-#'   integer specifiying the number of integration points for the Mplus default
+#'   integer specifying the number of integration points for the Mplus default
 #'   of rectangular numerical integration (e.g., `quadpts = 15`). Or it may be a
 #'   string, which gives more fine grained control (e.g., `quadpts =
 #'   "MONTECARLO(2000)"`).
@@ -14,13 +14,13 @@
 #' @param link String, passed to argument 'LINK' in Mplus. Specifies
 #'   the link function.
 #' @param cleanup Logical, whether the Mplus files should be removed on exit.
-#' @param save_fscores Logical, wheter to save FSCORES or not.
+#' @param save_fscores Logical, whether to save FSCORES or not.
 #' @param analysis_list Named list of strings passed to Mplus' argument
 #'   ANALYSIS. For example: `analysis_list = list(MITERATIONS = "1000")`.
 # @param processors Integer, passed to argument 'PROCESSORS' in Mplus.
 #' @param run Logical, whether to indeed run Mplus.
 #' @param ... Additional parameters passed to [MplusAutomation::runModels()].
-#' @param .warnings2messages Logial, whether Mplus errors and warnings should be
+#' @param .warnings2messages Logical, whether Mplus errors and warnings should be
 #'   signaled as warnings (the default) or messages.
 #' @inheritParams fit.irtree_model
 #' @inheritParams MplusAutomation::runModels

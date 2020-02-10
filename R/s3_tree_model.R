@@ -8,7 +8,7 @@
 #'
 #' \enumerate{
 #'   \item The `model` string must contain at least the sections **IRT**, **Class**, and (if class is tree) **Equations**.
-#'   \item Section headings must appear on a seperate line ending with a colon (:).
+#'   \item Section headings must appear on a separate line ending with a colon (:).
 #'   \item The model may contain empty lines and comments, which begin with `#`.
 #'   \item Line breaks are only allowed in section **IRT**.
 #' }
@@ -27,8 +27,8 @@
 #'   loading completely.
 #'
 #'   Each measurement model (i.e., the LV and its items) must appear on a
-#'   seperate line ending with a semicolon. Items must be seperated by
-#'   commas. Linebreaks are allowed. For example:
+#'   separate line ending with a semicolon. Items must be separated by
+#'   commas. Line breaks are allowed. For example:
 #'
 #'   ```
 #'   IRT:

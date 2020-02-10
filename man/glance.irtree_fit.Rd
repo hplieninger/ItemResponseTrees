@@ -22,7 +22,7 @@ with exactly one row of model summaries.
  The column \code{converged} indicates whether the model
 converged or not. For Mplus, this is \code{TRUE} if the output contained the
 phrase "The model estimation terminated normally". For mirt, this is equal
-to the output of \code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "converged")}}. You are encoured to check any warnings
+to the output of \code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "converged")}}. You are encouraged to check any warnings
 or errors in any case.
 }
 

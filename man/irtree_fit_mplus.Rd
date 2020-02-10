@@ -36,7 +36,7 @@ file. Do not provide file endings, those will be automatically appended by
 the function.}
 
 \item{quadpts}{This is passed to argument 'INTEGRATION'. Thus, it may be an
-integer specifiying the number of integration points for the Mplus default
+integer specifying the number of integration points for the Mplus default
 of rectangular numerical integration (e.g., \code{quadpts = 15}). Or it may be a
 string, which gives more fine grained control (e.g., \code{quadpts = "MONTECARLO(2000)"}).}
 
@@ -49,7 +49,7 @@ the link function.}
 
 \item{cleanup}{Logical, whether the Mplus files should be removed on exit.}
 
-\item{save_fscores}{Logical, wheter to save FSCORES or not.}
+\item{save_fscores}{Logical, whether to save FSCORES or not.}
 
 \item{analysis_list}{Named list of strings passed to Mplus' argument
 ANALYSIS. For example: \code{analysis_list = list(MITERATIONS = "1000")}.}
@@ -71,7 +71,7 @@ it will throw an error.}
 
 \item{...}{Additional parameters passed to \code{\link[MplusAutomation:runModels]{MplusAutomation::runModels()}}.}
 
-\item{.warnings2messages}{Logial, whether Mplus errors and warnings should be
+\item{.warnings2messages}{Logical, whether Mplus errors and warnings should be
 signaled as warnings (the default) or messages.}
 
 \item{.improper_okay}{Logical indicating whether the model should also be fit
