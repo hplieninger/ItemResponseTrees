@@ -3,21 +3,23 @@
 #' Glance accepts an `irtree_fit` object and returns a [tibble][tibble::tibble-package]
 #'   with exactly one row of model summaries.
 #'
-#' @section Converged: The column `converged` indicates whether the model
+#' @return A one-row [tibble][tibble::tibble-package] with columns such as `AIC` and `BIC`.
+#' ## Converged
+#' The column `converged` indicates whether the model
 #'   converged or not. For Mplus, this is `TRUE` if the output contained the
 #'   phrase "The model estimation terminated normally". For mirt, this is equal
 #'   to the output of [`mirt::extract.mirt(x,
 #'   "converged")`][mirt::extract.mirt]. You are encouraged to check any warnings
 #'   or errors in any case.
 #'
-#' @section Iterations: `iterations` is `NA` for Mplus models since respective
+#' ## Iterations
+#' `iterations` is `NA` for Mplus models since respective
 #'   information is not easily obtained from the output.
 #'
 #' @param x object of class `irtree_fit` as returned from [`fit()`][fit.irtree_model].
 #' @param ... Additional arguments. Not used.
-#' @return A one-row [tibble][tibble::tibble-package] with columns such as `AIC` and `BIC`.
 #' @example inst/examples/example-fit.R
-#' @seealso [broom::glance()], [`mirt::extract.mirt(x,
+#' @seealso [generics::glance()], [`mirt::extract.mirt(x,
 #'   "secondordertest")`][mirt::extract.mirt]
 #' @export
 glance.irtree_fit <- function(x = NULL, ...) {
@@ -115,7 +117,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #'   \item{`p.value`}{The p-value associated with the statistic.}
 #' }
 #' @example inst/examples/example-fit.R
-#' @seealso [broom::tidy()]
+#' @seealso [generics::tidy()]
 #' @export
 tidy.irtree_fit <- function(x = NULL, ...) {
     # ellipsis::check_dots_used()
@@ -143,7 +145,7 @@ tidy.irtree_fit <- function(x = NULL, ...) {
 #'   transformed to difficulty parameters if `difficulty = TRUE`.
 #' @inheritParams tidy.irtree_fit
 #' @inherit tidy.irtree_fit return description
-#' @seealso [`tidy()`][tidy.irtree_fit()], [broom::tidy()]
+#' @seealso [`tidy()`][tidy.irtree_fit()], [generics::tidy()]
 tidy_mirt <- function(x = NULL, difficulty = NA) {
 
     checkmate::qassert(difficulty, "b1")
@@ -286,7 +288,7 @@ tidy_mplus <- function(x = NULL) {
 #'   `se.fit = FALSE` (if `se.fit = TRUE`). The names of the new columns start
 #'   with `.fit` (and `.se.fit`).
 #' @example inst/examples/example-fit.R
-#' @seealso [broom::augment()]
+#' @seealso [generics::augment()]
 #' @export
 augment.irtree_fit <- function(x = NULL,
                                data = NULL,

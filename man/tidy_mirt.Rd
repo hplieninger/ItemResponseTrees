@@ -29,5 +29,5 @@ parameter and the following columns:
 Tidy summarizes information about the parameter estimates of the IR-tree model.
 }
 \seealso{
-\code{\link[=tidy.irtree_fit]{tidy()}}, \code{\link[broom:tidy]{broom::tidy()}}
+\code{\link[=tidy.irtree_fit]{tidy()}}, \code{\link[generics:tidy]{generics::tidy()}}
 }

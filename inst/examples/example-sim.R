@@ -30,18 +30,22 @@ res1 <- irtree_sim(
     N = 500,
     link = "logit",
     sigma = function(x) diag(2),
-    itempar = function(x) list(beta = matrix(sort(runif(model1$J*model1$P, -2, 2)),
-                                             model1$J, model1$P),
-                               alpha = matrix(1, model1$J, model1$P)),
+    itempar = function(x) list(
+        beta = matrix(sort(runif(model1$J*model1$P, -2, 2)),
+                      model1$J, model1$P),
+        alpha = matrix(1, model1$J, model1$P)),
     .na_okay = FALSE,
+
     ### Estimation ###
     fit_model = list(model1, model2),
     engine = "mirt",
     dots = list(fit = list(SE = FALSE),
                 tidy = list(difficulty = TRUE)),
+
     ### Replications ###
     R = 2,
     save_rdata = FALSE,
+
     ### Parallelization ###
     plan = "multiprocess",
     future_args = list(workers = 2)

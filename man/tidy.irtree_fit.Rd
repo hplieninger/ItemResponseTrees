@@ -42,5 +42,5 @@ tidy(fit1)
 augment(fit1)
 }
 \seealso{
-\code{\link[broom:tidy]{broom::tidy()}}
+\code{\link[generics:tidy]{generics::tidy()}}
 }

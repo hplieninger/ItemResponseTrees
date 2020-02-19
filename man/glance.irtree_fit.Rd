@@ -13,24 +13,25 @@
 }
 \value{
 A one-row \link[tibble:tibble-package]{tibble} with columns such as \code{AIC} and \code{BIC}.
-}
-\description{
-Glance accepts an \code{irtree_fit} object and returns a \link[tibble:tibble-package]{tibble}
-with exactly one row of model summaries.
-}
-\section{Converged}{
- The column \code{converged} indicates whether the model
+\subsection{Converged}{
+
+The column \code{converged} indicates whether the model
 converged or not. For Mplus, this is \code{TRUE} if the output contained the
 phrase "The model estimation terminated normally". For mirt, this is equal
 to the output of \code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "converged")}}. You are encouraged to check any warnings
 or errors in any case.
 }
 
-\section{Iterations}{
- \code{iterations} is \code{NA} for Mplus models since respective
+\subsection{Iterations}{
+
+\code{iterations} is \code{NA} for Mplus models since respective
 information is not easily obtained from the output.
 }
-
+}
+\description{
+Glance accepts an \code{irtree_fit} object and returns a \link[tibble:tibble-package]{tibble}
+with exactly one row of model summaries.
+}
 \examples{
 m1 <- "
 IRT:
@@ -48,5 +49,5 @@ tidy(fit1)
 augment(fit1)
 }
 \seealso{
-\code{\link[broom:glance]{broom::glance()}}, \code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "secondordertest")}}
+\code{\link[generics:glance]{generics::glance()}}, \code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "secondordertest")}}
 }
