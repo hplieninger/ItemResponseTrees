@@ -22,7 +22,7 @@ The package can be installed as follows:
 remotes::install_github("hplieninger/ItemResponseTrees")
 ```
 
-## Example
+## Example Data
 
 Herein, an illustrative example will be shown using a popular IR-tree
 model for 5-point items (Böckenholt, 2012). The model is applied to a
@@ -41,33 +41,37 @@ df0 <- as_tibble(data.big5.qgraph)
 df1 <- select(df0, starts_with("E")[5:12])
 ```
 
-### Defining the Model
+## Defining the Model
 
 The model is defined by the following tree diagram. The model equations
 can be directly derived from the diagram: The probability for a specific
 category is given by multiplying all parameters along the branch that
 lead to that category (see also Böckenholt, 2012; Plieninger & Heck,
-2018). The resulting five equations are shown in the right part of the
-figure.
+2018). For example, the branch leading to Category 5 is comprised of the
+parameters (1-m), t, and e. The resulting five equations are shown in
+the right part of the figure.
 
 <img src="tools/ecn-model.png" width="80%" style="border:0px;display: block;  margin-left: auto; margin-right: auto;" />
 
 In the ItemResponseTrees package, a model is defined using a specific
 syntax that consists mainly of three parts.
 
-1.  `Equations:` Therein, the model equation for each response category
-    is listed. You can choose any parameter label you like, and I’ve
-    chosen *t*, *e*, and *m* below corresponding to the diagram above.
-2.  `IRT:` The parameters in the `Equation` (and also those in the
+1.  `Equations:` Herein, the model equation for each response category
+    is listed in the format `cat = p1 * (1-p2)`, where `cat` is one of
+    the observed responses (e.g., 1, …, 5). Furthermore, `p1` is a
+    freely chosen parameter label, and I’ve chosen `t`, `e`, and `m`
+    below corresponding to the diagram above.
+2.  `IRT:` The parameters in the `Equations` (and also those in the
     figure above) actually correspond to latent variables of an IRT
     model. These latent variables are measured using a number of
-    items/variables and those are listed in this section using the same
-    parameter labels. The format for this section is highly similar to
-    the MODEL statement in Mplus: a semicolon is used after each
-    definition; loadings (discrimination parameters) can be fixed using
-    `@`. The syntax below fixes all loadings corresponding to dimensions
-    *e* and *m* to 1 corresponding to a 1PL or Rasch model, whereas all
-    loadings corresponding to dimension *t* are freely estimated (i.e.,
+    items/variables, and this is specified in this section using the
+    same parameter labels as in `Equations`.  
+    The format for this section is highly similar to the MODEL statement
+    in Mplus: a semicolon is used after each definition; loadings
+    (discrimination parameters) can be fixed using `@`. The syntax below
+    fixes all loadings corresponding to dimensions *e* and *m* to 1
+    corresponding to a 1PL or Rasch model, whereas all loadings
+    corresponding to dimension *t* are freely estimated (i.e.,
     2PL-structure).
 3.  `Class:` Can be either `Tree` for an IR-tree model or `GRM` for a
     graded response model.
@@ -176,7 +180,7 @@ The parameter estimates are obtained via `tidy()`. For the IR-tree
 model, this returns a tibble with 60 rows containing the 40 free
 parameters, 17 fixed loadings, and 3 correlations (in addition to the 3
 covariances for better interpretation). Below, the
-loading/discrimination parameter pertaining to parameter *t* are shown,
+loading/discrimination parameters pertaining to parameter *t* are shown,
 which vary between 0.18 and 6.78. The loadings pertaining to parameter
 *e* and *m* were fixed to one and thus no standard error is returned for
 these. The latent correlations are shown below as well, and these show
