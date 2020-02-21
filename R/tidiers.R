@@ -171,10 +171,13 @@ tidy_mirt <- function(x = NULL, difficulty = NA) {
                       term = sub("GroupPars[.]", "", .data$term))
 
     if (is.na(difficulty)) {
-        message("The mirt package returns easiness (instead of difficulty) ",
-                "parameters and so does tidy(). Use\n",
-                "tidy(x, difficulty = TRUE)    to change this, or\n",
-                "tidy(x, difficulty = FALSE)   to silence this message.")
+        xname <- deparse(substitute(x, parent.frame()))
+        cli::cli_alert_warning(
+            "The {.pkg mirt} package returns {.strong easiness} parameters.")
+        cli::cli_text(
+            "Use {.code tidy({xname}, difficulty = TRUE)} to get difficulty ",
+            "parameters, or {.code tidy({xname}, difficulty = FALSE)} to ",
+            "silence this message.")
     } else if (difficulty) {
         est1 <- dplyr::mutate(
             est1, estimate = unlist(
