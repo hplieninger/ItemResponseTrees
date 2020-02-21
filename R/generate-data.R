@@ -335,6 +335,7 @@ irtree_recode <- function(object = NULL,
                           keep = FALSE) {
 
     checkmate::assert_class(object, "irtree_model")
+    checkmate::assert_data_frame(data)
 
     j_names <- object$j_names
     p_names <- object$p_names
@@ -404,10 +405,7 @@ irtree_recode <- function(object = NULL,
     } else {
         PIs2 <- cbind(PIs1, data[, !names(data) %in% j_names, drop = FALSE])
     }
-
-    # attr(PIs2, "mapping_matrix") <- mapping_matrix
-
-    # attr(PIs2, "pseudoitem_names") <- names(PIs1)
+    class(PIs2) <- class(data)
 
     return(PIs2)
 }
