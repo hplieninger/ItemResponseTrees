@@ -10,7 +10,7 @@ irtree_gen_data(
   sigma = NULL,
   theta = NULL,
   itempar = NULL,
-  link = c("probit", "logit"),
+  link = c("logit", "probit"),
   na_okay = TRUE,
   skip = FALSE
 )

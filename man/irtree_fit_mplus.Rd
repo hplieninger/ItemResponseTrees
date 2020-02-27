@@ -7,7 +7,7 @@
 irtree_fit_mplus(
   object = NULL,
   data = NULL,
-  link = c("probit", "logit"),
+  link = c("logit", "probit"),
   verbose = interactive(),
   control = control_mplus(),
   improper_okay = FALSE

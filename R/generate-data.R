@@ -52,7 +52,7 @@ irtree_gen_data <- function(object = NULL,
                             sigma = NULL,
                             theta = NULL,
                             itempar = NULL,
-                            link = c("probit", "logit"),
+                            link = c("logit", "probit"),
                             na_okay = TRUE,
                             skip = FALSE
 ) {
@@ -119,7 +119,7 @@ irtree_gen_tree <- function(object = NULL,
                             sigma = NULL,
                             theta = NULL,
                             itempar = NULL,
-                            link = c("probit", "logit"),
+                            link = c("logit", "probit"),
                             na_okay = TRUE) {
 
     link <- match.arg(link)
