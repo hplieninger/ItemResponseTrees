@@ -51,6 +51,9 @@ data1 <- irtree_gen_data(
     itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                    alpha = matrix(1, model1$J, model1$P)),
     na_okay = FALSE)
+for (ii in seq_len(ncol(data1$data))) {
+    data1$data[ii, ii] <- NA
+}
 
 data(Science, package = "mirt")
 ScienceNew <- Science - 1

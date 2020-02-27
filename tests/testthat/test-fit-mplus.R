@@ -67,9 +67,9 @@ X <- irtree_gen_data(object = model1, N = 100,
                      itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                                     alpha = matrix(1, model1$J, model1$P)),
                      na_okay = FALSE, skip = TRUE)
-# tmp1 <- names(model1$j_names)
-# names(tmp1) <- model1$j_names
-# names(X$data) <- stringr::str_replace_all(names(X$data), tmp1)
+for (ii in seq_len(ncol(X$data))) {
+    X$data[ii, ii] <- NA
+}
 df1 <- sample(data.frame(X$data, y1 = rnorm(100)))
 
 data(Science, package = "mirt")
@@ -270,3 +270,4 @@ test_that("augment.irtree_fit()", {
     checkmate::expect_numeric(ag3$.se.fitT, lower = 0, finite = TRUE, all.missing = FALSE)
 
 })
+

@@ -34,7 +34,7 @@ assert_irtree_data <- function(data = NULL,
     # tam: is the minimum == 0?
     #      test not necessary for tree, because I recode the data
 
-    categ_dat <- unique(unlist(data[object$j_names], use.names = FALSE))
+    categ_dat <- na.omit(unique(unlist(data[object$j_names], use.names = FALSE)))
 
     if (object$class == "tree") {
         if (length(sym_diff(categ_dat, object$k_names)) > 0) {

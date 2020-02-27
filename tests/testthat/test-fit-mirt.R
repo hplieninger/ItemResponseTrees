@@ -51,12 +51,15 @@ model3 <- irtree_model(m3)
 
 ##### Data #####
 
-X <- irtree_gen_data(object = model1, N = 100,
+X <- irtree_gen_data(object = model1, N = 200,
                      sigma = diag(model1$S),
                      itempar = list(beta = matrix(sort(rnorm(model1$J*model1$P)),
                                                   model1$J, model1$P),
                                     alpha = matrix(1, model1$J, model1$P)),
                      na_okay = FALSE)
+for (ii in seq_len(ncol(X$data))) {
+    X$data[ii, ii] <- NA
+}
 
 data(Science, package = "mirt")
 ScienceNew <- Science
@@ -188,3 +191,4 @@ test_that("implementation of augment.irtree_fit()", {
     expect_gt(cor(ag3$.fittedF1, mirt::fscores(res3x)), .99)
 
 })
+
