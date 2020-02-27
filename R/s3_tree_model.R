@@ -284,6 +284,7 @@ irtree_model <- function(model = NULL) {
         .must_have(model_list, "equations", .class = "Tree")
         .must_have(model_list, "weights", FALSE, .class = "Tree")
     } else if (e1$class == "grm") {
+        e1$K <- NA_integer_
         .must_have(model_list, "equations", FALSE, .class = "GRM")
         .must_have(model_list, "weights", FALSE, .class = "GRM")
     } else if (e1$class == "pcm") {

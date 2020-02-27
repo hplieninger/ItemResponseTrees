@@ -442,7 +442,7 @@ control_mplus <- function(file = tempfile("irtree_"),
 
     ctrl <- as.list(environment())
 
-    checkmate::assert_path_for_output(file, overwrite = overwrite)
+    checkmate::assert_path_for_output(file, overwrite = TRUE)
     checkmate::qassert(overwrite, "B1")
     checkmate::qassert(cleanup, "B1")
     checkmate::qassert(run, "B1")
