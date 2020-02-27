@@ -48,7 +48,7 @@ res1 <- irtree_sim(
 
     ### Parallelization ###
     plan = "multiprocess",
-    future_args = list(workers = 2)
+    plan_args = list(workers = 2)
 )
 
 library("tidyr")

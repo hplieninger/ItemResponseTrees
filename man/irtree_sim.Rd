@@ -5,28 +5,31 @@
 \title{Run a Simulation by Generating From and Fitting a Tree Model}
 \usage{
 irtree_sim(
+  R = 1,
   gen_model = NULL,
   fit_model = gen_model,
   N = NULL,
   sigma = NULL,
   itempar = NULL,
-  link = c("probit", "logit"),
   engine = c("mirt", "mplus", "tam"),
+  link = c("logit", "probit"),
   verbose = FALSE,
-  save_rdata = TRUE,
-  file = NULL,
-  R = 1,
-  plan = NULL,
-  future_args = list(),
-  in_memory = c("reduced", "everything", "nothing"),
   control = NULL,
   improper_okay = FALSE,
+  save_rdata = TRUE,
+  file = NULL,
+  plan = NULL,
+  plan_args = list(),
+  in_memory = c("reduced", "everything", "nothing"),
   difficulty = TRUE,
   dir = tempdir(),
   na_okay = TRUE
 )
 }
 \arguments{
+\item{R}{Number of replications. Can be either a single number indicating the
+number of replications (e.g., \code{R = 100}), or can be a range (e.g., \code{R = 1:100}).}
+
 \item{gen_model}{Object of class \code{irtree_model} describing the
 data-generating model. See \link{irtree_model} for more information.}
 
@@ -49,33 +52,13 @@ matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
 
-\item{link}{Character. Link function to use.}
-
 \item{engine}{String specifying whether to use mirt, Mplus, or TAM for
 estimation.}
 
+\item{link}{Character. Link function to use.}
+
 \item{verbose}{Logical indicating whether output should be printed to the
 console.}
-
-\item{save_rdata}{Logical indicating whether to save the results to an RData
-file.}
-
-\item{file}{String giving the file path used to save the output if
-\code{save_rdata = TRUE}. Note that the file ending is automatically set to
-\code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
-
-\item{R}{Number of replications. Can be either a single number indicating the
-number of replications (e.g., \code{R = 100}), or can be a range (e.g., \code{R = 1:100}).}
-
-\item{plan}{Parameter passed as argument \code{strategy} to \code{\link[future:plan]{future::plan()}}. May
-be set to, for example, \code{multiprocess} in order to run the simulations in
-parallel.}
-
-\item{future_args}{Named list. Parameters passed \code{\link[future:plan]{future::plan()}}.}
-
-\item{in_memory}{Character string indicating what output should be kept in
-memory (note the argument \code{save_rdata}, which is not affected by
-\code{in_memory}).}
 
 \item{control}{List. The allowed elements of this list depend on the
 \code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
@@ -85,6 +68,23 @@ can use the \verb{control_*()} functions to pass additional arguments.}
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
+
+\item{save_rdata}{Logical indicating whether to save the results to an RData
+file.}
+
+\item{file}{String giving the file path used to save the output if
+\code{save_rdata = TRUE}. Note that the file ending is automatically set to
+\code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
+
+\item{plan}{Parameter passed as argument \code{strategy} to \code{\link[future:plan]{future::plan()}}. May
+be set to, for example, \code{multiprocess} in order to run the simulations in
+parallel.}
+
+\item{plan_args}{Named list. Parameters passed \code{\link[future:plan]{future::plan()}}.}
+
+\item{in_memory}{Character string indicating what output should be kept in
+memory (note the argument \code{save_rdata}, which is not affected by
+\code{in_memory}).}
 
 \item{difficulty}{Logical. The \link[mirt:mirt-package]{mirt} package uses easiness
 parameters. These are returned with a message if \code{difficulty = NA} (the
@@ -161,7 +161,7 @@ res1 <- irtree_sim(
 
     ### Parallelization ###
     plan = "multiprocess",
-    future_args = list(workers = 2)
+    plan_args = list(workers = 2)
 )
 
 library("tidyr")

@@ -33,20 +33,23 @@
 #' @seealso [irtree_sim()], and the wrapped functions
 #'   [`fit()`][fit.irtree_model] and [irtree_gen_data()].
 #' @export
-irtree_sim1 <- function(gen_model = NULL,
+irtree_sim1 <- function(R = 1,
+                        gen_model = NULL,
                         fit_model = gen_model,
                         N = NULL,
                         sigma = NULL,
                         itempar = NULL,
-                        link = c("logit", "probit"),
+
+                        # args passed to fit()
                         engine = c("mirt", "mplus", "tam"),
+                        link = c("logit", "probit"),
                         verbose = TRUE,
-                        save_rdata = FALSE,
-                        file = NULL,
-                        R = 1,
-                        reduce_output = FALSE,
                         control = NULL,
                         improper_okay = FALSE,
+
+                        save_rdata = FALSE,
+                        file = NULL,
+                        reduce_output = FALSE,
                         difficulty = TRUE,
                         dir = tempdir(),
                         na_okay = TRUE) {
@@ -167,7 +170,7 @@ irtree_sim1 <- function(gen_model = NULL,
 #' @param plan Parameter passed as argument `strategy` to [future::plan()]. May
 #'   be set to, for example, `multiprocess` in order to run the simulations in
 #'   parallel.
-#' @param future_args Named list. Parameters passed [future::plan()].
+#' @param plan_args Named list. Parameters passed [future::plan()].
 # @param in_memory Logical. If `TRUE`, results are stored in memory and
 #   [`return`]ed on exit; if `FALSE`, nothing is stored and [`return`]ed, and this
 #   makes only sense in combination with `save_rdata = TRUE`. This latter
@@ -183,22 +186,25 @@ irtree_sim1 <- function(gen_model = NULL,
 #' @seealso [irtree_sim1()]
 #' @example inst/examples/example-sim.R
 #' @export
-irtree_sim <- function(gen_model = NULL,
+irtree_sim <- function(R = 1,
+                       gen_model = NULL,
                        fit_model = gen_model,
                        N = NULL,
                        sigma = NULL,
                        itempar = NULL,
-                       link = c("probit", "logit"),
+
+                       # args passed to fit()
                        engine = c("mirt", "mplus", "tam"),
+                       link = c("logit", "probit"),
                        verbose = FALSE,
-                       save_rdata = TRUE,
-                       file = NULL,
-                       R = 1,
-                       plan = NULL,
-                       future_args = list(),
-                       in_memory = c("reduced", "everything", "nothing"),
                        control = NULL,
                        improper_okay = FALSE,
+
+                       save_rdata = TRUE,
+                       file = NULL,
+                       plan = NULL,
+                       plan_args = list(),
+                       in_memory = c("reduced", "everything", "nothing"),
                        difficulty = TRUE,
                        dir = tempdir(),
                        na_okay = TRUE) {
@@ -226,7 +232,7 @@ irtree_sim <- function(gen_model = NULL,
 
     ### future ###
 
-    do.call(future::plan, args = c(list(strategy = plan), future_args))
+    do.call(future::plan, args = c(list(strategy = plan), plan_args))
 
     res1 <- listenv::listenv()
 
