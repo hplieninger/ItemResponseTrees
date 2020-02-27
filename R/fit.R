@@ -1,7 +1,7 @@
 #' Fit an IR-Tree model.
 #'
-#' This function takes a `data` frame and an `object` of class [irtree_model],
-#' and runs the model in either Mplus or mirt.
+#' This function takes a `data` frame and an `object` of class [irtree_model]
+#' and runs the model in either mirt, Mplus, or TAM.
 #'
 #' @section Methods: The methods `coef()`, `summary()`, and `print()` are
 #'   implemented for objects of class `irtree_fit`, and those wrap the

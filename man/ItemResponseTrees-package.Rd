@@ -5,7 +5,7 @@
 \alias{ItemResponseTrees-package}
 \alias{_PACKAGE}
 \alias{ItemResponseTrees}
-\title{IR-Tree Modeling in Mplus or mirt}
+\title{IR-Tree Modeling in mirt, Mplus, or TAM}
 \description{
 ItemResponseTrees is an R package that allows to fit IR-tree models in Mplus
 or mirt. The package automates some of the hassle of IR-tree modeling by
