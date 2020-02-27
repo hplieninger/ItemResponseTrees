@@ -63,6 +63,15 @@ irtree_sim1 <- function(R = 1,
     engine <- match.arg(engine)
     link <- match.arg(link)
 
+    if (is.null(control)) {
+        control <- switch (engine,
+            mplus = control_mplus(),
+            mirt  = control_mirt(),
+            tam   = control_tam(),
+            NULL
+        )
+    }
+
     X <- irtree_gen_data(object = gen_model,
                          N = N,
                          sigma = sigma,
@@ -121,7 +130,9 @@ irtree_sim1 <- function(R = 1,
             do_call_args$control$file <-
                 sprintf("%s_m%1d", tools::file_path_sans_ext(file), ii)
         } else if (engine == "tam") {
-            do_call_args$control$set_min_to_0 <- TRUE
+            if (is.null(do_call_args$control$set_min_to_0)) {
+                do_call_args$control$set_min_to_0 <- TRUE
+            }
         }
         fits[[mii]]$fit <- do.call("fit", do_call_args)
 
@@ -159,9 +170,9 @@ irtree_sim1 <- function(R = 1,
 
 #' Run a Simulation by Generating From and Fitting a Tree Model
 #'
-#' The function [irtree_sim1()] generates a data set from an IR-tree
-#' model and fits one or more models to that data set. Herein, this
-#' process is repeated `R` times, and the argument `plan` allows to
+#' The function [irtree_sim1()] generates a data set from an IR-tree model and
+#' fits one or more models to that data set. The present function `irtree_sim()`
+#' repeats this process `R` times, and the argument `plan` allows to
 #' run the simulation in parallel.
 #'
 #' @param R Number of replications. Can be either a single number indicating the

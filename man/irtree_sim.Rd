@@ -105,9 +105,9 @@ Returns a list of length \code{R}, where each element is the output of
 \code{\link[=irtree_sim1]{irtree_sim1()}}. If \code{in_memory = "nothing"}, returns \code{NULL}.
 }
 \description{
-The function \code{\link[=irtree_sim1]{irtree_sim1()}} generates a data set from an IR-tree
-model and fits one or more models to that data set. Herein, this
-process is repeated \code{R} times, and the argument \code{plan} allows to
+The function \code{\link[=irtree_sim1]{irtree_sim1()}} generates a data set from an IR-tree model and
+fits one or more models to that data set. The present function \code{irtree_sim()}
+repeats this process \code{R} times, and the argument \code{plan} allows to
 run the simulation in parallel.
 }
 \examples{

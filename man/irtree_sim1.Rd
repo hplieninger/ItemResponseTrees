@@ -5,26 +5,29 @@
 \title{Generate IR-Tree Data and Fit Model}
 \usage{
 irtree_sim1(
+  R = 1,
   gen_model = NULL,
   fit_model = gen_model,
   N = NULL,
   sigma = NULL,
   itempar = NULL,
-  link = c("logit", "probit"),
   engine = c("mirt", "mplus", "tam"),
+  link = c("logit", "probit"),
   verbose = TRUE,
-  save_rdata = FALSE,
-  file = NULL,
-  R = 1,
-  reduce_output = FALSE,
   control = NULL,
   improper_okay = FALSE,
+  save_rdata = FALSE,
+  file = NULL,
+  reduce_output = FALSE,
   difficulty = TRUE,
   dir = tempdir(),
   na_okay = TRUE
 )
 }
 \arguments{
+\item{R}{Integer used to number the saved output if \code{save_rdata = TRUE}.
+Really only useful when used from \code{\link[=irtree_sim]{irtree_sim()}}.}
+
 \item{gen_model}{Object of class \code{irtree_model} describing the
 data-generating model. See \link{irtree_model} for more information.}
 
@@ -47,27 +50,13 @@ matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
 
-\item{link}{Character. Link function to use.}
-
 \item{engine}{String specifying whether to use mirt, Mplus, or TAM for
 estimation.}
 
+\item{link}{Character. Link function to use.}
+
 \item{verbose}{Logical indicating whether output should be printed to the
 console.}
-
-\item{save_rdata}{Logical indicating whether to save the results to an RData
-file.}
-
-\item{file}{String giving the file path used to save the output if
-\code{save_rdata = TRUE}. Note that the file ending is automatically set to
-\code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
-
-\item{R}{Integer used to number the saved output if \code{save_rdata = TRUE}.
-Really only useful when used from \code{\link[=irtree_sim]{irtree_sim()}}.}
-
-\item{reduce_output}{Logical indicating whether the returned object should be
-reduced (i.e., the output of \code{\link[=fit.irtree_model]{fit()}} is removed and
-only summary information is retained).}
 
 \item{control}{List. The allowed elements of this list depend on the
 \code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
@@ -77,6 +66,17 @@ can use the \verb{control_*()} functions to pass additional arguments.}
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
+
+\item{save_rdata}{Logical indicating whether to save the results to an RData
+file.}
+
+\item{file}{String giving the file path used to save the output if
+\code{save_rdata = TRUE}. Note that the file ending is automatically set to
+\code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
+
+\item{reduce_output}{Logical indicating whether the returned object should be
+reduced (i.e., the output of \code{\link[=fit.irtree_model]{fit()}} is removed and
+only summary information is retained).}
 
 \item{difficulty}{Logical. The \link[mirt:mirt-package]{mirt} package uses easiness
 parameters. These are returned with a message if \code{difficulty = NA} (the
