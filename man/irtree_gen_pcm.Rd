@@ -11,8 +11,8 @@ irtree_gen_pcm(
   theta = NULL,
   itempar = NULL,
   link = "logit",
-  .na_okay = TRUE,
-  .skip = FALSE
+  na_okay = TRUE,
+  skip = FALSE
 )
 }
 \arguments{
@@ -39,14 +39,14 @@ section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_mod
 
 \item{link}{Character. Link function to use.}
 
-\item{.na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{.na_okay = FALSE}), rejection sampling
+\item{na_okay}{Logical indicating whether variables with unobserved response
+categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
 is used to ensure that all categories are observed.}
 
-\item{.skip}{Logical. Some features of the \link{irtree_model} syntax,
+\item{skip}{Logical. Some features of the \link{irtree_model} syntax,
 which are available for model fitting (e.g., \code{Addendum}), are not
 implemented for data generation. Those parts of the model are ignored if
-\code{.skip = TRUE}.}
+\code{skip = TRUE}.}
 }
 \value{
 A list with element \code{data} containing the data and an

@@ -39,7 +39,7 @@ string, which gives more fine grained control (e.g., \code{quadpts = "MONTECARLO
 the link function.}
 
 \item{analysis_list}{Named list of strings passed to Mplus' argument
-ANALYSIS. For example: \code{analysis_list = list(MITERATIONS = "1000")}.}
+ANALYSIS. See examples below.}
 }
 \value{
 A list of of class \link[MplusAutomation:mplusObject]{MplusAutomation::mplusObject}

@@ -8,11 +8,9 @@ irtree_fit_mirt(
   object = NULL,
   data = NULL,
   link = "logit",
-  SE = TRUE,
   verbose = interactive(),
-  rm_mirt_internal = TRUE,
-  ...,
-  .improper_okay = FALSE
+  control = control_mirt(),
+  improper_okay = FALSE
 )
 }
 \arguments{
@@ -26,20 +24,15 @@ column per variable. The variable names must correspond to those used in
 \item{link}{String specifying the link function. Only \code{logit} is
 implemented in mirt.}
 
-\item{SE}{logical; estimate the standard errors by computing the parameter information matrix?
-See \code{SE.type} for the type of estimates available}
+\item{verbose}{Logical indicating whether output should be printed to the
+console.}
 
-\item{verbose}{Logical indicating whether Mplus/mirt output should be printed
-to the console.}
+\item{control}{List. The allowed elements of this list depend on the
+\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that you
+can use the \verb{control_*()} functions to pass additional arguments.}
 
-\item{rm_mirt_internal}{Logical. \code{\link[mirt:mirt]{mirt::mirt()}} returns a lot of
-information including two functions that can take up a huge amount of space
-(https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
-two functions are removed from the output if \code{rm_mirt_internal = TRUE}.}
-
-\item{...}{Other arguments passed to \code{\link[mirt:mirt]{mirt::mirt()}}.}
-
-\item{.improper_okay}{Logical indicating whether the model should also be fit
+\item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
 }

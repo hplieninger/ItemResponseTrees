@@ -19,9 +19,11 @@ irtree_sim(
   plan = NULL,
   future_args = list(),
   in_memory = c("reduced", "everything", "nothing"),
-  dots = list(),
-  .dir = tempdir(),
-  .na_okay = TRUE
+  control = NULL,
+  improper_okay = FALSE,
+  difficulty = TRUE,
+  dir = tempdir(),
+  na_okay = TRUE
 )
 }
 \arguments{
@@ -49,10 +51,11 @@ section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_mod
 
 \item{link}{Character. Link function to use.}
 
-\item{engine}{String specifying whether to use Mplus or mirt for estimation.}
+\item{engine}{String specifying whether to use mirt, Mplus, or TAM for
+estimation.}
 
-\item{verbose}{Logical indicating whether Mplus/mirt output should be printed
-to the console.}
+\item{verbose}{Logical indicating whether output should be printed to the
+console.}
 
 \item{save_rdata}{Logical indicating whether to save the results to an RData
 file.}
@@ -74,18 +77,25 @@ parallel.}
 memory (note the argument \code{save_rdata}, which is not affected by
 \code{in_memory}).}
 
-\item{dots}{Nested list used to pass further arguments to downstream
-methods/functions (i.e., \code{\link[=fit.irtree_model]{fit()}},
-\code{\link[=tidy.irtree_fit]{tidy()}}). This is a named list, where the name of
-each top-level element corresponds to the respective function. Each
-top-level element is again a list, where the names of each element
-correspond to the arguments. For example: \code{dots = list(fit = list(SE = FALSE), tidy = list(difficulty = TRUE))}.}
+\item{control}{List. The allowed elements of this list depend on the
+\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that you
+can use the \verb{control_*()} functions to pass additional arguments.}
 
-\item{.dir}{Path name that is used to save the results of every run if
+\item{improper_okay}{Logical indicating whether the model should also be fit
+if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
+know what you are doing.}
+
+\item{difficulty}{Logical. The \link[mirt:mirt-package]{mirt} package uses easiness
+parameters. These are returned with a message if \code{difficulty = NA} (the
+default), without a message if \code{difficulty = FALSE}, and they are
+transformed to difficulty parameters if \code{difficulty = TRUE}.}
+
+\item{dir}{Path name that is used to save the results of every run if
 \code{save_rdata = TRUE}.}
 
-\item{.na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{.na_okay = FALSE}), rejection sampling
+\item{na_okay}{Logical indicating whether variables with unobserved response
+categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
 is used to ensure that all categories are observed.}
 
 \item{...}{Other parameters passed \code{\link[=irtree_sim1]{irtree_sim1()}}.}
@@ -137,7 +147,7 @@ res1 <- irtree_sim(
         beta = matrix(sort(runif(model1$J*model1$P, -2, 2)),
                       model1$J, model1$P),
         alpha = matrix(1, model1$J, model1$P)),
-    .na_okay = FALSE,
+    na_okay = FALSE,
 
     ### Estimation ###
     fit_model = list(model1, model2),

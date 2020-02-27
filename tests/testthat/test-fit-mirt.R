@@ -56,7 +56,7 @@ X <- irtree_gen_data(object = model1, N = 100,
                      itempar = list(beta = matrix(sort(rnorm(model1$J*model1$P)),
                                                   model1$J, model1$P),
                                     alpha = matrix(1, model1$J, model1$P)),
-                     .na_okay = FALSE)
+                     na_okay = FALSE)
 
 data(Science, package = "mirt")
 ScienceNew <- Science
@@ -67,15 +67,14 @@ names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 res1 <- fit(data = X$data,
             engine = "mirt",
             object = model1,
-            SE = FALSE,
-            TOL = .01,
+            control = control_mirt(SE = FALSE, TOL = .01, quadpts = 31,
+                                   technical = list(parallel = FALSE)),
             verbose = FALSE)
 
 res2 <- fit(data = ScienceNew,
             engine = "mirt",
             object = model2,
-            SE = FALSE,
-            TOL = .01,
+            control = control_mirt(SE = FALSE, TOL = .01),
             verbose = FALSE)
 
 res2x <- mirt::mirt(ScienceNew, 1, "graded", SE = FALSE, TOL = .01,
@@ -84,13 +83,10 @@ res2x <- mirt::mirt(ScienceNew, 1, "graded", SE = FALSE, TOL = .01,
 res3 <- fit(data = Science,
             engine = "mirt",
             object = model3,
-            SE = FALSE,
-            TOL = .01,
+            control = control_mirt(SE = FALSE, TOL = .01),
             verbose = FALSE)
 
 res3x <- mirt::mirt(Science, 1, "Tutz", SE = FALSE, TOL = .01, verbose = FALSE)
-
-
 
 ##### Tests #####
 

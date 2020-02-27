@@ -73,30 +73,27 @@ verbose <- FALSE
 res11 <- fit(data = df1,
              engine = "tam",
              object = model1,
-             control = list(snodes = 1000, convD = .01, conv = .001),
+             control = control_tam(
+                 control = list(snodes = 1000, convD = .01, conv = .001)),
              verbose = verbose)
 
 res12 <- fit(data = df1,
              engine = "mirt",
              object = model1,
-             TOL = .01,
-             SE = FALSE,
-             quadpts = 10,
+             control = control_mirt(SE = FALSE, TOL = .01, quadpts = 10),
              verbose = verbose)
 
 res21 <- fit(data = df1,
              engine = "tam",
              object = model2,
-             control = list(snodes = 1000, convD = .01, conv = .001),
-             verbose = verbose,
-             .set_min_to_0 = TRUE)
+             control = control_tam(set_min_to_0 = TRUE,
+                                   control = list(snodes = 1000, convD = .01, conv = .001)),
+             verbose = verbose)
 
 res31 <- fit(data = df1,
              engine = "mirt",
              object = model3,
-             TOL = .01,
-             SE = FALSE,
-             quadpts = 10,
+             control = control_mirt(SE = FALSE, TOL = .01, quadpts = 10),
              verbose = verbose)
 
 ##### Tests #####
@@ -124,21 +121,23 @@ test_that("Model constraints work", {
     res13 <- fit(data = df1,
                  engine = "mplus",
                  object = model1,
-                 quadpts = 5,
-                 link = "logit",
-                 analysis_list = list(LOGCRITERION = ".01",
-                                      COVERAGE = "0"),
                  verbose = verbose,
-                 .warnings2messages = TRUE)
+                 link = "logit",
+                 control = control_mplus(
+                     quadpts = 5,
+                     analysis_list = list(LOGCRITERION = ".01",
+                                          COVERAGE = "0"),
+                     warnings2messages = TRUE))
 
     res32 <- fit(data = df1,
                  engine = "mplus",
                  object = model3,
-                 quadpts = 5,
-                 analysis_list = list(LOGCRITERION = ".01",
-                                      COVERAGE = "0"),
                  verbose = verbose,
-                 .warnings2messages = TRUE)
+                 control = control_mplus(
+                     quadpts = 5,
+                     analysis_list = list(LOGCRITERION = ".01",
+                                          COVERAGE = "0"),
+                     warnings2messages = TRUE))
 
     expect_s3_class(res13, "irtree_fit")
     expect_s3_class(res32, "irtree_fit")
@@ -151,3 +150,4 @@ test_that("Model constraints work", {
     expect_true(.99 < min(diag(cor(select(ag1, matches(".fitted.")),
                                    select(ag3, matches(".fitted."))))))
 })
+

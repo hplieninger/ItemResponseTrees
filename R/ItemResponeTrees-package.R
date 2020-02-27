@@ -13,6 +13,7 @@
 #'
 #' @importFrom stats setNames aggregate as.formula na.omit rmultinom cov2cor reshape var
 #' @importFrom utils capture.output packageVersion
+#' @importFrom methods formalArgs
 #' @importFrom rlang .data
 #' @importFrom magrittr %>%
 #' @importFrom tibble tibble

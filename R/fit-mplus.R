@@ -2,29 +2,9 @@
 #'
 #' This function takes a data frame and a model string and runs the model in Mplus.
 #'
-#' @param file String naming the file (or path) of the Mplus files and the data
-#'   file. Do not provide file endings, those will be automatically appended by
-#'   the function.
-#' @param quadpts This is passed to argument 'INTEGRATION'. Thus, it may be an
-#'   integer specifying the number of integration points for the Mplus default
-#'   of rectangular numerical integration (e.g., `quadpts = 15`). Or it may be a
-#'   string, which gives more fine grained control (e.g., `quadpts =
-#'   "MONTECARLO(2000)"`).
-#' @param estimator String, passed to argument 'ESTIMATOR' in Mplus.
 #' @param link String, passed to argument 'LINK' in Mplus. Specifies
 #'   the link function.
-#' @param cleanup Logical, whether the Mplus files should be removed on exit.
-#' @param save_fscores Logical, whether to save FSCORES or not.
-#' @param analysis_list Named list of strings passed to Mplus' argument
-#'   ANALYSIS. For example: `analysis_list = list(MITERATIONS = "1000")`.
-# @param processors Integer, passed to argument 'PROCESSORS' in Mplus.
-#' @param run Logical, whether to indeed run Mplus.
-#' @param ... Additional parameters passed to [MplusAutomation::runModels()].
-#' @param .warnings2messages Logical, whether Mplus errors and warnings should be
-#'   signaled as warnings (the default) or messages.
 #' @inheritParams fit.irtree_model
-#' @inheritParams MplusAutomation::runModels
-#' @inheritParams MplusAutomation::prepareMplusData
 #' @return List with two elements. `mplus` contains the Mplus output read into R
 #'   via [MplusAutomation::readModels()]. `spec` contains the input
 #'   specifications.
@@ -45,45 +25,32 @@
 #' @export
 irtree_fit_mplus <- function(object = NULL,
                              data = NULL,
-                             file = tempfile("irtree_"),
-                             quadpts = 15,
-                             estimator = "MLR",
                              link = c("probit", "logit"),
-                             run = TRUE,
-                             cleanup = run,
-                             save_fscores = TRUE,
-                             analysis_list = list(COVERAGE = "0"),
                              verbose = interactive(),
-                             replaceOutfile = "always",
-                             overwrite = FALSE,
-                             ...,
-                             .warnings2messages = FALSE,
-                             .improper_okay = FALSE) {
-
-    link <- match.arg(link)
+                             control = control_mplus(),
+                             improper_okay = FALSE
+                             ) {
 
     checkmate::assert_class(object, "irtree_model")
     assert_irtree_data(data = data, object = object, engine = "mplus")
     data <- tibble::as_tibble(data)
 
     assert_irtree_equations(object)
-    assert_irtree_proper(object, .improper_okay = .improper_okay)
+    assert_irtree_proper(object, improper_okay = improper_okay)
 
     assert_nchar(object$lambda$new_name)
     assert_nchar(levels(object$lambda$theta))
 
-    checkmate::assert_list(analysis_list,  types = "character",
-                           names = "unique")
-    checkmate::qassertr(analysis_list, "S1")
-    if (run) {
-        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
-    }
+    link   <- match.arg(link)
+    checkmate::qassert(verbose, "B1")
+    checkmate::qassert(control, "l")
+    checkmate::assert_names(names(control), must.include = formalArgs(control_mplus))
 
     spec <- c(as.list(environment()))
     spec$engine <- "mplus"
 
-    if (is.numeric(quadpts)) {
-        if (quadpts^object$S > 20000) {
+    if (is.numeric(control$quadpts)) {
+        if (control$quadpts^object$S > 20000) {
             stop("Using that many quadrature points may cause problems.\n",
                  "This error can be disabled by supplying the number of 'quadpts' ",
                  "as a character string (e.g., quadpts = '15').")
@@ -104,26 +71,24 @@ irtree_fit_mplus <- function(object = NULL,
 
     ##### file #####
 
-    checkmate::assert_directory_exists(dirname(file), access = "rw")
-
-    dir <- normalizePath(dirname(file), winslash = "/", mustWork = TRUE)
-    file_name <- basename(file)
+    dir <- normalizePath(dirname(control$file), winslash = "/", mustWork = TRUE)
+    file_name <- basename(control$file)
 
     data_file <- file.path(dir, paste0(file_name, ".txt"))
     inpu_file <- file.path(dir, paste0(file_name, ".inp"))
     outp_file <- file.path(dir, paste0(file_name, ".out"))
     fsco_file <- file.path(dir, paste0(file_name, ".fsc"))
 
-    if (!overwrite & any(file.exists(data_file, inpu_file, outp_file, fsco_file))) {
+    if (!control$overwrite & any(file.exists(data_file, inpu_file, outp_file, fsco_file))) {
         stop("File(s) already exist. Please modify argument 'file' or set 'overwrite' to TRUE.")
     }
 
     on.exit({
-        if (cleanup) {
+        if (control$cleanup) {
             suppressWarnings(file.remove(inpu_file, data_file))
-            if (run) {
+            if (control$run) {
                 suppressWarnings(file.remove(outp_file))
-                if (save_fscores) {
+                if (control$save_fscores) {
                     suppressWarnings(file.remove(fsco_file))
                 }
             }
@@ -148,12 +113,12 @@ irtree_fit_mplus <- function(object = NULL,
             object        = object,
             pseudoitems   = pseudoitems,
             data_file     = data_file,
-            quadpts       = quadpts,
-            estimator     = estimator,
+            quadpts       = control$quadpts,
+            estimator     = control$estimator,
             link          = link,
-            save_fscores  = save_fscores,
+            save_fscores  = control$save_fscores,
             fsco_file     = basename(fsco_file),
-            analysis_list = analysis_list))
+            analysis_list = control$analysis_list))
 
     mplus_input <- tmp1$mplus_input
     spec$object$lambda <- object$lambda <- tmp1$lambda
@@ -205,17 +170,18 @@ irtree_fit_mplus <- function(object = NULL,
         capture.output(
             MplusAutomation::prepareMplusData(pseudoitems,
                                               filename = data_file,
-                                              overwrite = overwrite))
+                                              overwrite = control$overwrite))
         )
 
-    if (run) {
+    if (control$run) {
         invisible(
             capture.output(
-                MplusAutomation::runModels(inpu_file,
-                                           replaceOutfile = replaceOutfile,
-                                           showOutput = verbose,
-                                           logFile = NULL,
-                                           ...)
+                MplusAutomation::runModels(
+                    inpu_file,
+                    replaceOutfile = ifelse(control$overwrite, "always", "never"),
+                    showOutput = verbose,
+                    logFile = NULL,
+                    Mplus_command = control$Mplus_command)
             ))
 
         invisible(
@@ -223,7 +189,7 @@ irtree_fit_mplus <- function(object = NULL,
                 res <- suppressMessages(
                     MplusAutomation::readModels(outp_file, quiet = TRUE))))
 
-        if (.warnings2messages) {
+        if (control$warnings2messages) {
             # This is useful for testing with testthat because Mplus
             # warnings/errors are often harmless and should not show up in
             # testthat results.
@@ -271,6 +237,7 @@ irtree_fit_mplus <- function(object = NULL,
 #' @param data_file String, the full file path of the data set.
 #' @param fsco_file String, the file name used by Mplus to store the factor scores.
 #' @inheritParams irtree_fit_mplus
+#' @inheritParams control_mplus
 #' @return A list of of class [MplusAutomation::mplusObject]
 #' @export
 write_mplus_input <- function(object = object,
@@ -428,4 +395,64 @@ extract_mplus_warning <- function(outfiletext) {
 
 extract_mplus_converged <- function(outfiletext) {
     any(grepl("THE MODEL ESTIMATION TERMINATED NORMALLY", outfiletext))
+}
+
+#' Control Aspects of Fitting a Model in Mplus
+#'
+#' This function should be used to generate the `control` argument of the
+#' [`fit()`][fit.irtree_model] function.
+#'
+#' @param file String naming the file (or path) of the Mplus files and the data
+#'   file. Do not provide file endings, those will be automatically appended.
+#' @param quadpts This is passed to argument 'INTEGRATION'. Thus, it may be an
+#'   integer specifying the number of integration points for the Mplus default
+#'   of rectangular numerical integration (e.g., `quadpts = 15`). Or it may be a
+#'   string, which gives more fine grained control (e.g., `quadpts =
+#'   "MONTECARLO(2000)"`).
+#' @param estimator String, passed to argument 'ESTIMATOR' in Mplus.
+#' @param cleanup Logical, whether the Mplus files should be removed on exit.
+#' @param save_fscores Logical, whether to save FSCORES or not.
+#' @param overwrite Logical value indicating whether data and input (if present)
+#'   files should be overwritten.
+#' @param analysis_list Named list of strings passed to Mplus' argument
+#'   ANALYSIS. See examples below.
+# @param processors Integer, passed to argument 'PROCESSORS' in Mplus.
+#' @param run Logical, whether to indeed run Mplus.
+#' @param warnings2messages Logical, whether Mplus errors and warnings should be
+#'   signaled as warnings (the default) or messages.
+#' @inheritParams MplusAutomation::runModels
+#' @return A list with one element for every argument of `control_mplus()`.
+#' @examples
+#' control_mplus(file = tempfile("irtree_", tmpdir = "."),
+#'               quadpts = "GAUSS(10)",
+#'               analysis_list = list(COVERAGE = "0",
+#'                                    MITERATIONS = "500",
+#'                                    MCONVERGENCE = ".001"))
+#' @export
+control_mplus <- function(file = tempfile("irtree_"),
+                          overwrite = FALSE,
+                          cleanup = run,
+                          run = TRUE,
+                          estimator = "MLR",
+                          quadpts = 15,
+                          save_fscores = TRUE,
+                          analysis_list = list(COVERAGE = "0"),
+                          Mplus_command = "Mplus",
+                          warnings2messages = FALSE) {
+
+    ctrl <- as.list(environment())
+
+    checkmate::assert_path_for_output(file, overwrite = overwrite)
+    checkmate::qassert(overwrite, "B1")
+    checkmate::qassert(cleanup, "B1")
+    checkmate::qassert(run, "B1")
+    if (run) {
+        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+    }
+    checkmate::qassert(save_fscores, "B1")
+    checkmate::assert_list(analysis_list,  types = "character", names = "unique")
+    checkmate::qassertr(analysis_list, "S1")
+    checkmate::qassert(warnings2messages, "B1")
+
+    return(ctrl)
 }

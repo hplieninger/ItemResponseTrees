@@ -65,7 +65,7 @@ test_that("irtree_gen_data() errors if some categories not observed", {
                         sigma = diag(model1$S),
                         itempar = list(beta = matrix(rnorm(J*model1$P), J, model1$P),
                                        alpha = matrix(1, J, model1$P)),
-                        .na_okay = FALSE)
+                        na_okay = FALSE)
     )
     expect_error(
         irtree_gen_data(object = model2,
@@ -74,6 +74,6 @@ test_that("irtree_gen_data() errors if some categories not observed", {
                         link = "logit",
                         itempar = list(beta = matrix(rnorm(model2$J*(model2$K - 1)),
                                                      model2$J, model2$K - 1)),
-                        .na_okay = FALSE)
+                        na_okay = FALSE)
     )
 })

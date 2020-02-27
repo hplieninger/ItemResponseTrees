@@ -353,7 +353,7 @@ irtree_model <- function(model = NULL) {
         tryCatch(irtree_gen_data(object = out1, N = 1, sigma = diag(e1$S),
                                  itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
                                                 alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
-                                 .skip = TRUE
+                                 skip = TRUE
                                  ),
                  improper_model = function(cnd) {
                      with(tmp1, out1$proper_model <- FALSE)

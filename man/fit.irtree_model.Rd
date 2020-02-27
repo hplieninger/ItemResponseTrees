@@ -8,9 +8,11 @@
   object = NULL,
   data = NULL,
   engine = c("mplus", "mirt", "tam"),
-  verbose = interactive(),
   ...,
-  .improper_okay = FALSE
+  link = c("logit", "probit"),
+  verbose = interactive(),
+  control = NULL,
+  improper_okay = FALSE
 )
 }
 \arguments{
@@ -21,26 +23,35 @@ information.}
 column per variable. The variable names must correspond to those used in
 \code{object}.}
 
-\item{engine}{String specifying whether to use Mplus or mirt for estimation.}
+\item{engine}{String specifying whether to use mirt, Mplus, or TAM for
+estimation.}
 
-\item{verbose}{Logical indicating whether Mplus/mirt output should be printed
-to the console.}
+\item{...}{Not currently used. Use \code{control} instead.}
 
-\item{...}{further arguments passed either to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} or
-\code{\link[=irtree_fit_mirt]{irtree_fit_mirt()}}}
+\item{link}{String specifying the link function. May be either logit, or (in
+case of Mplus), probit.}
 
-\item{.improper_okay}{Logical indicating whether the model should also be fit
+\item{verbose}{Logical indicating whether output should be printed to the
+console.}
+
+\item{control}{List. The allowed elements of this list depend on the
+\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that you
+can use the \verb{control_*()} functions to pass additional arguments.}
+
+\item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
 }
 \value{
 Returns a list of class \code{irtree_fit}. The first list element is the
-return value of \code{\link[MplusAutomation:readModels]{MplusAutomation::readModels()}} or \code{\link[mirt:mirt]{mirt::mirt()}}, and
-further information is provided in the element \code{spec}.
+return value of either \code{\link[mirt:mirt]{mirt::mirt()}}, \code{\link[MplusAutomation:readModels]{MplusAutomation::readModels()}} or
+\code{\link[TAM:tam.mml]{TAM::tam.mml()}}. Further information is provided in the element
+\code{spec}.
 }
 \description{
-This function takes a \code{data} frame and an \code{object} of class \link{irtree_model},
-and runs the model in either Mplus or mirt.
+This function takes a \code{data} frame and an \code{object} of class \link{irtree_model}
+and runs the model in either mirt, Mplus, or TAM.
 }
 \section{Methods}{
  The methods \code{coef()}, \code{summary()}, and \code{print()} are
@@ -59,15 +70,15 @@ attitude BY Comfort, Work, Future, Benefit;
 Class:
 GRM
 "
+
 model1 <- irtree_model(m1)
+
 data(Science, package = "mirt")
 
-fit1 <- fit(model1, Science, engine = "mirt", quadpts = 15)
+fit1 <- fit(model1, data = Science, engine = "mirt",
+            control = control_mirt(quadpts = 15))
 
 glance(fit1)
 tidy(fit1)
 augment(fit1)
-}
-\seealso{
-The wrapped functions \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} and \code{\link[=irtree_fit_mirt]{irtree_fit_mirt()}}.
 }

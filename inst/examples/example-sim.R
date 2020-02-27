@@ -34,7 +34,7 @@ res1 <- irtree_sim(
         beta = matrix(sort(runif(model1$J*model1$P, -2, 2)),
                       model1$J, model1$P),
         alpha = matrix(1, model1$J, model1$P)),
-    .na_okay = FALSE,
+    na_okay = FALSE,
 
     ### Estimation ###
     fit_model = list(model1, model2),

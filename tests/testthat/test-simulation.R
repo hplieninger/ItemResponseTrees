@@ -27,10 +27,6 @@ PCM
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 
-# tmp1 <- irtree_gen_data(model1, N = 100, sigma = diag(1),
-#                         itempar = list(beta = matrix(sort(rnorm(model1$J*model1$P)), model1$J, model1$P),
-#                                        alpha = matrix(1, model1$J, model1$P)))
-
 ##### Fit #####
 
 R <- 2
@@ -46,8 +42,8 @@ res1 <- irtree_sim(gen_model = model1,
                    save_rdata = FALSE,
                    R = seq_len(R),
                    in_memory = "reduced",
-                   .na_okay = FALSE,
-                   dots = list(tidy = list(difficulty = TRUE)))
+                   na_okay = FALSE,
+                   control = control_mirt(SE = FALSE, technical = list(NCYCLES = 200)))
 
 res2 <- irtree_sim(gen_model = model1,
                    fit_model = list(model1, model2),
@@ -60,8 +56,8 @@ res2 <- irtree_sim(gen_model = model1,
                    save_rdata = FALSE,
                    R = 1,
                    in_memory = "reduced",
-                   .na_okay = FALSE,
-                   dots = list(fit = list(control = list(snodes = 1000))))
+                   na_okay = FALSE,
+                   control = control_tam(control = list(snodes = 1000)))
 
 ##### Tests #####
 

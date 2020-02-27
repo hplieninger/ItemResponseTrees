@@ -100,8 +100,8 @@ sort2 <- function(x = NULL, y = NULL, x_names = FALSE, subset = TRUE) {
                        .name = NULL,
                        .class = NULL,
                        .engine = NULL,
-                       .skip = FALSE) {
-    if (.skip) {
+                       skip = FALSE) {
+    if (skip) {
         return()
     }
     if (is.null(model_list[[element]]) == must_have &&

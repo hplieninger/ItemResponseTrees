@@ -17,13 +17,13 @@
 #'   section Items and the order of processes (columns) is taken from the
 #'   section Processes in the `model` (see [irtree_model()]).
 #' @param link Character. Link function to use.
-#' @param .na_okay Logical indicating whether variables with unobserved response
-#'   categories are permitted. If not (`.na_okay = FALSE`), rejection sampling
+#' @param na_okay Logical indicating whether variables with unobserved response
+#'   categories are permitted. If not (`na_okay = FALSE`), rejection sampling
 #'   is used to ensure that all categories are observed.
-#' @param .skip Logical. Some features of the [irtree_model] syntax,
+#' @param skip Logical. Some features of the [irtree_model] syntax,
 #'   which are available for model fitting (e.g., `Addendum`), are not
 #'   implemented for data generation. Those parts of the model are ignored if
-#'   `.skip = TRUE`.
+#'   `skip = TRUE`.
 #' @inheritParams fit.irtree_model
 #' @return A list with element `data` containing the data and an
 #'   element `spec` containing the true parameter values etc.
@@ -53,13 +53,13 @@ irtree_gen_data <- function(object = NULL,
                             theta = NULL,
                             itempar = NULL,
                             link = c("probit", "logit"),
-                            .na_okay = TRUE,
-                            .skip = FALSE
+                            na_okay = TRUE,
+                            skip = FALSE
 ) {
 
     checkmate::assert_class(object, "irtree_model")
 
-    .must_have(object, "addendum", FALSE, .skip = .skip)
+    .must_have(object, "addendum", FALSE, skip = skip)
 
     link <- match.arg(link)
 
@@ -70,7 +70,7 @@ irtree_gen_data <- function(object = NULL,
                                theta = theta,
                                itempar = itempar,
                                link = link,
-                               .na_okay = .na_okay)
+                               na_okay = na_okay)
     } else if (object$class == "pcm") {
         out <- irtree_gen_pcm(object = object,
                               N = N,
@@ -78,8 +78,8 @@ irtree_gen_data <- function(object = NULL,
                               theta = theta,
                               itempar = itempar,
                               link = link,
-                              .na_okay = .na_okay,
-                              .skip = .skip)
+                              na_okay = na_okay,
+                              skip = skip)
     } else {
         stop("Class ", object$class, " not implemented in irtree_gen_data().",
              call. = FALSE)
@@ -120,7 +120,7 @@ irtree_gen_tree <- function(object = NULL,
                             theta = NULL,
                             itempar = NULL,
                             link = c("probit", "logit"),
-                            .na_okay = TRUE) {
+                            na_okay = TRUE) {
 
     link <- match.arg(link)
 
@@ -281,7 +281,7 @@ irtree_gen_tree <- function(object = NULL,
     X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
     X <- dplyr::select(X, -.data$pers)
 
-    if (!.na_okay) {
+    if (!na_okay) {
         ii <- 0
         while (!.check_all_categ_observed(X, object$K)) {
             dat10 <- aggregate(prob ~ pers + item,

@@ -1,7 +1,7 @@
 assert_irtree_data <- function(data = NULL,
                                object = NULL,
                                engine = NULL,
-                               .set_min_to_0 = FALSE) {
+                               set_min_to_0 = FALSE) {
 
     ### Is it a data frame? ###
 
@@ -46,7 +46,7 @@ assert_irtree_data <- function(data = NULL,
         if (length(sym_diff(categ_dat, object$k_names)) > 0) {
             if (min(data[object$j_names] != 0, na.rm = TRUE)) {
                 stop("Minimum of data is not equal to zero. ",
-                     "You should recode your data or set '.set_min_to_0 = TRUE'.",
+                     "You should recode your data or set 'set_min_to_0 = TRUE'.",
                      call. = FALSE)
             }
             stop("'data' has categories ", clps(", ", sort(categ_dat)),
@@ -65,10 +65,11 @@ assert_irtree_equations <- function(object = NULL) {
     }
 }
 
-assert_irtree_proper <- function(object = NULL, .improper_okay = FALSE) {
-    if (.improper_okay == FALSE & object$proper_model == FALSE) {
+assert_irtree_proper <- function(object = NULL, improper_okay = FALSE) {
+    checkmate::qassert(improper_okay, "B1")
+    if (improper_okay == FALSE & object$proper_model == FALSE) {
         stop("The model seems to be an improper model. You might set ",
-             "'.improper_okay' to TRUE, but do this only if you really ",
+             "'improper_okay' to TRUE, but do this only if you really ",
              "know what you are doing.")
     }
 }

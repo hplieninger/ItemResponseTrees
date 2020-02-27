@@ -11,7 +11,7 @@ irtree_gen_tree(
   theta = NULL,
   itempar = NULL,
   link = c("probit", "logit"),
-  .na_okay = TRUE
+  na_okay = TRUE
 )
 }
 \arguments{
@@ -38,8 +38,8 @@ section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_mod
 
 \item{link}{Character. Link function to use.}
 
-\item{.na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{.na_okay = FALSE}), rejection sampling
+\item{na_okay}{Logical indicating whether variables with unobserved response
+categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
 is used to ensure that all categories are observed.}
 }
 \value{

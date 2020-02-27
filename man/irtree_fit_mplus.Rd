@@ -7,20 +7,10 @@
 irtree_fit_mplus(
   object = NULL,
   data = NULL,
-  file = tempfile("irtree_"),
-  quadpts = 15,
-  estimator = "MLR",
   link = c("probit", "logit"),
-  run = TRUE,
-  cleanup = run,
-  save_fscores = TRUE,
-  analysis_list = list(COVERAGE = "0"),
   verbose = interactive(),
-  replaceOutfile = "always",
-  overwrite = FALSE,
-  ...,
-  .warnings2messages = FALSE,
-  .improper_okay = FALSE
+  control = control_mplus(),
+  improper_okay = FALSE
 )
 }
 \arguments{
@@ -31,50 +21,18 @@ information.}
 column per variable. The variable names must correspond to those used in
 \code{object}.}
 
-\item{file}{String naming the file (or path) of the Mplus files and the data
-file. Do not provide file endings, those will be automatically appended by
-the function.}
-
-\item{quadpts}{This is passed to argument 'INTEGRATION'. Thus, it may be an
-integer specifying the number of integration points for the Mplus default
-of rectangular numerical integration (e.g., \code{quadpts = 15}). Or it may be a
-string, which gives more fine grained control (e.g., \code{quadpts = "MONTECARLO(2000)"}).}
-
-\item{estimator}{String, passed to argument 'ESTIMATOR' in Mplus.}
-
 \item{link}{String, passed to argument 'LINK' in Mplus. Specifies
 the link function.}
 
-\item{run}{Logical, whether to indeed run Mplus.}
+\item{verbose}{Logical indicating whether output should be printed to the
+console.}
 
-\item{cleanup}{Logical, whether the Mplus files should be removed on exit.}
+\item{control}{List. The allowed elements of this list depend on the
+\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that you
+can use the \verb{control_*()} functions to pass additional arguments.}
 
-\item{save_fscores}{Logical, whether to save FSCORES or not.}
-
-\item{analysis_list}{Named list of strings passed to Mplus' argument
-ANALYSIS. For example: \code{analysis_list = list(MITERATIONS = "1000")}.}
-
-\item{verbose}{Logical indicating whether Mplus/mirt output should be printed
-to the console.}
-
-\item{replaceOutfile}{optional. Currently supports three settings: \dQuote{always}, which
-runs all models, regardless of whether an output file for the model exists; \dQuote{never},
-which does not run any model that has an existing output file; and \dQuote{modifiedDate}, which
-only runs a model if the modified date for the input file is more recent than
-the output file modified date (implying there have been updates to the model).}
-
-\item{overwrite}{Logical value indicating whether
-data and input (if present) files should be overwritten.
-Defaults to \code{TRUE} to be consistent with prior behavior.
-If \code{FALSE} and the file to write the data to already exists,
-it will throw an error.}
-
-\item{...}{Additional parameters passed to \code{\link[MplusAutomation:runModels]{MplusAutomation::runModels()}}.}
-
-\item{.warnings2messages}{Logical, whether Mplus errors and warnings should be
-signaled as warnings (the default) or messages.}
-
-\item{.improper_okay}{Logical indicating whether the model should also be fit
+\item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
 }

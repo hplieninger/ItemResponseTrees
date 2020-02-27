@@ -17,20 +17,14 @@
 #'   `.rda`. This argument is also passed to [irtree_fit_mplus()] if applicable.
 #' @param R Integer used to number the saved output if `save_rdata = TRUE`.
 #'   Really only useful when used from [irtree_sim()].
-#' @param dots Nested list used to pass further arguments to downstream
-#'   methods/functions (i.e., [`fit()`][fit.irtree_model],
-#'   [`tidy()`][tidy.irtree_fit]). This is a named list, where the name of
-#'   each top-level element corresponds to the respective function. Each
-#'   top-level element is again a list, where the names of each element
-#'   correspond to the arguments. For example: `dots = list(fit = list(SE =
-#'   FALSE), tidy = list(difficulty = TRUE))`.
-#' @param .dir Path name that is used to save the results of every run if
+#' @param dir Path name that is used to save the results of every run if
 #'   `save_rdata = TRUE`.
 #' @param reduce_output Logical indicating whether the returned object should be
 #'   reduced (i.e., the output of [`fit()`][fit.irtree_model] is removed and
 #'   only summary information is retained).
 #' @inheritParams irtree_gen_data
 #' @inheritParams fit.irtree_model
+#' @inheritParams tidy_mirt
 #' @return List with two elements. The second element `spec` contains various
 #'   arguments (such as the data). The first element `fits` is a list with one
 #'   element for each `fit_model` that contains the output of
@@ -44,22 +38,23 @@ irtree_sim1 <- function(gen_model = NULL,
                         N = NULL,
                         sigma = NULL,
                         itempar = NULL,
-                        link = c("probit", "logit"),
+                        link = c("logit", "probit"),
                         engine = c("mirt", "mplus", "tam"),
                         verbose = TRUE,
                         save_rdata = FALSE,
                         file = NULL,
                         R = 1,
                         reduce_output = FALSE,
-                        # ...,
-                        dots = list(),
-                        .dir = tempdir(),
-                        .na_okay = TRUE) {
+                        control = NULL,
+                        improper_okay = FALSE,
+                        difficulty = TRUE,
+                        dir = tempdir(),
+                        na_okay = TRUE) {
 
     checkmate::qassert(R, "X1[0,)")
     checkmate::qassert(save_rdata, "B1")
     if (is.null(file)) {
-        file <- tempfile(sprintf("irtree%05d_", R), .dir)
+        file <- tempfile(sprintf("irtree%05d_", R), dir)
     }
 
     engine <- match.arg(engine)
@@ -69,7 +64,8 @@ irtree_sim1 <- function(gen_model = NULL,
                          N = N,
                          sigma = sigma,
                          itempar = itempar,
-                         link = link)
+                         link = link,
+                         na_okay = na_okay)
 
     tmp1 <- c("N", "J", "link", "personpar",
               "sigma", "sigma_fun",
@@ -103,9 +99,6 @@ irtree_sim1 <- function(gen_model = NULL,
              "which must then be used consistently across models.")
     }
 
-    checkmate::qassert(dots, "L<3")
-    checkmate::assert_subset(names(dots), c("fit", "tidy"))
-
     # Fit ---------------------------------------------------------------------
 
     fits <- list()
@@ -114,32 +107,30 @@ irtree_sim1 <- function(gen_model = NULL,
 
         mii <- paste0("m", ii)
 
-        do_call_args <- c(list(object = fit_model[[ii]],
-                               data = X$data,
-                               engine = engine,
-                               verbose = verbose,
-                               link = link),
-                          dots$fit)
+        do_call_args <- list(object = fit_model[[ii]],
+                             data = X$data,
+                             engine = engine,
+                             link = link,
+                             verbose = verbose,
+                             control = control,
+                             improper_okay = improper_okay)
         if (engine == "mplus") {
-            do_call_args$file <- sprintf("%s_m%1d",
-                                         tools::file_path_sans_ext(file), ii)
+            do_call_args$control$file <-
+                sprintf("%s_m%1d", tools::file_path_sans_ext(file), ii)
         } else if (engine == "tam") {
-            do_call_args$.set_min_to_0 <- TRUE
+            do_call_args$control$set_min_to_0 <- TRUE
         }
         fits[[mii]]$fit <- do.call("fit", do_call_args)
 
         fits[[mii]]$glanced <- glance(fits[[mii]]$fit)
-        # fits[[mii]]$tidied <- tidy(fits[[mii]]$fit)
-        fits[[mii]]$tidied <- do.call("tidy",
-                                      c(list(x = fits[[mii]]$fit),
-                                        dots$tidy))
+        fits[[mii]]$tidied <- tidy(fits[[mii]]$fit, difficulty = difficulty)
 
         tmp1 <- augment(fits[[mii]]$fit)
         fits[[mii]]$augmented <- spec$personpar %>%
             tibble::as_tibble() %>%
             dplyr::bind_cols(dplyr::select(tmp1,
                                            -suppressWarnings(
-                                               dplyr::one_of(
+                                               tidyselect::one_of(
                                                    names(fits[[mii]]$fit$spec$data)))))
         fits[[mii]]$fit$spec$data <- NULL
     }
@@ -206,10 +197,11 @@ irtree_sim <- function(gen_model = NULL,
                        plan = NULL,
                        future_args = list(),
                        in_memory = c("reduced", "everything", "nothing"),
-                       # ...,
-                       dots = list(),
-                       .dir = tempdir(),
-                       .na_okay = TRUE) {
+                       control = NULL,
+                       improper_okay = FALSE,
+                       difficulty = TRUE,
+                       dir = tempdir(),
+                       na_okay = TRUE) {
 
     time1 <- Sys.time()
 
@@ -259,10 +251,12 @@ irtree_sim <- function(gen_model = NULL,
                                 verbose = verbose,
                                 save_rdata = save_rdata,
                                 R = rr,
-                                .dir = .dir,
+                                dir = dir,
                                 reduce_output = switch(in_memory,
                                                        reduced = TRUE, FALSE),
-                                dots = dots
+                                control = control,
+                                improper_okay = improper_okay,
+                                difficulty = difficulty
                     )
                 })
 
@@ -292,8 +286,10 @@ irtree_sim <- function(gen_model = NULL,
                             verbose = verbose,
                             save_rdata = save_rdata,
                             R = rr,
-                            .dir = .dir,
-                            dots = dots)
+                            dir = dir,
+                            control = control,
+                            improper_okay = improper_okay,
+                            difficulty = difficulty)
             })
 
             p$tick()

@@ -308,7 +308,7 @@ augment.irtree_fit <- function(x = NULL,
     if (is.null(x[[engine]])) {
         return(tibble::as_tibble(data))
     } else if (engine == "mplus") {
-        if (!x$spec$save_fscores) {
+        if (!x$spec$control$save_fscores) {
             return(tibble::as_tibble(data))
         }
         if (!checkmate::test_string(method, na.ok = TRUE,

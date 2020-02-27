@@ -4,12 +4,6 @@
 #'
 #' @param link String specifying the link function. Only `logit` is
 #'   implemented in TAM.
-#' @param ... Other arguments passed to [TAM::tam.mml()].
-#' @param .set_min_to_0 Logical. [TAM::tam.mml()] expects the data to be scored 0,
-#'   ..., K. If `.set_min_to_0 = TRUE`, the minimum of the data is subtracted from
-#'   each response, which will likely both satisfy TAM and do no harm to the
-#'   data.
-#' @inheritParams TAM::tam.mml
 #' @inheritParams fit.irtree_model
 #' @return List with two elements. `tam` contains the TAM output, namely
 #'   an object of class [`tam.mml`][TAM::tam.mml] . `spec`
@@ -20,25 +14,22 @@ irtree_fit_tam <- function(object = NULL,
                            data = NULL,
                            link = "logit",
                            verbose = interactive(),
-                           ...,
-                           .set_min_to_0 = FALSE,
-                           .improper_okay = FALSE) {
-
-    link <- match.arg(link)
+                           control = control_tam(),
+                           improper_okay = FALSE) {
 
     checkmate::assert_class(object, "irtree_model")
 
-    if (.set_min_to_0 && min(data[object$j_names], na.rm = TRUE) != 0) {
+    if (control$set_min_to_0 && min(data[object$j_names], na.rm = TRUE) != 0) {
         data[object$j_names] <- data[object$j_names] -
             min(data[object$j_names], na.rm = TRUE)
     }
 
     assert_irtree_data(data = data, object = object, engine = "tam",
-                       .set_min_to_0 = .set_min_to_0)
+                       set_min_to_0 = control$set_min_to_0)
     data <- tibble::as_tibble(data)
 
     assert_irtree_equations(object)
-    assert_irtree_proper(object, .improper_okay = .improper_okay)
+    assert_irtree_proper(object, improper_okay = improper_okay)
 
     if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
         stop("2Pl is not implemented in TAM.")
@@ -48,6 +39,11 @@ irtree_fit_tam <- function(object = NULL,
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 
+    link <- match.arg(link)
+    checkmate::qassert(verbose, "B1")
+    checkmate::qassert(control, "l")
+    tmp1 <- formalArgs(control_tam)
+    checkmate::assert_names(names(control), must.include = tmp1[tmp1 != "..."])
 
     spec <- c(as.list(environment()))
     spec$engine <- "tam"
@@ -69,13 +65,14 @@ irtree_fit_tam <- function(object = NULL,
     }
 
     if (TRUE) {
+        tmp1 <- c(list(resp     = pseudoitems,
+                       irtmodel = "1PL",
+                       Q        = get0("Q", environment(), inherits = FALSE),
+                       B        = get0("B", environment(), inherits = FALSE),
+                       verbose  = verbose),
+                  control[names(control) != "set_min_to_0"])
         res <- myTryCatch(
-            TAM::tam.mml(resp     = pseudoitems,
-                         irtmodel = "1PL",
-                         Q        = get0("Q", environment(), inherits = FALSE),
-                         B        = get0("B", environment(), inherits = FALSE),
-                         verbose  = verbose,
-                         ...))
+            do.call(TAM::tam.mml, tmp1))
         if (!is.null(res$warning)) {
             warning(conditionMessage(res$warning))
         }
@@ -128,4 +125,40 @@ irtree_fit_tam <- function(object = NULL,
     }
     return(B)
 
+}
+
+#' Control Aspects of Fitting a Model in TAM
+#'
+#' This function should be used to generate the `control` argument of the
+#' [`fit()`][fit.irtree_model] function.
+#'
+#' @param set_min_to_0 Logical. [TAM::tam.mml()] expects the data to be scored 0,
+#'   ..., K. If `set_min_to_0 = TRUE`, the minimum of the data is subtracted from
+#'   each response, which will likely both satisfy TAM and do no harm to the
+#'   data.
+#' @param control List of arguments passed to argument `control` of
+#'   [TAM::tam.mml()]. See examples below.
+#' @param ... Other arguments passed to [TAM::tam.mml()].
+#' @return A list with one element for every argument of `control_tam()`.
+#' @examples
+#' control_tam(set_min_to_0 = TRUE,
+#'             control = list(snodes = 0,
+#'                            maxiter = 1000,
+#'                            increment.factor = 1,
+#'                            fac.oldxsi = 0),
+#'             constraint = "items")
+#' @export
+control_tam <- function(set_min_to_0 = FALSE,
+                        control = list(snodes = 0,
+                                       maxiter = 1000,
+                                       increment.factor = 1,
+                                       fac.oldxsi = 0),
+                        ...) {
+
+    ctrl <- c(as.list(environment()), list(...))
+
+    checkmate::qassert(set_min_to_0, "B1")
+    checkmate::qassert(control, "L")
+
+    return(ctrl)
 }

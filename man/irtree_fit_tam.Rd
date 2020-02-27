@@ -9,16 +9,13 @@ irtree_fit_tam(
   data = NULL,
   link = "logit",
   verbose = interactive(),
-  ...,
-  .set_min_to_0 = FALSE,
-  .improper_okay = FALSE
+  control = control_tam(),
+  improper_okay = FALSE
 )
 }
 \arguments{
-\item{object}{
-Object of class \code{tam} or \code{tam.mml} (only for \code{summary.tam}
-functions)
-}
+\item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more
+information.}
 
 \item{data}{Data frame containing containing one row per respondent and one
 column per variable. The variable names must correspond to those used in
@@ -27,18 +24,15 @@ column per variable. The variable names must correspond to those used in
 \item{link}{String specifying the link function. Only \code{logit} is
 implemented in TAM.}
 
-\item{verbose}{Logical indicating whether output should
-be printed during iterations. This argument replaces \code{control$progress}.
-}
+\item{verbose}{Logical indicating whether output should be printed to the
+console.}
 
-\item{...}{Other arguments passed to \code{\link[TAM:tam.mml]{TAM::tam.mml()}}.}
+\item{control}{List. The allowed elements of this list depend on the
+\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that you
+can use the \verb{control_*()} functions to pass additional arguments.}
 
-\item{.set_min_to_0}{Logical. \code{\link[TAM:tam.mml]{TAM::tam.mml()}} expects the data to be scored 0,
-..., K. If \code{.set_min_to_0 = TRUE}, the minimum of the data is subtracted from
-each response, which will likely both satisfy TAM and do no harm to the
-data.}
-
-\item{.improper_okay}{Logical indicating whether the model should also be fit
+\item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
 }

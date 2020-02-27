@@ -66,7 +66,7 @@ X <- irtree_gen_data(object = model1, N = 100,
                      sigma = diag(model1$S),
                      itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                                     alpha = matrix(1, model1$J, model1$P)),
-                     .na_okay = FALSE, .skip = TRUE)
+                     na_okay = FALSE, skip = TRUE)
 # tmp1 <- names(model1$j_names)
 # names(tmp1) <- model1$j_names
 # names(X$data) <- stringr::str_replace_all(names(X$data), tmp1)
@@ -89,29 +89,32 @@ res1 <- fit(data = df1,
             verbose = FALSE,
             engine = "mplus",
             object = model1,
-            quadpts = 6,
-            analysis_list = list(LOGCRITERION = ".01",
-                                 COVERAGE = "0"),
-            .warnings2messages = TRUE,
-            run = run)
+            control = control_mplus(
+                quadpts = 6,
+                analysis_list = list(LOGCRITERION = ".01",
+                                     COVERAGE = "0"),
+                warnings2messages = TRUE,
+                run = run))
 
 res2 <- fit(data = Science,
             verbose = FALSE,
             engine = "mplus",
             object = model2,
-            quadpts = "MONTECARLO(500)",
-            analysis_list = list(LOGCRITERION = ".01",
-                                 COVERAGE = "0"),
-            run = run)
+            control = control_mplus(
+                quadpts = "MONTECARLO(500)",
+                analysis_list = list(LOGCRITERION = ".01",
+                                     COVERAGE = "0"),
+                run = run))
 
 res3 <- fit(data = Science,
             verbose = FALSE,
             engine = "mplus",
             object = model3,
-            quadpts = "GAUSS(6)",
-            analysis_list = list(LOGCRITERION = ".01",
-                                 COVERAGE = "0"),
-            run = run)
+            control = control_mplus(
+                quadpts = "GAUSS(6)",
+                analysis_list = list(LOGCRITERION = ".01",
+                                     COVERAGE = "0"),
+                run = run))
 
 test_that("Provide starting values",{
     skip_if(TRUE)
@@ -134,10 +137,10 @@ test_that("Provide starting values",{
                 verbose = FALSE,
                 engine = "mplus",
                 object = model4,
-                file_name = basename(tempfile()),
-                dir = tempdir(),
-                run = T,
-                quadpts = 7)
+                control = control_mplus(
+                    file = basename(tempfile()),
+                    run = TRUE,
+                    quadpts = 7))
 })
 
 ##### Tests #####
@@ -213,7 +216,7 @@ test_that("tidy.irtree_fit()", {
         select(3) %>%
         slice(1:9) %>%
         as.data.frame
-    expect_equal(tmp1, tmp2, tolerance = .002)
+    expect_equal(tmp1, tmp2, tolerance = .1)
 
     checkmate::expect_numeric(td1$p.value, lower = 0, upper = 1, finite = TRUE)
     checkmate::expect_numeric(td2$p.value, lower = 0, upper = 1, finite = TRUE)

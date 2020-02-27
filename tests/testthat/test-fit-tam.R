@@ -50,7 +50,7 @@ data1 <- irtree_gen_data(
     sigma = diag(model1$S),
     itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                    alpha = matrix(1, model1$J, model1$P)),
-    .na_okay = FALSE)
+    na_okay = FALSE)
 
 data(Science, package = "mirt")
 ScienceNew <- Science - 1
@@ -61,7 +61,7 @@ data3 <- irtree_gen_data(
     link = "logit",
     sigma = diag(model3$S),
     itempar = list(beta = matrix(sort(rnorm(model3$J*model3$P)), model3$J, model3$K - 1)),
-    .na_okay = FALSE)
+    na_okay = FALSE)
 
 ##### Fit #####
 
@@ -70,13 +70,15 @@ control_list <- list(snodes = 1000)
 res1 <- fit(data = data1$data,
             engine = "tam",
             object = model1,
-            control = control_list,
+            control = control_tam(control = control_list,
+                                  item.elim = FALSE,
+                                  constraint = "cases"),
             verbose = FALSE)
 
 res2 <- fit(data = ScienceNew,
             engine = "tam",
             object = model2,
-            control = control_list,
+            control = control_tam(control = control_list),
             verbose = FALSE)
 
 res2x <- TAM::tam.mml(resp = ScienceNew, irtmodel = "PCM",
@@ -86,9 +88,9 @@ res2x <- TAM::tam.mml(resp = ScienceNew, irtmodel = "PCM",
 res3 <- fit(data = data3$data,
             engine = "tam",
             object = model3,
-            control = control_list,
-            verbose = FALSE,
-            .set_min_to_0 = TRUE)
+            control = control_tam(set_min_to_0 = TRUE,
+                                  control = control_list),
+            verbose = FALSE)
 
 ##### Tests #####
 

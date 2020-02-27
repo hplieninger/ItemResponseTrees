@@ -21,6 +21,7 @@ Imports:
     magrittr,
     MASS,
     Matrix,
+    methods,
     mirt,
     MplusAutomation (>= 0.7),
     purrr,

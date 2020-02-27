@@ -40,8 +40,8 @@ irtree_gen_pcm <- function(object = NULL,
                            theta = NULL,
                            itempar = NULL,
                            link = "logit",
-                           .na_okay = TRUE,
-                           .skip = FALSE
+                           na_okay = TRUE,
+                           skip = FALSE
     ) {
 
     spec <- c(as.list(environment()))
@@ -56,8 +56,8 @@ irtree_gen_pcm <- function(object = NULL,
 
     # INPUT CHECKING ----------------------------------------------------------
 
-    .must_have(object, "constraints", FALSE, .skip = .skip)
-    .must_have(object, "addendum", FALSE, .skip = .skip)
+    .must_have(object, "constraints", FALSE, skip = skip)
+    .must_have(object, "addendum", FALSE, skip = skip)
 
     if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
         stop("2Pl is not implemented for class PCM.")
@@ -150,7 +150,7 @@ irtree_gen_pcm <- function(object = NULL,
                         apply(p, 2:3, rmultinom, n = 1, size = 1)))),
                 j_names))
 
-    if (!.na_okay) {
+    if (!na_okay) {
         ii <- 0
         while (!.check_all_categ_observed(dat, object$K)) {
             dat <-

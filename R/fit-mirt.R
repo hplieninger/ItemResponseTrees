@@ -4,12 +4,6 @@
 #'
 #' @param link String specifying the link function. Only `logit` is
 #'   implemented in mirt.
-#' @param rm_mirt_internal Logical. [mirt::mirt()] returns a lot of
-#'   information including two functions that can take up a huge amount of space
-#'   (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
-#'   two functions are removed from the output if `rm_mirt_internal =
-#'   TRUE`.
-#' @param ... Other arguments passed to [mirt::mirt()].
 #' @inheritParams fit.irtree_model
 #' @inheritParams mirt::mirt
 #' @return List with two elements. `mirt` contains the mirt output, namely an
@@ -20,25 +14,27 @@
 irtree_fit_mirt <- function(object = NULL,
                             data = NULL,
                             link = "logit",
-                            SE = TRUE,
                             verbose = interactive(),
-                            rm_mirt_internal = TRUE,
-                            ...,
-                            .improper_okay = FALSE) {
-
-    link <- match.arg(link)
+                            control = control_mirt(),
+                            improper_okay = FALSE
+                            ) {
 
     checkmate::assert_class(object, "irtree_model")
     assert_irtree_data(data = data, object = object, engine = "mirt")
     data <- tibble::as_tibble(data)
 
     assert_irtree_equations(object)
-    assert_irtree_proper(object, .improper_okay = .improper_okay)
+    assert_irtree_proper(object, improper_okay = improper_okay)
 
     object$j_names <- sort2(object$j_names, names(data))
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 
+    link <- match.arg(link)
+    checkmate::qassert(verbose, "B1")
+    checkmate::qassert(control, "l")
+    tmp1 <- formalArgs(control_mirt)
+    checkmate::assert_names(names(control), must.include = tmp1[tmp1 != "..."])
 
     spec <- c(as.list(environment()))
     spec$engine <- "mirt"
@@ -54,14 +50,14 @@ irtree_fit_mirt <- function(object = NULL,
     mirt_input <- write_mirt_input(object = object, data = pseudoitems)
 
     if (TRUE) {
-        res <- myTryCatch(
-            mirt::mirt(data     = pseudoitems,
+        tmp1 <- c(list(data     = pseudoitems,
                        model    = mirt_input$mirt_string,
                        itemtype = mirt_input$itemtype,
                        pars     = mirt_input$values,
-                       SE       = SE,
-                       verbose  = verbose,
-                       ...))
+                       verbose  = verbose),
+                  control[names(control) != "rm_mirt_internal"])
+        res <- myTryCatch(
+            do.call(mirt::mirt, tmp1))
         if (!is.null(res$warning)) {
             warning(conditionMessage(res$warning))
         }
@@ -72,10 +68,11 @@ irtree_fit_mirt <- function(object = NULL,
         res <- list(value = NULL)
     }
 
-    if (rm_mirt_internal) {
+    if (control$rm_mirt_internal) {
         try(silent = TRUE, expr = {
             res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@den <- function() {}
             res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@safe_den <- function() {}
+            res$value@Call <- call("mirt")
         })
     }
 
@@ -235,4 +232,46 @@ write_mirt_input <- function(object = NULL,
                        lambda      = lambda,
                        values      = values))
 
+}
+
+#' Control Aspects of Fitting a Model in mirt
+#'
+#' This function should be used to generate the `control` argument of the
+#' [`fit()`][fit.irtree_model] function.
+#'
+#' @param rm_mirt_internal Logical. [mirt::mirt()] returns a lot of
+#'   information including two functions that can take up a huge amount of space
+#'   (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
+#'   two functions are removed from the output if `rm_mirt_internal =
+#'   TRUE`.
+#' @param control List of arguments passed to argument `control` of
+#'   [mirt::mirt()]. See examples below.
+#' @param technical List of arguments passed to argument `technical` of
+#'   [mirt::mirt()]. See examples below.
+#' @param ... Other arguments passed to [mirt::mirt()].
+#' @return A list with one element for every argument of `control_mirt()`.
+#' @inheritParams mirt::mirt
+#' @examples
+#' control_mirt(SE = FALSE,
+#'              quadpts = 15,
+#'              control = list(),
+#'              technical = list(NCYCLES = 500),
+#'              TOL = .0001)
+#' @export
+control_mirt <- function(rm_mirt_internal = TRUE,
+                         SE = TRUE,
+                         quadpts = NULL,
+                         control = list(),
+                         technical = list(NCYCLES = NULL),
+                         ...) {
+
+    ctrl <- c(as.list(environment()), list(...))
+
+    checkmate::qassert(rm_mirt_internal, "B1")
+    checkmate::qassert(SE, "B1")
+    checkmate::assert_int(quadpts, null.ok = TRUE, lower = 3)
+    checkmate::qassert(control, "l")
+    checkmate::qassert(technical, "l")
+
+    return(ctrl)
 }

@@ -59,7 +59,8 @@ irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
                        vapply,
                        sub, pattern = "@\\d+$|[*]$", replacement = "",
                        FUN.VALUE = "")
-    irt_items <- lapply(irt_items, function(x) {names(x) <- x; x})
+    # irt_items <- lapply(irt_items, function(x) {names(x) <- x; x})
+    irt_items <- lapply(irt_items, unname)
     names(irt_items) <- lv_names
     names(irt_loadings) <- lv_names
 
@@ -179,6 +180,10 @@ irtree_model_constraints <- function(model_list = NULL, e1 = new.env()) {
                         ifelse(
                             grepl("\\|", model_list$constraints),
                             "sub", "equ"))
+        if (any(grepl("[+]", model_list$constraints))) {
+            stop("Section Constraints must not contain the symbol +. ",
+                 "See: ?irtree_model.", call. = FALSE)
+        }
     } else {
         constr <- NULL
     }
