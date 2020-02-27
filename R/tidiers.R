@@ -346,32 +346,26 @@ augment.irtree_fit <- function(x = NULL,
 
     } else if (engine == "mirt") {
 
-        out <- tryCatch(
-            {
-                tmp1 <- augment_mirt(x = x, se.fit = se.fit, method = method, ...)
-                tibble::as_tibble(cbind(data, tmp1))
-            },
-            error = function(cond) {
-                warning(cond)
-                return(tibble::as_tibble(data))
-            }
-        )
+        out <- tryCatch({
+            tmp1 <- augment_mirt(x = x, se.fit = se.fit, method = method, ...)
+            tibble::as_tibble(cbind(data, tmp1))
+        },
+        error = function(cond) {
+            warning(cond)
+            return(tibble::as_tibble(data))
+        })
         return(out)
+
     } else if (engine == "tam") {
 
-        out <- tryCatch(
-            {
-                tmp1 <- TAM:::IRT.factor.scores.tam.mml(x$tam, type = method, ...)
-                names(tmp1) <- sub("^EAP(.*)", ".fitted\\1", names(tmp1))
-                names(tmp1) <- sub("^SD.EAP(.*)", ".se.fit\\1", names(tmp1))
-
-                tibble::as_tibble(cbind(data, tmp1[order(names(tmp1))]))
-            },
-            error = function(cond) {
-                warning(cond)
-                return(tibble::as_tibble(data))
-            }
-        )
+        out <- tryCatch({
+            tmp1 <- augment_tam(x$tam, method = method, ...)
+            tibble::as_tibble(cbind(data, tmp1))
+        },
+        error = function(cond) {
+            warning(cond)
+            return(tibble::as_tibble(data))
+        })
         return(out)
     }
 }
@@ -394,6 +388,25 @@ augment_mirt <- function(x, se.fit = TRUE, method = "EAP", ...) {
     }
 
     return(out)
+}
+
+#' @seealso [TAM::IRT.factor.scores.tam]
+augment_tam <- function(x = NULL, method = c("EAP", "WLE", "MLE"), progress = FALSE, ...) {
+    method <- match.arg(method)
+
+    if (method == "EAP") {
+        thetas <- x$person[, grep("EAP", colnames(x$person))]
+    } else {
+        thetas <- TAM::tam.wle(x, WLE = (method == "WLE"), progress = progress, ...)
+        class(thetas) <- "data.frame"
+        thetas <- thetas[, grep("theta|error", colnames(thetas))]
+    }
+    names(thetas) <- sub("^(EAP|theta)(.*)", ".fitted\\2", names(thetas))
+    names(thetas) <- sub("^(SD.EAP|error)(.*)", ".se.fit\\2", names(thetas))
+
+    thetas <- thetas[order(names(thetas))]
+
+    return(thetas)
 }
 
 #' @importFrom generics glance
