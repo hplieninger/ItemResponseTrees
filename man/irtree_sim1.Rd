@@ -11,17 +11,17 @@ irtree_sim1(
   N = NULL,
   sigma = NULL,
   itempar = NULL,
-  engine = c("mirt", "mplus", "tam"),
   link = c("logit", "probit"),
+  na_okay = TRUE,
+  engine = c("mirt", "mplus", "tam"),
   verbose = TRUE,
   control = NULL,
   improper_okay = FALSE,
-  save_rdata = FALSE,
+  par_type = "difficulty",
   file = NULL,
-  reduce_output = FALSE,
-  difficulty = TRUE,
   dir = tempdir(),
-  na_okay = TRUE
+  save_rdata = FALSE,
+  reduce_output = FALSE
 )
 }
 \arguments{
@@ -50,10 +50,14 @@ matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
 
+\item{link}{Character. Link function to use.}
+
+\item{na_okay}{Logical indicating whether variables with unobserved response
+categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
+is used to ensure that all categories are observed.}
+
 \item{engine}{String specifying whether to use mirt, Mplus, or TAM for
 estimation.}
-
-\item{link}{Character. Link function to use.}
 
 \item{verbose}{Logical indicating whether output should be printed to the
 console.}
@@ -67,28 +71,23 @@ can use the \verb{control_*()} functions to pass additional arguments.}
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
 
-\item{save_rdata}{Logical indicating whether to save the results to an RData
-file.}
+\item{par_type}{Only used if the fit engine was mirt. Item parameters (or
+thresholds) can be either of type \code{easiness} (the mirt default) or
+\code{difficulty} (as in Mplus and TAM).}
 
 \item{file}{String giving the file path used to save the output if
 \code{save_rdata = TRUE}. Note that the file ending is automatically set to
 \code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
 
-\item{reduce_output}{Logical indicating whether the returned object should be
-reduced (i.e., the output of \code{\link[=fit.irtree_model]{fit()}} is removed and
-only summary information is retained).}
-
-\item{difficulty}{Logical. The \link[mirt:mirt-package]{mirt} package uses easiness
-parameters. These are returned with a message if \code{difficulty = NA} (the
-default), without a message if \code{difficulty = FALSE}, and they are
-transformed to difficulty parameters if \code{difficulty = TRUE}.}
-
 \item{dir}{Path name that is used to save the results of every run if
 \code{save_rdata = TRUE}.}
 
-\item{na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
-is used to ensure that all categories are observed.}
+\item{save_rdata}{Logical indicating whether to save the results to an RData
+file.}
+
+\item{reduce_output}{Logical indicating whether the returned object should be
+reduced (i.e., the output of \code{\link[=fit.irtree_model]{fit()}} is removed and
+only summary information is retained).}
 }
 \value{
 List with two elements. The second element \code{spec} contains various

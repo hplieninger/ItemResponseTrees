@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit-tam.R
 \name{irtree_fit_tam}
 \alias{irtree_fit_tam}
-\title{Fit an IR-Tree Model using TAM.}
+\title{Fit an \code{irtree_model} using TAM}
 \usage{
 irtree_fit_tam(
   object = NULL,
@@ -35,11 +35,6 @@ can use the \verb{control_*()} functions to pass additional arguments.}
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
-}
-\value{
-List with two elements. \code{tam} contains the TAM output, namely
-an object of class \code{\link[TAM:tam.mml]{tam.mml}} . \code{spec}
-contains the input specifications.
 }
 \description{
 This function takes a \code{data} frame and a model \code{object} and runs the model in TAM.

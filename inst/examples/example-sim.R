@@ -1,8 +1,7 @@
-\donttest{
 m1 <- "
 IRT:
-a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1, X8@1, X9@1, X10@1;
-b BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1, X8@1, X9@1, X10@1;
+a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
+b BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
 
 Equations:
 1 = 1-a
@@ -15,7 +14,7 @@ Tree
 
 m2 <- "
 IRT:
-a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1, X8@1, X9@1, X10@1;
+a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
 
 Class:
 GRM
@@ -24,11 +23,11 @@ GRM
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 
-res1 <- irtree_sim(
+res <- irtree_sim(
     ### Data generation ###
     gen_model = model1,
-    N = 500,
     link = "logit",
+    N = 200,
     sigma = function(x) diag(2),
     itempar = function(x) list(
         beta = matrix(sort(runif(model1$J*model1$P, -2, 2)),
@@ -39,32 +38,29 @@ res1 <- irtree_sim(
     ### Estimation ###
     fit_model = list(model1, model2),
     engine = "mirt",
-    dots = list(fit = list(SE = FALSE),
-                tidy = list(difficulty = TRUE)),
+    control = control_mirt(SE = FALSE),
+    par_type = "difficulty",
 
     ### Replications ###
     R = 2,
-    save_rdata = FALSE,
+    save_rdata = FALSE
 
-    ### Parallelization ###
-    plan = "multiprocess",
-    plan_args = list(workers = 2)
+    ### Optional parallelization ###
+    # plan = "multiprocess",
+    # plan_args = list(workers = 2)
 )
 
-library("tidyr")
-library("dplyr")
-library("tibble")
+tab1 <- matrix(NA, 0, 4, dimnames = list(NULL, c("iter", "model", "AIC", "BIC")))
 
-enframe(res1, "repl", "res") %>%
-    hoist(res, m1 = list("fits", "m1", "glanced"), m2 = list("fits", "m2", "glanced")) %>%
-    pivot_longer(cols = c(m1, m2), names_to = "model", values_to = "glanced") %>%
-    unnest_wider(col = glanced) %>%
-    select(repl, model, AIC, BIC)
-#> # A tibble: 4 x 4
-#>   repl  model   AIC   BIC
-#>   <chr> <chr> <dbl> <dbl>
-#> 1 sim1  m1    9607. 9704.
-#> 2 sim1  m2    9773. 9866.
-#> 3 sim2  m1    9507. 9603.
-#> 4 sim2  m2    9676. 9768.
+for (ii in seq_along(res)) {
+    for (jj in seq_along(res[[ii]]$fits)) {
+        IC <- res[[ii]]$fits[[jj]]$glanced
+        tab1 <- rbind(tab1, c(ii, jj, IC$AIC, IC$BIC))
+    }
 }
+tab1
+#>      iter model      AIC       BIC
+#> [1,]    1     1 9472.961  9569.896
+#> [2,]    1     2 9580.718  9673.440
+#> [3,]    2     1 9769.569  9866.505
+#> [4,]    2     2 9918.594 10011.315

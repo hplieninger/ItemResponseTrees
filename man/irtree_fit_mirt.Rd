@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit-mirt.R
 \name{irtree_fit_mirt}
 \alias{irtree_fit_mirt}
-\title{Fit an IR-Tree Model using mirt.}
+\title{Fit an \code{irtree_model} using mirt}
 \usage{
 irtree_fit_mirt(
   object = NULL,
@@ -35,11 +35,6 @@ can use the \verb{control_*()} functions to pass additional arguments.}
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
-}
-\value{
-List with two elements. \code{mirt} contains the mirt output, namely an
-object of class \link[mirt:SingleGroupClass-class]{mirt::SingleGroupClass}. \code{spec} contains the input
-specifications.
 }
 \description{
 This function takes a \code{data} frame and a model \code{object} and runs the model in mirt.

@@ -36,11 +36,6 @@ can use the \verb{control_*()} functions to pass additional arguments.}
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
 }
-\value{
-List with two elements. \code{mplus} contains the Mplus output read into R
-via \code{\link[MplusAutomation:readModels]{MplusAutomation::readModels()}}. \code{spec} contains the input
-specifications.
-}
 \description{
 This function takes a data frame and a model string and runs the model in Mplus.
 }

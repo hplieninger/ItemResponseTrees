@@ -39,20 +39,21 @@ irtree_sim1 <- function(R = 1,
                         N = NULL,
                         sigma = NULL,
                         itempar = NULL,
+                        link = c("logit", "probit"),
+                        na_okay = TRUE,
 
                         # args passed to fit()
                         engine = c("mirt", "mplus", "tam"),
-                        link = c("logit", "probit"),
                         verbose = TRUE,
                         control = NULL,
                         improper_okay = FALSE,
+                        par_type = "difficulty",
 
-                        save_rdata = FALSE,
                         file = NULL,
-                        reduce_output = FALSE,
-                        difficulty = TRUE,
                         dir = tempdir(),
-                        na_okay = TRUE) {
+                        save_rdata = FALSE,
+                        reduce_output = FALSE
+                        ) {
 
     checkmate::qassert(R, "X1[0,)")
     checkmate::qassert(save_rdata, "B1")
@@ -203,22 +204,23 @@ irtree_sim <- function(R = 1,
                        N = NULL,
                        sigma = NULL,
                        itempar = NULL,
+                       link = c("logit", "probit"),
+                       na_okay = TRUE,
 
                        # args passed to fit()
                        engine = c("mirt", "mplus", "tam"),
-                       link = c("logit", "probit"),
                        verbose = FALSE,
                        control = NULL,
                        improper_okay = FALSE,
+                       par_type = "difficulty",
 
-                       save_rdata = TRUE,
-                       file = NULL,
                        plan = NULL,
                        plan_args = list(),
-                       in_memory = c("reduced", "everything", "nothing"),
-                       difficulty = TRUE,
+                       file = NULL,
                        dir = tempdir(),
-                       na_okay = TRUE) {
+                       save_rdata = TRUE,
+                       in_memory = c("reduced", "everything", "nothing")
+                       ) {
 
     time1 <- Sys.time()
 

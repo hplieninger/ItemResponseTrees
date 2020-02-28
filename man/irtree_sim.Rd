@@ -11,19 +11,19 @@ irtree_sim(
   N = NULL,
   sigma = NULL,
   itempar = NULL,
-  engine = c("mirt", "mplus", "tam"),
   link = c("logit", "probit"),
+  na_okay = TRUE,
+  engine = c("mirt", "mplus", "tam"),
   verbose = FALSE,
   control = NULL,
   improper_okay = FALSE,
-  save_rdata = TRUE,
-  file = NULL,
+  par_type = "difficulty",
   plan = NULL,
   plan_args = list(),
-  in_memory = c("reduced", "everything", "nothing"),
-  difficulty = TRUE,
+  file = NULL,
   dir = tempdir(),
-  na_okay = TRUE
+  save_rdata = TRUE,
+  in_memory = c("reduced", "everything", "nothing")
 )
 }
 \arguments{
@@ -52,10 +52,14 @@ matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
 section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
 
+\item{link}{Character. Link function to use.}
+
+\item{na_okay}{Logical indicating whether variables with unobserved response
+categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
+is used to ensure that all categories are observed.}
+
 \item{engine}{String specifying whether to use mirt, Mplus, or TAM for
 estimation.}
-
-\item{link}{Character. Link function to use.}
 
 \item{verbose}{Logical indicating whether output should be printed to the
 console.}
@@ -69,12 +73,9 @@ can use the \verb{control_*()} functions to pass additional arguments.}
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
 know what you are doing.}
 
-\item{save_rdata}{Logical indicating whether to save the results to an RData
-file.}
-
-\item{file}{String giving the file path used to save the output if
-\code{save_rdata = TRUE}. Note that the file ending is automatically set to
-\code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
+\item{par_type}{Only used if the fit engine was mirt. Item parameters (or
+thresholds) can be either of type \code{easiness} (the mirt default) or
+\code{difficulty} (as in Mplus and TAM).}
 
 \item{plan}{Parameter passed as argument \code{strategy} to \code{\link[future:plan]{future::plan()}}. May
 be set to, for example, \code{multiprocess} in order to run the simulations in
@@ -82,21 +83,19 @@ parallel.}
 
 \item{plan_args}{Named list. Parameters passed \code{\link[future:plan]{future::plan()}}.}
 
-\item{in_memory}{Character string indicating what output should be kept in
-memory (note the argument \code{save_rdata}, which is not affected by
-\code{in_memory}).}
-
-\item{difficulty}{Logical. The \link[mirt:mirt-package]{mirt} package uses easiness
-parameters. These are returned with a message if \code{difficulty = NA} (the
-default), without a message if \code{difficulty = FALSE}, and they are
-transformed to difficulty parameters if \code{difficulty = TRUE}.}
+\item{file}{String giving the file path used to save the output if
+\code{save_rdata = TRUE}. Note that the file ending is automatically set to
+\code{.rda}. This argument is also passed to \code{\link[=irtree_fit_mplus]{irtree_fit_mplus()}} if applicable.}
 
 \item{dir}{Path name that is used to save the results of every run if
 \code{save_rdata = TRUE}.}
 
-\item{na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
-is used to ensure that all categories are observed.}
+\item{save_rdata}{Logical indicating whether to save the results to an RData
+file.}
+
+\item{in_memory}{Character string indicating what output should be kept in
+memory (note the argument \code{save_rdata}, which is not affected by
+\code{in_memory}).}
 
 \item{...}{Other parameters passed \code{\link[=irtree_sim1]{irtree_sim1()}}.}
 }
@@ -111,11 +110,10 @@ repeats this process \code{R} times, and the argument \code{plan} allows to
 run the simulation in parallel.
 }
 \examples{
-\donttest{
 m1 <- "
 IRT:
-a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1, X8@1, X9@1, X10@1;
-b BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1, X8@1, X9@1, X10@1;
+a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
+b BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
 
 Equations:
 1 = 1-a
@@ -128,7 +126,7 @@ Tree
 
 m2 <- "
 IRT:
-a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1, X8@1, X9@1, X10@1;
+a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
 
 Class:
 GRM
@@ -137,11 +135,11 @@ GRM
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 
-res1 <- irtree_sim(
+res <- irtree_sim(
     ### Data generation ###
     gen_model = model1,
-    N = 500,
     link = "logit",
+    N = 200,
     sigma = function(x) diag(2),
     itempar = function(x) list(
         beta = matrix(sort(runif(model1$J*model1$P, -2, 2)),
@@ -152,35 +150,32 @@ res1 <- irtree_sim(
     ### Estimation ###
     fit_model = list(model1, model2),
     engine = "mirt",
-    dots = list(fit = list(SE = FALSE),
-                tidy = list(difficulty = TRUE)),
+    control = control_mirt(SE = FALSE),
+    par_type = "difficulty",
 
     ### Replications ###
     R = 2,
-    save_rdata = FALSE,
+    save_rdata = FALSE
 
-    ### Parallelization ###
-    plan = "multiprocess",
-    plan_args = list(workers = 2)
+    ### Optional parallelization ###
+    # plan = "multiprocess",
+    # plan_args = list(workers = 2)
 )
 
-library("tidyr")
-library("dplyr")
-library("tibble")
+tab1 <- matrix(NA, 0, 4, dimnames = list(NULL, c("iter", "model", "AIC", "BIC")))
 
-enframe(res1, "repl", "res") \%>\%
-    hoist(res, m1 = list("fits", "m1", "glanced"), m2 = list("fits", "m2", "glanced")) \%>\%
-    pivot_longer(cols = c(m1, m2), names_to = "model", values_to = "glanced") \%>\%
-    unnest_wider(col = glanced) \%>\%
-    select(repl, model, AIC, BIC)
-#> # A tibble: 4 x 4
-#>   repl  model   AIC   BIC
-#>   <chr> <chr> <dbl> <dbl>
-#> 1 sim1  m1    9607. 9704.
-#> 2 sim1  m2    9773. 9866.
-#> 3 sim2  m1    9507. 9603.
-#> 4 sim2  m2    9676. 9768.
+for (ii in seq_along(res)) {
+    for (jj in seq_along(res[[ii]]$fits)) {
+        IC <- res[[ii]]$fits[[jj]]$glanced
+        tab1 <- rbind(tab1, c(ii, jj, IC$AIC, IC$BIC))
+    }
 }
+tab1
+#>      iter model      AIC       BIC
+#> [1,]    1     1 9472.961  9569.896
+#> [2,]    1     2 9580.718  9673.440
+#> [3,]    2     1 9769.569  9866.505
+#> [4,]    2     2 9918.594 10011.315
 }
 \seealso{
 \code{\link[=irtree_sim1]{irtree_sim1()}}

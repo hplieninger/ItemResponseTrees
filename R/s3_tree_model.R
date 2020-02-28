@@ -171,8 +171,8 @@
 #' @return List of class `irtree_model`. It contains the information extracted
 #'   from parsing `model`. Side note: The returned list contains an element
 #'   `mappping_matrix` that contains the pseudoitems. This information is
-#'   instructive, and it might be used as an input to the [irtrees::dendrify()]
-#'   function of the [irtrees][irtrees::irtrees-package] package.
+#'   instructive, and it might be used as an input to the `dendrify()`
+#'   function of the irtrees package.
 #' @examples
 #' m1 <- "
 #' # Comment

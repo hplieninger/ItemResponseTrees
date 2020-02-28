@@ -5,9 +5,6 @@
 #' @param link String, passed to argument 'LINK' in Mplus. Specifies
 #'   the link function.
 #' @inheritParams fit.irtree_model
-#' @return List with two elements. `mplus` contains the Mplus output read into R
-#'   via [MplusAutomation::readModels()]. `spec` contains the input
-#'   specifications.
 #' @examples
 #' \donttest{
 #' m1 <- "
@@ -22,7 +19,6 @@
 #'
 #' fit1 <- fit(model1, Science, engine = "mplus")
 #' }
-#' @export
 irtree_fit_mplus <- function(object = NULL,
                              data = NULL,
                              link = c("logit", "probit"),

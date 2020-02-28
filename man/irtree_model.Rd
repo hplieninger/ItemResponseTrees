@@ -13,8 +13,8 @@ irtree_model(model = NULL)
 List of class \code{irtree_model}. It contains the information extracted
 from parsing \code{model}. Side note: The returned list contains an element
 \code{mappping_matrix} that contains the pseudoitems. This information is
-instructive, and it might be used as an input to the \code{\link[irtrees:dendrify]{irtrees::dendrify()}}
-function of the \link[irtrees:irtrees-package]{irtrees} package.
+instructive, and it might be used as an input to the \code{dendrify()}
+function of the irtrees package.
 }
 \description{
 The ItemResponseTree model syntax describes the statistical model. The

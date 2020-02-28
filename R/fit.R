@@ -1,4 +1,4 @@
-#' Fit an IR-Tree model.
+#' Fit an `irtree_model.
 #'
 #' This function takes a `data` frame and an `object` of class [irtree_model]
 #' and runs the model in either mirt, Mplus, or TAM.
@@ -38,12 +38,16 @@
 #' @export
 fit.irtree_model <- function(object = NULL,
                              data = NULL,
-                             engine = c("mplus", "mirt", "tam"),
+                             engine = c("mirt", "mplus", "tam"),
                              ...,
                              link = c("logit", "probit"),
                              verbose = interactive(),
                              control = NULL,
                              improper_okay = FALSE) {
+
+    switch (engine,
+            mplus = has_namespace("MplusAutomation"),
+            tam   = has_namespace("TAM"))
 
     engine <- match.arg(engine)
     if (length(list(...)) > 0) {

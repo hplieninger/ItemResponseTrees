@@ -1,4 +1,4 @@
-#' Fit an IR-Tree Model using mirt.
+#' Fit an `irtree_model` using mirt
 #'
 #' This function takes a `data` frame and a model `object` and runs the model in mirt.
 #'
@@ -6,11 +6,7 @@
 #'   implemented in mirt.
 #' @inheritParams fit.irtree_model
 #' @inheritParams mirt::mirt
-#' @return List with two elements. `mirt` contains the mirt output, namely an
-#'   object of class [mirt::SingleGroupClass-class]. `spec` contains the input
-#'   specifications.
 #' @example inst/examples/example-fit.R
-#' @export
 irtree_fit_mirt <- function(object = NULL,
                             data = NULL,
                             link = "logit",

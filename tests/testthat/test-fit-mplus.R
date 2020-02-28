@@ -3,8 +3,8 @@
 m1 <- "
 # Comment
  IRT:
-b BY X1@1, X2@1, X3@1, X4@1, X10@1;
-a BY X1@1, X2@1, X3@1, X4@1, X10@1;
+b BY X1@1, X2@1, X3@1, X4@1, X10@1, X11@1, X101@1;
+a BY X1@1, X2@1, X3@1, X4@1, X10@1, X11@1, X101@1;
 
  Equations:
 1 = (1-a)
@@ -150,9 +150,10 @@ skip_if_not(MplusAutomation::mplusAvailable() == 0)
 test_that("irtree_fit_mplus() works for Tree", {
 
     expect_s3_class(res1$mplus, "mplus.model")
+    n_ipar_1 <- with(model1, J*4 + S + S*(S+1)/2 + S*(S-1)/2)
     checkmate::expect_data_frame(res1$mplus$parameters$unstandardized,
                                  any.missing = FALSE,
-                                 nrows = 26, ncols = 6)
+                                 nrows = n_ipar_1, ncols = 6)
 })
 
 test_that("irtree_fit_mplus() works for GRM", {
@@ -199,7 +200,9 @@ test_that("tidy.irtree_fit()", {
     modeltests::check_tidy_output(subset(td2, select = -effect))
     modeltests::check_tidy_output(subset(td3, select = -effect))
 
-    modeltests::check_dims(td1, 28, 5)  # optional but a good idea
+    n_ipar_1 <- with(model1, J*4 + S + S*(S+1)/2 + S*(S-1)/2 + 2)
+
+    modeltests::check_dims(td1, n_ipar_1, 5)  # optional but a good idea
     modeltests::check_dims(td2, 17, 5)  # optional but a good idea
     modeltests::check_dims(td3, 17, 5)  # optional but a good idea
 

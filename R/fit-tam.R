@@ -1,15 +1,11 @@
-#' Fit an IR-Tree Model using TAM.
+#' Fit an `irtree_model` using TAM
 #'
 #' This function takes a `data` frame and a model `object` and runs the model in TAM.
 #'
 #' @param link String specifying the link function. Only `logit` is
 #'   implemented in TAM.
 #' @inheritParams fit.irtree_model
-#' @return List with two elements. `tam` contains the TAM output, namely
-#'   an object of class [`tam.mml`][TAM::tam.mml] . `spec`
-#'   contains the input specifications.
 #' @example inst/examples/example-fit.R
-#' @export
 irtree_fit_tam <- function(object = NULL,
                            data = NULL,
                            link = "logit",

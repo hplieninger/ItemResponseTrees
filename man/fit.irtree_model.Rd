@@ -2,12 +2,12 @@
 % Please edit documentation in R/fit.R
 \name{fit.irtree_model}
 \alias{fit.irtree_model}
-\title{Fit an IR-Tree model.}
+\title{Fit an `irtree_model.}
 \usage{
 \method{fit}{irtree_model}(
   object = NULL,
   data = NULL,
-  engine = c("mplus", "mirt", "tam"),
+  engine = c("mirt", "mplus", "tam"),
   ...,
   link = c("logit", "probit"),
   verbose = interactive(),
