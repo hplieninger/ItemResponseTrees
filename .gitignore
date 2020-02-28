@@ -41,3 +41,4 @@ inst/doc
 /doc/*
 !/doc/ItemResponseTrees-Getting-started-with-IR-trees.html
 Meta
+.notes.md

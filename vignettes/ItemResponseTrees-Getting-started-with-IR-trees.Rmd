@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-[![Build Status](https://travis-ci.org/hplieninger/ItemResponseTrees.svg?branch=master)](https://travis-ci.org/hplieninger/ItemResponseTrees)
+[![R build status](https://github.com/hplieninger/ItemResponseTrees/workflows/R-CMD-check/badge.svg)](https://github.com/hplieninger/ItemResponseTrees/actions)
 [![codecov](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/gh/hplieninger/ItemResponseTrees)
 
 ## ItemResponseTrees

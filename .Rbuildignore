@@ -8,3 +8,6 @@ misc/
 vignettes/.*_cache/
 ^doc$
 ^Meta$
+^.notes.md$
+^\.github/workflows/R-CMD-check\.yaml$
+^\.github/workflows/pr-commands\.yaml$

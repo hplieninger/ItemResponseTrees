@@ -1,8 +1,8 @@
 Getting started with IR-trees
 ================
 
-[![Build
-Status](https://travis-ci.org/hplieninger/ItemResponseTrees.svg?branch=master)](https://travis-ci.org/hplieninger/ItemResponseTrees)
+[![R build
+status](https://github.com/hplieninger/ItemResponseTrees/workflows/R-CMD-check/badge.svg)](https://github.com/hplieninger/ItemResponseTrees/actions)
 [![codecov](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/gh/hplieninger/ItemResponseTrees)
 
 ## ItemResponseTrees
@@ -136,8 +136,8 @@ model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 
 # Using 8 quadrature points to increase speed; see ?mirt::mirt for details
-fit1 <- fit(model1, data = df1, engine = "mirt", quadpts = 8)
-fit2 <- fit(model2, data = df1, engine = "mirt", quadpts = 8)
+fit1 <- fit(model1, data = df1, engine = "mirt", control = control_mirt(quadpts = 8))
+fit2 <- fit(model2, data = df1, engine = "mirt", control = control_mirt(quadpts = 8))
 ```
 
 ## Results
