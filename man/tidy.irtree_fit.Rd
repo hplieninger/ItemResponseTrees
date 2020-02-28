@@ -4,12 +4,16 @@
 \alias{tidy.irtree_fit}
 \title{Tidy an irtree_fit object.}
 \usage{
-\method{tidy}{irtree_fit}(x = NULL, ...)
+\method{tidy}{irtree_fit}(x = NULL, par_type = NULL, ...)
 }
 \arguments{
 \item{x}{object of class irtree_fit as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
 
-\item{...}{Additional arguments.}
+\item{par_type}{Only used if the fit engine was mirt. Item parameters (or
+thresholds) can be either of type \code{easiness} (the mirt default) or
+\code{difficulty} (as in Mplus and TAM).}
+
+\item{...}{Not currently used.}
 }
 \value{
 A \link[tibble:tibble-package]{tibble} with one row for each model
@@ -41,7 +45,7 @@ fit1 <- fit(model1, data = Science, engine = "mirt",
             control = control_mirt(quadpts = 15))
 
 glance(fit1)
-tidy(fit1)
+tidy(fit1, par_type = "difficulty")
 augment(fit1)
 }
 \seealso{

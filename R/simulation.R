@@ -137,7 +137,7 @@ irtree_sim1 <- function(R = 1,
         fits[[mii]]$fit <- do.call("fit", do_call_args)
 
         fits[[mii]]$glanced <- glance(fits[[mii]]$fit)
-        fits[[mii]]$tidied <- tidy(fits[[mii]]$fit, difficulty = difficulty)
+        fits[[mii]]$tidied <- tidy(fits[[mii]]$fit, par_type = par_type)
 
         tmp1 <- augment(fits[[mii]]$fit)
         fits[[mii]]$augmented <- spec$personpar %>%
@@ -273,7 +273,7 @@ irtree_sim <- function(R = 1,
                                                        reduced = TRUE, FALSE),
                                 control = control,
                                 improper_okay = improper_okay,
-                                difficulty = difficulty
+                                par_type = par_type
                     )
                 })
 
@@ -306,7 +306,7 @@ irtree_sim <- function(R = 1,
                             dir = dir,
                             control = control,
                             improper_okay = improper_okay,
-                            difficulty = difficulty)
+                            par_type = par_type)
             })
 
             p$tick()

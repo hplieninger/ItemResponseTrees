@@ -187,7 +187,7 @@ these. The latent correlations are shown below as well, and these show
 the typical pattern of a negative correlation between *e* and *m*.
 
 ``` r
-tidy(fit1, difficulty = TRUE)
+tidy(fit1, par_type = "difficulty")
 #> # A tibble: 60 x 4
 #>    effect term     estimate std.error
 #>    <chr>  <chr>       <dbl>     <dbl>
@@ -202,7 +202,7 @@ tidy(fit1, difficulty = TRUE)
 #>  9 fixed  e_E22.a2    1        NA    
 #> 10 fixed  e_E27.a2    1        NA    
 #> # ... with 50 more rows
-tail(tidy(fit1, difficulty = TRUE), 3)
+tail(tidy(fit1, par_type = "difficulty"), 3)
 #> # A tibble: 3 x 4
 #>   effect   term    estimate std.error
 #>   <chr>    <chr>      <dbl>     <dbl>

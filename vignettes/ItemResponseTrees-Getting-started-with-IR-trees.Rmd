@@ -162,8 +162,8 @@ The loadings pertaining to parameter *e* and *m* were fixed to one and thus no s
 The latent correlations are shown below as well, and these show the typical pattern of a negative correlation between *e* and *m*.
 
 ```{r}
-tidy(fit1, difficulty = TRUE)
-tail(tidy(fit1, difficulty = TRUE), 3)
+tidy(fit1, par_type = "difficulty")
+tail(tidy(fit1, par_type = "difficulty"), 3)
 ```
 
 ### Factor scores

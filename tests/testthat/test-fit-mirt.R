@@ -3,8 +3,8 @@
 m1 <- "
 # Comment
 IRT:
-a BY X1@1, X2@1, X3@1, X4@1, X5@1;
-b BY X1@1, X2@1, X3@1, X4@1, X5@1;
+a BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
+b BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
 
 Equations:
  1 = a*b
@@ -51,7 +51,7 @@ model3 <- irtree_model(m3)
 
 ##### Data #####
 
-X <- irtree_gen_data(object = model1, N = 200,
+X <- irtree_gen_data(object = model1, N = 100,
                      sigma = diag(model1$S),
                      itempar = list(beta = matrix(sort(rnorm(model1$J*model1$P)),
                                                   model1$J, model1$P),
@@ -122,17 +122,22 @@ data(column_glossary, package = "modeltests")
 
 test_that("tidy.irtree_fit()", {
 
-    td1 <- tidy(res1)
-    td2 <- tidy(res2, difficulty = TRUE)
-    td3 <- tidy(res3, difficulty = FALSE)
+    expect_error(tidy(res1))
+    td1 <- tidy(res1, par_type = "easiness")
+    td2 <- tidy(res2, par_type = "difficulty")
+    td3 <- tidy(res3, par_type = "easiness")
 
     modeltests::check_tidy_output(subset(td1, select = -effect))
     modeltests::check_tidy_output(subset(td2, select = -effect))
     modeltests::check_tidy_output(subset(td3, select = -effect))
 
-    modeltests::check_dims(td1, 26, 4)  # optional but a good idea
-    modeltests::check_dims(td2, 18, 4)  # optional but a good idea
-    modeltests::check_dims(td3, 26, 4)  # optional but a good idea
+    n_ipar_1 <- with(model1, J*4 + S + S*(S+1)/2 + S*(S-1)/2)
+    n_ipar_2 <- with(model2, J + J*3 + S + S)
+    n_ipar_3 <- with(model3, J*3*2 + S + S)
+
+    modeltests::check_dims(td1, n_ipar_1, 4)  # optional but a good idea
+    modeltests::check_dims(td2, n_ipar_2, 4)  # optional but a good idea
+    modeltests::check_dims(td3, n_ipar_3, 4)  # optional but a good idea
 
     ### Own tests ###
 

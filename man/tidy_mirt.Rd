@@ -4,15 +4,14 @@
 \alias{tidy_mirt}
 \title{Tidy an irtree_fit object estimated using mirt.}
 \usage{
-tidy_mirt(x = NULL, difficulty = NA)
+tidy_mirt(x = NULL, par_type = NULL)
 }
 \arguments{
 \item{x}{object of class irtree_fit as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
 
-\item{difficulty}{Logical. The \link[mirt:mirt-package]{mirt} package uses easiness
-parameters. These are returned with a message if \code{difficulty = NA} (the
-default), without a message if \code{difficulty = FALSE}, and they are
-transformed to difficulty parameters if \code{difficulty = TRUE}.}
+\item{par_type}{Only used if the fit engine was mirt. Item parameters (or
+thresholds) can be either of type \code{easiness} (the mirt default) or
+\code{difficulty} (as in Mplus and TAM).}
 }
 \value{
 A \link[tibble:tibble-package]{tibble} with one row for each model

@@ -106,7 +106,10 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #' Tidy summarizes information about the parameter estimates of the IR-tree model.
 #'
 #' @param x object of class irtree_fit as returned from  [`fit()`][fit.irtree_model].
-#' @param ... Additional arguments.
+#' @param par_type Only used if the fit engine was mirt. Item parameters (or
+#'   thresholds) can be either of type `easiness` (the mirt default) or
+#'   `difficulty` (as in Mplus and TAM).
+#' @param ... Not currently used.
 #' @return A [tibble][tibble::tibble-package] with one row for each model
 #'   parameter and the following columns:
 #' \describe{
@@ -119,18 +122,19 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #' @example inst/examples/example-fit.R
 #' @seealso [generics::tidy()]
 #' @export
-tidy.irtree_fit <- function(x = NULL, ...) {
-    # ellipsis::check_dots_used()
+tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
     engine <- match.arg(x$spec$engine, c("mplus", "mirt", "tam"))
 
     if (is.null(x[[engine]])) {
         return(tibble::tibble())
     } else if (engine == "mplus") {
+        match.arg(par_type, choices = "difficulty")
         out <- tidy_mplus(x)
     } else if (engine == "mirt") {
-        out <- tidy_mirt(x, ...)
+        out <- tidy_mirt(x, par_type = par_type, ...)
     } else if (engine == "tam") {
-        out <- .tidy_tam(x)
+        match.arg(par_type, choices = "difficulty")
+        out <- tidy_tam(x)
     }
     return(out)
 }
@@ -139,16 +143,12 @@ tidy.irtree_fit <- function(x = NULL, ...) {
 #'
 #' Tidy summarizes information about the parameter estimates of the IR-tree model.
 #'
-#' @param difficulty Logical. The [mirt][mirt::mirt-package] package uses easiness
-#'   parameters. These are returned with a message if `difficulty = NA` (the
-#'   default), without a message if `difficulty = FALSE`, and they are
-#'   transformed to difficulty parameters if `difficulty = TRUE`.
 #' @inheritParams tidy.irtree_fit
 #' @inherit tidy.irtree_fit return description
 #' @seealso [`tidy()`][tidy.irtree_fit()], [generics::tidy()]
-tidy_mirt <- function(x = NULL, difficulty = NA) {
+tidy_mirt <- function(x = NULL, par_type = NULL) {
 
-    checkmate::qassert(difficulty, "b1")
+    checkmate::assert_choice(par_type, c("difficulty", "easiness"))
 
     f1 <- function(x) {
         tidyr::separate(x, .data$term, into = c("i", "p"), sep = "[.]") %>%
@@ -170,15 +170,7 @@ tidy_mirt <- function(x = NULL, difficulty = NA) {
         dplyr::mutate(group = grepl("GroupPars", .data$term),
                       term = sub("GroupPars[.]", "", .data$term))
 
-    if (is.na(difficulty)) {
-        xname <- deparse(substitute(x, parent.frame()))
-        cli::cli_alert_warning(
-            "The {.pkg mirt} package returns {.strong easiness} parameters.")
-        cli::cli_text(
-            "Use {.code tidy({xname}, difficulty = TRUE)} to get difficulty ",
-            "parameters, or {.code tidy({xname}, difficulty = FALSE)} to ",
-            "silence this message.")
-    } else if (difficulty) {
+    if (par_type == "difficulty") {
         est1 <- dplyr::mutate(
             est1, estimate = unlist(
                 purrr::map_if(.data$estimate,
@@ -212,13 +204,13 @@ tidy_mirt <- function(x = NULL, difficulty = NA) {
 
 tidy_mplus <- function(x = NULL) {
 
-    x1 <- MplusAutomation:::coef.mplus.model(x$mplus, type = "un")
+    x1 <- coef(x$mplus, type = "un")
     tmp1 <- sub(".standardized", "",
                 grep("[.]standardized", names(x$mplus$parameters), value = T))
 
     f1 <-
         purrr::possibly(
-            ~ MplusAutomation:::coef.mplus.model(.x, type = tmp1, params = "undirected") %>%
+            ~ coef(.x, type = tmp1, params = "undirected") %>%
                 dplyr::mutate(Label = paste0("COR_", trimws(.data$Label))),
             otherwise = dplyr::slice(x1, 0))
 
@@ -238,7 +230,7 @@ tidy_mplus <- function(x = NULL) {
     return(out)
 }
 
-.tidy_tam <- function(x = NULL) {
+tidy_tam <- function(x = NULL) {
     xsi <- x$tam$xsi
     names(xsi) <- c("estimate", "std.error")
     out1 <- data.frame(
