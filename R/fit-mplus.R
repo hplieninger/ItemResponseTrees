@@ -419,11 +419,13 @@ extract_mplus_converged <- function(outfiletext) {
 #' @inheritParams MplusAutomation::runModels
 #' @return A list with one element for every argument of `control_mplus()`.
 #' @examples
+#' \donttest{
 #' control_mplus(file = tempfile("irtree_", tmpdir = "."),
 #'               quadpts = "GAUSS(10)",
 #'               analysis_list = list(COVERAGE = "0",
 #'                                    MITERATIONS = "500",
 #'                                    MCONVERGENCE = ".001"))
+#' }
 #' @export
 control_mplus <- function(file = tempfile("irtree_"),
                           overwrite = FALSE,
