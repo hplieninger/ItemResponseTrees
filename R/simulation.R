@@ -240,6 +240,7 @@ irtree_sim <- function(R = 1,
                 call. = FALSE)
     }
 
+    has_namespace(c("future", "listenv", "progress"))
     oplan <- future::plan()
     on.exit(future::plan(oplan), add = TRUE)
 

@@ -101,7 +101,7 @@ summary.irtree_fit <- function(object, ...) {
     } else if (object$spec$engine == "mirt") {
         mirt::summary(object$mirt, ...)
     } else if (object$spec$engine == "tam") {
-        TAM:::summary.tam.mml(object$tam, ...)
+        summary(object$tam, ...)
     }
 }
 
@@ -109,7 +109,7 @@ summary.irtree_fit <- function(object, ...) {
 coef.irtree_fit <- function(object, ...) {
     # ellipsis::check_dots_used()
     if (object$spec$engine == "mplus") {
-        MplusAutomation:::coef.mplus.model(object$mplus, ...)
+        coef(object$mplus, ...)
     } else if (object$spec$engine == "mirt") {
         mirt::coef(object$mirt, ...)
     } else {
@@ -122,8 +122,8 @@ print.irtree_fit <- function(x, ...) {
     if (x$spec$engine == "mplus") {
         print(x$mplus, ...)
     } else if (x$spec$engine == "mirt") {
-        mirt:::print(x$mirt)
+        print(x$mirt)
     } else if (x$spec$engine == "tam") {
-        TAM:::print.tam.mml(x$tam)
+        print(x$tam)
     }
 }

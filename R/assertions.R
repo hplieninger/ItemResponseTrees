@@ -84,3 +84,19 @@ check_nchar <- function(x, max.chars = 8, any.missing = FALSE) {
     }
 }
 assert_nchar <- checkmate::makeAssertionFunction(check_nchar)
+
+has_namespace <- function(x) {
+    f1 <- function(x) {
+        try(
+            suppressPackageStartupMessages(
+                requireNamespace(as.character(x), quietly = TRUE)), silent = TRUE)
+    }
+    res <- vapply(x, f1, TRUE)
+    if (all(res)) {
+        return(invisible(TRUE))
+    } else {
+        stop("Some packages are missing, please run: ",
+             glue::glue("install.packages(c({paste0('\"', x[!res], '\"', collapse = ', ')}))")
+             , call. = FALSE)
+    }
+}
