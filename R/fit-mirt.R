@@ -94,7 +94,7 @@ write_mirt_input <- function(object = NULL,
     checkmate::assert_class(object, "irtree_model")
 
     checkmate::assert_data_frame(data, types = "integerish", any.missing = TRUE,
-                                 all.missing = FALSE, ncols = (object$P)*object$J)
+                                 all.missing = FALSE, ncols = nrow(object$lambda))
 
     lambda <- object$lambda
 

@@ -17,9 +17,7 @@ Tree
 
 m2 <- "
 IRT:
-# a BY Comfort, Work, Future, Benefit;
 a BY Work@1, Comfort@1, Future@1, Benefitvar;
-# a BY Comfort, Work, Benefitvar, Future;
 
 Class:
 GRM
@@ -45,9 +43,19 @@ a = b
 a = c
 "
 
+m4 <- "
+IRT:
+a BY Work@1, Comfort@1;
+b BY Future@1, Benefitvar;
+
+Class:
+GRM
+"
+
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 model3 <- irtree_model(m3)
+model4 <- irtree_model(m4)
 
 ##### Data #####
 
@@ -60,6 +68,10 @@ X <- irtree_gen_data(object = model1, N = 100,
 for (ii in seq_len(ncol(X$data))) {
     X$data[ii, ii] <- NA
 }
+# Test mix of integers and numerics and also variable label
+X$data$X1 <- as.numeric(X$data$X1)
+X$data$X2 <- as.integer(X$data$X2)
+attr(X$data$X1, "label") <- "random var label"
 
 data(Science, package = "mirt")
 ScienceNew <- Science
@@ -77,6 +89,11 @@ res1 <- fit(data = X$data,
 res2 <- fit(data = ScienceNew,
             engine = "mirt",
             object = model2,
+            control = control_mirt(SE = FALSE, TOL = .01),
+            verbose = FALSE)
+res4 <- fit(data = ScienceNew,
+            engine = "mirt",
+            object = model4,
             control = control_mirt(SE = FALSE, TOL = .01),
             verbose = FALSE)
 
@@ -97,6 +114,7 @@ test_that("irtree_model() works", {
     expect_s3_class(model1, "irtree_model")
     expect_s3_class(model2, "irtree_model")
     expect_s3_class(model3, "irtree_model")
+    expect_s3_class(model4, "irtree_model")
 })
 
 test_that("irtree_fit_mirt() works", {
@@ -104,6 +122,7 @@ test_that("irtree_fit_mirt() works", {
     expect_s4_class(res2$mirt, "SingleGroupClass")
     expect_equal(mirt::coef(res2$mirt), mirt::coef(res2x))
     expect_s4_class(res3$mirt, "SingleGroupClass")
+    expect_s4_class(res4$mirt, "SingleGroupClass")
 })
 
 test_that("Methods work for output of irtree_fit_mirt()", {
@@ -126,18 +145,22 @@ test_that("tidy.irtree_fit()", {
     td1 <- tidy(res1, par_type = "easiness")
     td2 <- tidy(res2, par_type = "difficulty")
     td3 <- tidy(res3, par_type = "easiness")
+    td4 <- tidy(res4, par_type = "difficulty")
 
     modeltests::check_tidy_output(subset(td1, select = -effect))
     modeltests::check_tidy_output(subset(td2, select = -effect))
     modeltests::check_tidy_output(subset(td3, select = -effect))
+    modeltests::check_tidy_output(subset(td4, select = -effect))
 
     n_ipar_1 <- with(model1, J*4 + S + S*(S+1)/2 + S*(S-1)/2)
     n_ipar_2 <- with(model2, J + J*3 + S + S)
     n_ipar_3 <- with(model3, J*3*2 + S + S)
+    n_ipar_4 <- with(model4, J*3 + J + S + S*(S+1)/2 + S*(S-1)/2)
 
     modeltests::check_dims(td1, n_ipar_1, 4)  # optional but a good idea
     modeltests::check_dims(td2, n_ipar_2, 4)  # optional but a good idea
     modeltests::check_dims(td3, n_ipar_3, 4)  # optional but a good idea
+    modeltests::check_dims(td4, n_ipar_4, 4)  # optional but a good idea
 
     ### Own tests ###
 
@@ -152,6 +175,7 @@ test_that("tidy.irtree_fit()", {
     checkmate::expect_numeric(td1$std.error, lower = 0, finite = TRUE)
     checkmate::expect_numeric(td2$std.error, lower = 0, finite = TRUE)
     checkmate::expect_numeric(td3$std.error, lower = 0, finite = TRUE)
+    checkmate::expect_numeric(td4$std.error, lower = 0, finite = TRUE)
 
 })
 
@@ -160,14 +184,16 @@ test_that("glance.irtree_fit()", {
     gl1 <- glance(res1)
     gl2 <- glance(res2)
     gl3 <- glance(res3)
+    gl4 <- glance(res4)
 
-    modeltests::check_glance_outputs(gl1, gl2, gl3, strict = TRUE)
+    modeltests::check_glance_outputs(gl1, gl2, gl3, gl4, strict = TRUE)
 
     ### Own tests ###
 
     expect_equal(pull(gl1, nobs), nrow(X$data))
     expect_equal(pull(gl2, nobs), nrow(ScienceNew))
     expect_equal(pull(gl3, nobs), nrow(Science))
+    expect_equal(pull(gl4, nobs), nrow(ScienceNew))
 
 })
 
@@ -183,15 +209,19 @@ test_that("implementation of augment.irtree_fit()", {
     ag1 <- augment(res1)
     ag2 <- augment(res2)
     ag3 <- augment(res3)
+    ag4 <- augment(res4)
 
     modeltests::check_dims(ag1, nrow(X$data), ncol(X$data) + model1$S*2)
     modeltests::check_dims(ag2, nrow(ScienceNew), ncol(ScienceNew) + model2$S*2)
     modeltests::check_dims(ag3, nrow(Science), ncol(Science) + model3$S*2)
+    modeltests::check_dims(ag4, nrow(ScienceNew), ncol(ScienceNew) + model4$S*2)
 
     checkmate::expect_numeric(ag1$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
     checkmate::expect_numeric(ag1$.se.fitF2, lower = 0, finite = TRUE, all.missing = FALSE)
     checkmate::expect_numeric(ag2$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
     checkmate::expect_numeric(ag3$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag4$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag4$.se.fitF2, lower = 0, finite = TRUE, all.missing = FALSE)
 
     expect_gt(cor(ag3$.fittedF1, mirt::fscores(res3x)), .99)
 
