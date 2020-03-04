@@ -1,20 +1,22 @@
-skip_if_not_installed("sirt")
-
 ##### Data #####
 
-data("data.big5.qgraph", package = "sirt")
+skip_on_cran()
 
-df0 <- as_tibble(data.big5.qgraph)
-df1 <- select(df0, starts_with("E")[1:10], starts_with("C")[1:10])
+data("jackson")
+
+df1 <- select(jackson, starts_with("E")[1:10], starts_with("C")[1:10]) %>%
+    sample_n(300)
 
 ##### Model #####
 
 m1 <- "
 IRT:
-a1 BY E2@1, E7@1, E12@1, E17@1, E22@1, E27@1, E32@1, E37@1, E42@1, E47@1;
-a2 BY C5@1, C10@1, C15@1, C20@1, C25@1, C30@1, C35@1, C40@1, C45@1, C50@1;
-e  BY E2@1, E7@1, E12@1, E17@1, E22@1, E27@1, E32@1, E37@1, E42@1, E47@1, C5@1, C10@1, C15@1, C20@1, C25@1, C30@1, C35@1, C40@1, C45@1, C50@1;
-m  BY E2@1, E7@1, E12@1, E17@1, E22@1, E27@1, E32@1, E37@1, E42@1, E47@1, C5@1, C10@1, C15@1, C20@1, C25@1, C30@1, C35@1, C40@1, C45@1, C50@1;
+a1 BY E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1, E10@1;
+a2 BY C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1, C8@1, C9@1, C10@1;
+e  BY E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1, E10@1, C1@1, C2@1, C3@1, C4@1,
+      C5@1, C6@1, C7@1, C8@1, C9@1, C10@1;
+m  BY E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1, E10@1, C1@1, C2@1, C3@1, C4@1,
+      C5@1, C6@1, C7@1, C8@1, C9@1, C10@1;
 
 Equations:
 1 = (1-m)*(1-t)*e
@@ -33,27 +35,23 @@ e = m
 
 m2 <- "
 IRT:
-a1 BY E2@1, E7@1, E12@1, E17@1, E22@1, E27@1, E32@1, E37@1, E42@1, E47@1;
-a2 BY C5@1, C10@1, C15@1, C20@1, C25@1, C30@1, C35@1, C40@1, C45@1, C50@1;
-# b1 BY E2@1, E7@1, E12@1, E17@1, E22@1, E27@1, E32@1, E37@1, E42@1, E47@1;
-# b2 BY C5@1, C10@1, C15@1, C20@1, C25@1, C30@1, C35@1, C40@1, C45@1, C50@1;
+a1 BY E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1, E10@1;
+a2 BY C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1, C8@1, C9@1, C10@1;
 
 Weights:
 t = 0:4
-# e = c(1, 0, 0, 0, 1)
 
 Class:
 PCM
 
 Constraints:
 t = a1 | a2
-# e = b1 | b2
 "
 
 m3 <- "
 IRT:
-a1 BY E2@1, E7@1, E12@1, E17@1, E22@1, E27@1, E32@1, E37@1, E42@1, E47@1;
-a2 BY C5@1, C10@1, C15@1, C20@1, C25@1, C30@1, C35@1, C40@1, C45@1, C50@1;
+a1 BY E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1, E10@1;
+a2 BY C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1, C8@1, C9@1, C10@1;
 
 Class:
 GRM
@@ -113,8 +111,18 @@ test_that("Model constraints work", {
     ag1 <- augment(res11)
     ag2 <- augment(res12)
 
-    expect_true(.99 < min(diag(cor(select(ag1, matches(".fitted.")),
-                                   select(ag2, matches(".fitted."))))))
+    expect_gt(min(diag(cor(select(ag1, matches(".fitted.")),
+                           select(ag2, matches(".fitted."))))), .95)
+
+    gl11 <- glance(res11)
+    gl12 <- glance(res12)
+    gl21 <- glance(res21)
+    gl31 <- glance(res31)
+
+    expect_equal(gl11$n.factors, model1$S)
+    expect_equal(gl12$n.factors, model1$S)
+    expect_equal(gl21$n.factors, model2$S)
+    expect_equal(gl31$n.factors, model3$S)
 
     skip_if_not(MplusAutomation::mplusAvailable() == 0)
 
@@ -147,7 +155,12 @@ test_that("Model constraints work", {
 
     ag3 <- augment(res13)
 
-    expect_true(.99 < min(diag(cor(select(ag1, matches(".fitted.")),
-                                   select(ag3, matches(".fitted."))))))
-})
+    expect_gt(min(diag(cor(select(ag1, matches(".fitted.")),
+                           select(ag3, matches(".fitted."))))), .95)
 
+    gl13 <- glance(res13)
+    gl32 <- glance(res32)
+
+    expect_equal(gl13$n.factors, model1$S)
+    expect_equal(gl32$n.factors, model3$S)
+})
