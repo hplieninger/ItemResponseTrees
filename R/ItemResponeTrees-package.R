@@ -11,7 +11,7 @@
 #' @aliases ItemResponseTrees
 #' @author Hansjoerg Plieninger
 #'
-#' @importFrom stats coef setNames aggregate as.formula na.omit rmultinom cov2cor reshape var
+#' @import stats
 #' @importFrom utils capture.output packageVersion
 #' @importFrom methods formalArgs
 #' @importFrom rlang .data

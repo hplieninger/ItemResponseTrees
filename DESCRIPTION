@@ -44,8 +44,7 @@ Suggests:
     sirt,
     spelling,
     TAM,
-    testthat (>= 2.1.0),
-    truncnorm
+    testthat (>= 2.1.0)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

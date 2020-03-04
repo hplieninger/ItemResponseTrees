@@ -6,22 +6,24 @@ library("dplyr")
 
 gen_itempar_boeck <- function(J = 10, loading = 1) {
 
+    # TODO: remove truncnorm
+
     # mrs
     m <- qnorm(.7)
     ss <- sqrt(.2)
-    i1 <- truncnorm::rtruncnorm(J, mean = m, sd = ss,
-                                a = m - 2 * ss, b = m + 2 * ss)
+    i1 <- rtruncatednorm(J, mean = m, sd = ss,
+                         ll = m - 2 * ss, ul = m + 2 * ss)
     # ers
     m <- qnorm(.7)
     ss <- sqrt(.2)
-    i2 <- truncnorm::rtruncnorm(J, mean = m, sd = ss,
-                                a = m - 2 * ss, b = m + 2 * ss)
+    i2 <- rtruncatednorm(J, mean = m, sd = ss,
+                         ll = m - 2 * ss, ul = m + 2 * ss)
 
     # trt
     m <- qnorm(.5)
     ss <- sqrt(.4)
-    i3 <- truncnorm::rtruncnorm(J, mean = m, sd = ss,
-                                a = m - 2 * ss, b = m + 2 * ss)
+    i3 <- rtruncatednorm(J, mean = m, sd = ss,
+                         ll = m - 2 * ss, ul = m + 2 * ss)
 
     out <- list()
     out$beta <- cbind(i1, i2, i3)

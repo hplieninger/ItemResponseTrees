@@ -7,3 +7,12 @@ test_that("fit functions have same arguments", {
     expect_equal(formalArgs(irtree_fit_mplus),
                  formalArgs(irtree_fit_tam))
 })
+
+test_that("rtruncatednorm works as expected", {
+    n <- sample(100, 1)
+    m <- rnorm(1, sd = 5)
+    ll <- m - runif(1, max = 5)
+    ul <- m + runif(1, max = 5)
+    x <- rtruncatednorm(n, m, 1, ll, ul)
+    checkmate::test_numeric(x, lower = ll, upper = ul, any.missing = FALSE, len = n)
+})
