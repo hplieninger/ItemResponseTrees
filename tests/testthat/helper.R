@@ -6,8 +6,6 @@ library("dplyr")
 
 gen_itempar_boeck <- function(J = 10, loading = 1) {
 
-    # TODO: remove truncnorm
-
     # mrs
     m <- qnorm(.7)
     ss <- sqrt(.2)
@@ -61,4 +59,21 @@ gen_sigma_boeck <- function(sigma = NULL, df = 50, vars = NULL) {
 
     return(sig2)
 
+}
+
+remove_filenames <- function(object = NULL) {
+    oclass <- class(object$mplus)
+    object$mplus <- lapply(object$mplus, `attr<-`, "filename", NULL)
+    object["mplus"] <- lapply(object["mplus"], `attr<-`, "filename", NULL)
+    object$mplus$input$title <- NULL
+    object$mplus$input$savedata <- NULL
+    object$mplus$input$data$file <- NULL
+    object$mplus$summaries$Title <- NULL
+    object$mplus$summaries$Filename <- NULL
+    object$mplus$parameters <- lapply(object$mplus$parameters, `attr<-`, "filename", NULL)
+    object$mplus$savedata_info$fileName <- NULL
+    object$spec$control$file <- NULL
+
+    class(object$mplus) <- oclass
+    return(object)
 }

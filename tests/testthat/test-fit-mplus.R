@@ -62,6 +62,8 @@ model3 <- irtree_model(m3)
 
 ##### Data #####
 
+set.seed(3241)
+
 X <- irtree_gen_data(object = model1, N = 100,
                      sigma = diag(model1$S),
                      itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
@@ -143,9 +145,21 @@ test_that("Provide starting values",{
                     quadpts = 7))
 })
 
-##### Tests #####
+if (run) {
+    res1 <- remove_filenames(res1)
+    saveRDS(res1, file = test_path("fit-mplus-res1.rds"), version = 2)
+    res2 <- remove_filenames(res2)
+    saveRDS(res2, file = test_path("fit-mplus-res2.rds"), version = 2)
+    res3 <- remove_filenames(res3)
+    saveRDS(res3, file = test_path("fit-mplus-res3.rds"), version = 2)
+} else {
+    # If Mplus is not available, use stored copies of results instead of res1, res2, res3
+    res1 <- readRDS(test_path("fit-mplus-res1.rds"))
+    res2 <- readRDS(test_path("fit-mplus-res2.rds"))
+    res3 <- readRDS(test_path("fit-mplus-res3.rds"))
+}
 
-skip_if_not(MplusAutomation::mplusAvailable() == 0)
+##### Tests #####
 
 test_that("irtree_fit_mplus() works for Tree", {
 

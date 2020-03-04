@@ -45,11 +45,14 @@ test_that("irtree_gen_data() works if theta is provided", {
     checkmate::qexpect(X$probs$prob, "N[0,1]")
 })
 
-X <- irtree_gen_data(object = model1,
-                     N = N,
-                     sigma = diag(model1$S),
-                     itempar = list(beta = matrix(rnorm(J*model1$P), J, model1$P),
-                                    alpha = matrix(1, J, model1$P)))
+X <- irtree_gen_data(
+    object = model1,
+    N = N,
+    sigma = function(x) diag(model1$S),
+    itempar = function(x) {
+        list(beta = matrix(rnorm(J*model1$P), J, model1$P),
+                   alpha = matrix(1, J, model1$P))
+    })
 
 test_that("irtree_gen_data() works if theta is not provided", {
     checkmate::expect_data_frame(X$data, nrows = N, ncols = J)

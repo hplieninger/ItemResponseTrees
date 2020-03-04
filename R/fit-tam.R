@@ -57,7 +57,7 @@ irtree_fit_tam <- function(object = NULL,
         B <- .make_tam_B(object, array = TRUE)
 
     } else {
-        stop("Class ", object$class, " not implemented in TAM.", call. = FALSE)
+        stop("Class ", object$class, " is not implemented in TAM.", call. = FALSE)
     }
 
     if (TRUE) {

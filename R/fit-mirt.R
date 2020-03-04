@@ -19,7 +19,6 @@ irtree_fit_mirt <- function(object = NULL,
     assert_irtree_data(data = data, object = object, engine = "mirt")
     data <- tibble::as_tibble(data)
 
-    assert_irtree_equations(object)
     assert_irtree_proper(object, improper_okay = improper_okay)
 
     object$j_names <- sort2(object$j_names, names(data))
@@ -36,6 +35,7 @@ irtree_fit_mirt <- function(object = NULL,
     spec$engine <- "mirt"
 
     if (object$class == "tree") {
+        assert_irtree_not_mixture(object)
         pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
     } else if (object$class == "grm") {
         pseudoitems <- data
@@ -227,45 +227,4 @@ control_mirt <- function(rm_mirt_internal = TRUE,
     checkmate::qassert(technical, "l")
 
     return(ctrl)
-}
-
-mirt_constrain_loadings <- function(object = NULL, mirt_values = NULL) {
-    if (!any(grepl("@", object$loading))) {
-        return(mirt_values)
-    }
-    my_values <- object$lambda[, c("item", "theta", "loading")]
-
-    my_values$est <- !grepl("@", my_values$loading)
-    my_values$value <- as.numeric(sub("@|[*]", "", my_values$loading))
-    my_values$name <- factor(my_values$theta, labels = paste0("a", seq_len(object$S)))
-
-    for (ii in seq_len(nrow(my_values))) {
-        vals <- my_values[ii, ]
-        mirt_values <- with(mirt_values,   est[item == vals$item & name == vals$name] <- vals$est)
-        mirt_values <- with(mirt_values, value[item == vals$item & name == vals$name] <- vals$value)
-    }
-    return(mirt_values)
-}
-
-mirt_constrain_var_cov <- function(object = NULL,
-                                   lambda = NULL,
-                                   mirt_values = NULL) {
-    # covariances
-    tmp1 <- expand.grid(seq_len(object$S), seq_len(object$S))
-    cov_names <- apply(tmp1[tmp1$Var1 > tmp1$Var2, ],
-                       1,
-                       function(x) paste0("COV_",
-                                          paste(x, collapse = "")))
-    mirt_values[mirt_values$name %in% cov_names, "est"] <- TRUE
-
-    # variances
-    var_names <- apply(tmp1[tmp1$Var1 == tmp1$Var2, ],
-                       1,
-                       function(x) paste0("COV_",
-                                          paste(x, collapse = "")))
-    var_free <- tapply(lambda$loading, lambda$theta, function(x) any(x == "@1"))
-
-    mirt_values[mirt_values$name %in% var_names[var_free], "est"] <- TRUE
-
-    return(mirt_values)
 }

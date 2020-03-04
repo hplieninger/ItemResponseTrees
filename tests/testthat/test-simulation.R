@@ -52,7 +52,7 @@ res1 <- irtree_sim(gen_model = model1,
                    engine = "mirt",
                    save_rdata = FALSE,
                    R = seq_len(R),
-                   in_memory = "reduced",
+                   in_memory = "everything",
                    na_okay = FALSE,
                    control = control_mirt(SE = FALSE, technical = list(NCYCLES = 200)))
 
@@ -109,6 +109,23 @@ test_that("irtree_sim() works", {
         subset(
             res11$fits$m1$tidied, select = -effect))
 
+})
+
+test_that("irtree_sim() works when writing to disc", {
+    expect_warning(
+        irtree_sim(gen_model = model1,
+                   N = 250,
+                   sigma = function(x) diag(1),
+                   itempar = function(x) list(beta = matrix(sort(rnorm(model1$J*model1$P)), model1$J, model1$P),
+                                              alpha = matrix(1, model1$J, model1$P)),
+                   link = "logit",
+                   engine = "mirt",
+                   save_rdata = FALSE,
+                   R = 1,
+                   in_memory = "nothing",
+                   na_okay = FALSE,
+                   control = control_mirt(SE = FALSE, technical = list(NCYCLES = 200)))
+    )
 })
 
 test_that("irtree_sim() works with mplus", {

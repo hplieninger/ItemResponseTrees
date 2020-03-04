@@ -39,9 +39,25 @@ a = c(0, 1, 2, 3, 4)
 b = c(1, 0, 0, 0, 1)
 "
 
+m4 <- "
+IRT:
+a1 BY x1@1, x2@1;
+a2 BY x3@1, x4@1;
+
+Class:
+PCM
+
+Weights:
+a = c(0, 1, 2, 3, 4)
+
+Constraints:
+a = a1 | a2
+"
+
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 model3 <- irtree_model(m3)
+model4 <- irtree_model(m4)
 
 ##### Data #####
 
@@ -62,8 +78,10 @@ names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 data3 <- irtree_gen_data(
     object = model3, N = 100,
     link = "logit",
-    sigma = diag(model3$S),
-    itempar = list(beta = matrix(sort(rnorm(model3$J*model3$P)), model3$J, model3$K - 1)),
+    sigma = function() diag(model3$S),
+    itempar = function() {
+        list(beta = matrix(sort(rnorm(model3$J*model3$P)), model3$J, model3$K - 1))
+    },
     na_okay = FALSE)
 
 ##### Fit #####
@@ -97,10 +115,34 @@ res3 <- fit(data = data3$data,
 
 ##### Tests #####
 
+test_that("TAM errors with GRM or 2PL", {
+    model <- "
+    IRT:
+    a BY var1;
+    Weights:
+    a = 0:1
+    Class:
+    PCM
+    "
+    model <- irtree_model(model)
+    expect_error(fit(model, engine = "tam", data.frame(var1 = 0:1)),
+                 "2PL is not implemented")
+    model <- "
+    IRT:
+    a BY var1@1;
+    Class:
+    GRM
+    "
+    model <- irtree_model(model)
+    expect_error(fit(model, engine = "tam", data.frame(var1 = 1)),
+                 "Class grm is not implemented")
+})
+
 test_that("irtree_model() works", {
     expect_s3_class(model1, "irtree_model")
     expect_s3_class(model2, "irtree_model")
     expect_s3_class(model3, "irtree_model")
+    expect_s3_class(model4, "irtree_model")
 })
 
 test_that("irtree_fit_tam() works", {
@@ -183,7 +225,7 @@ test_that("implementation of augment.irtree_fit()", {
     )
 
     ag1 <- augment(res1)
-    ag2 <- augment(res2)
+    ag2 <- augment(res2, method = "WLE")
     ag3 <- augment(res3)
 
     modeltests::check_dims(ag1, nrow(data1$data), ncol(data1$data) + model1$S*2)
