@@ -2,6 +2,7 @@
 #'
 #' @inheritParams base::paste
 #' @inheritDotParams base::paste
+#' @seealso [base::paste()]
 #' @keywords internal
 clps <- function(collapse = " ", ..., sep = " ") {
     # ellipsis::check_dots_used()
@@ -158,3 +159,4 @@ rtruncatednorm <- function(n = NULL, mean = 0, sd = 1, ll = -Inf, ul = Inf) {
     x <- rnorm(n = n, mean = mean, sd = sd)
     x <- x[x > ll & x < ul]
     return(x)
+}

@@ -10,9 +10,12 @@ FSCORES
 github
 GRM
 https
+IPIP
 irt
 irtree
+irtrees
 ItemResponseTree
+likert
 loadings
 LV
 mirt
@@ -32,10 +35,9 @@ Rasch
 RData
 Recode
 recoded
-SingleGroupClass
-sirt
 stackoverflow
 tibble
+truncnorm
 tryCatch
 Tutz
 Verhelst

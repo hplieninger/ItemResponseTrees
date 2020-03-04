@@ -22,4 +22,7 @@ clps(collapse = " ", ..., sep = " ")
 \description{
 Wrapper Around Paste to Collapse a Character Vector
 }
+\seealso{
+\code{\link[base:paste]{base::paste()}}
+}
 \keyword{internal}

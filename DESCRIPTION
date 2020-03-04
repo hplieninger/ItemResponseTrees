@@ -41,7 +41,6 @@ Suggests:
     rmarkdown,
     roxygen2,
     sfsmisc,
-    sirt,
     spelling,
     TAM,
     testthat (>= 2.1.0)
