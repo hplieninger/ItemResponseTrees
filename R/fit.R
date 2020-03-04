@@ -45,11 +45,11 @@ fit.irtree_model <- function(object = NULL,
                              control = NULL,
                              improper_okay = FALSE) {
 
+    engine <- match.arg(engine)
     switch (engine,
             mplus = has_namespace("MplusAutomation"),
             tam   = has_namespace("TAM"))
 
-    engine <- match.arg(engine)
     if (length(list(...)) > 0) {
         stop("The ... are currently not used. Use ",
              paste0("control_", engine, "() "), "instead.", call. = FALSE)

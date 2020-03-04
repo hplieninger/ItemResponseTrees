@@ -49,7 +49,6 @@ irtree_fit_mirt <- function(object = NULL,
         tmp1 <- c(list(data     = pseudoitems,
                        model    = mirt_input$mirt_string,
                        itemtype = mirt_input$itemtype,
-                       pars     = mirt_input$values,
                        verbose  = verbose),
                   control[names(control) != "rm_mirt_internal"])
         res <- myTryCatch(
@@ -101,132 +100,90 @@ write_mirt_input <- function(object = NULL,
     lambda <- lambda[order(lambda$irt, lambda$item), ]
     lambda$new_name <- names(data)
 
-    # spec$object$lambda <- object$lambda <- lambda
+    my_values <- lambda[, c("item", "theta", "loading", "new_name")]
 
-    mirt1 <- split(lambda, lambda$theta)
+    my_values$est <- !grepl("@", my_values$loading)
+    my_values$value <- as.numeric(sub("@|[*]", "", my_values$loading))
+    my_values$name <- factor(my_values$theta, labels = paste0("a", seq_len(object$S)))
 
-    mirt2 <- vapply(seq_along(mirt1), function(x) {
-        glue::glue_collapse(c(glue::glue("{names(mirt1[x])} = "),
-                              # glue::glue(" {mirt1[[x]]$new_name}", ",")
-                              glue::glue_collapse(glue::glue("{mirt1[[x]]$new_name}"), sep = ", ")
-        ))
-    }, FUN.VALUE = "")
+    # mirt1 <- split(lambda, lambda$theta)
+    mirt1 <- split(my_values, my_values$theta)
 
-    mirt3 <- NULL
+    # mirt2 <- vapply(seq_along(mirt1), function(x) {
+    #     glue::glue_collapse(c(glue::glue("{names(mirt1[x])} = "),
+    #                           # glue::glue(" {mirt1[[x]]$new_name}", ",")
+    #                           glue::glue_collapse(glue::glue("{mirt1[[x]]$new_name}"), sep = ", ")
+    #     ))
+    # }, FUN.VALUE = "")
+
+    mod <- character()
+
+    # REMEMBER: The order in which the latent variables are defined in
+    # mirt_string (via 'LV = var1, var2, var3') is crucial, because the labels
+    # of the loadings (e.g., a1, a2, a3) depend on that order
+
+    for (ii in seq_along(mirt1)) {
+        # mirt_string: Factor = var1, var2, var3
+        mod <- c(mod,
+                 paste0(names(mirt1[ii]),
+                        " = ",
+                        clps(", ", mirt1[[ii]]$new_name)))
+
+        if (!all(mirt1[[ii]]$est)) {
+            # mirt_string: COV = Factor1*Factor2
+            mod <- c(mod,
+                     paste0("COV = ",
+                            clps("*", rep(names(mirt1[ii]), 2))))
+
+            # mirt_string: Fix loadings
+            start_vals <- na.omit(mirt1[[ii]])
+            start_val_groups <- split(start_vals, start_vals$value)
+            rm(start_vals)
+
+            for (jj in seq_along(start_val_groups)) {
+                # MAKE: FIXED = (var1, var2, var3, a1)
+                mod <- c(mod,
+                         paste0("FIXED = (",
+                                  clps(", ", start_val_groups[[jj]]$new_name),
+                                  ", ", start_val_groups[[jj]]$name[1], ")"))
+
+                # MAKE: FIXED = (var1,       a1, 1.0)
+                # MAKE: FIXED = (var2, var3, a1, 1.234)
+                mod <- c(
+                    mod,
+                    paste0(
+                        "START = (",
+                        clps(", ",
+                             c(clps(", ", start_val_groups[[jj]]$new_name),
+                               as.character(start_val_groups[[jj]]$name[1]),
+                               start_val_groups[[jj]]$value[1])),
+                        ")"))
+            }
+        } else {
+            # do nothing
+        }
+    }
+
+    # MAKE: bring all COV statements on one line, add covariances
+    tmp1 <- split(mod, grepl("^COV", mod))
+
+    string_vars <- sub("COV =\\s+", "", tmp1$`TRUE`)
+    string_covs <- clps("*", names(mirt1))
+    tmp1$`TRUE` <- paste0("COV = ", clps(", ", c(string_vars, string_covs)))
+    mod <- unname(unlist(tmp1))
+
+    mirt_string <- clps("\n", mod)
+
     if (object$class == "tree") {
-        # if (all(lambda$loading == "*")) {
-        #     itemtype <- "2PL"
-        # } else if (all(lambda$loading == "@1")) {
-        #     itemtype <- "Rasch"
-        # } else {
-        #     itemtype <- "2PL"
-        # }
         itemtype <- ifelse(lambda$loading == "@1", "Rasch", "2PL")
     } else if (object$class == "grm") {
         itemtype <- "graded"
-        if (!all(lambda$loading == "*")) {
-            tmp0 <- lambda[lambda$loading != "*", ]
-            tmp1 <- split(tmp0$new_name, tmp0$theta)
-            tmp2 <- vapply(seq_along(tmp1), function(x) paste0("(",
-                                                               paste(tmp1[[x]], collapse = ", "),
-                                                               ", a", x, ")"), FUN.VALUE = "")
-            mirt3 <- paste("CONSTRAIN =", paste(tmp2, collapse = ", "))
-        }
     } else {
         stop("Only model classes Tree and GRM are implemented for mirt.")
     }
-
-    mirt_string <- mirt::mirt.model(paste(c(mirt2, mirt3), collapse = "\n"),
-                                    itemnames = names(data))
-
-    values <- mirt::mirt(data = data,
-                         model = mirt_string,
-                         itemtype = itemtype,
-                         pars = "values")
-
-    # Free all covariances
-    tmp1 <- expand.grid(seq_len(object$S), seq_len(object$S))
-    cov_names <- apply(tmp1[tmp1$Var1 > tmp1$Var2, ],
-                       1,
-                       function(x) paste0("COV_",
-                                          paste(x, collapse = "")))
-    values[values$name %in% cov_names, "est"] <- TRUE
-
-    # Free all variances of 'Rasch'-items
-    var_names <- apply(tmp1[tmp1$Var1 == tmp1$Var2, ],
-                       1,
-                       function(x) paste0("COV_",
-                                          paste(x, collapse = "")))
-    var_free <- tapply(lambda$loading, lambda$theta, function(x) all(x == "@1"))
-
-    values[values$name %in% var_names[var_free], "est"] <- TRUE
-
-    ### Fix some loadings in case 'itemtype' is not sufficient ###
-
-    # if (length(unique(lambda$loading)) > 1) {
-    #     tmp1 <- data.frame(
-    #         item  = gl(object$J, k = object$S, labels = object$j_names),
-    #         trait = gl(object$S, k = 1, labels = object$s_names)
-    #     )
-    #
-    #     lambda2 <- dplyr::left_join(tmp1, lambda, by = c("item", "trait"))
-    #     lambda2$est <- FALSE
-    #     lambda2$est[lambda2$loading == "*"] <- TRUE
-    #     lambda2$value <- 0
-    #     lambda2$value[!is.na(lambda2$loading)] <- 1
-    #
-    #     values[grepl("^a\\d+", values$name), "est"]   <- lambda2$est
-    #     values[grepl("^a\\d+", values$name), "value"] <- lambda2$value
-    # }
-
-    # itemtype <- switch(object$class,
-    #     tree = "2PL",
-    #     grm  = "graded",
-    #     NULL
-    # )
-
-    # if (object$class == "tree") {
-    #     itemtype <- ifelse(lambda$loading == "@1", "Rasch", "2PL")
-    # } else if (object$class == "grm") {
-    #     itemtype <- "graded"
-    # }
-
-    # tmp1 <- data.frame(
-    #     item  = gl(object$J, k = object$S, labels = object$j_names),
-    #     trait = gl(object$S, k = 1, labels = object$s_names)
-    # )
-    #
-    # lambda2 <- dplyr::left_join(tmp1, lambda, by = c("item", "trait"))
-    # lambda2$est <- FALSE
-    # lambda2$est[lambda2$loading == "*"] <- TRUE
-    # lambda2$value <- 0
-    # lambda2$value[!is.na(lambda2$loading)] <- 1
-    #
-    # values <- mirt(data = data,
-    #                object = mirt_string,
-    #                itemtype = itemtype,
-    #                pars = "values")
-    #
-    # values[grepl("^COV",   values$name), "est"]   <- TRUE
-    # values[grepl("^a\\d+", values$name), "est"]   <- lambda2$est
-    # values[grepl("^a\\d+", values$name), "value"] <- lambda2$value
-
-    # tmp1 <- vapply(object$s_names,
-    #                function(x) paste(rep(x, 2), collapse = "*"),
-    #                FUN.VALUE = "",
-    #                USE.NAMES = FALSE)
-    # tmp2 <- clps("*", object$s_names)
-    # mirt3 <- paste0("COV = ", clps(", ", c(tmp1, tmp2)))
-    #
-    # string1 <- paste(c(mirt2, mirt3), collapse = "\n")
-    # cat(string1)
-    #
-    # mirt_string <- mirt.model(string1, itemnames = names(data))
-
     return(out1 = list(mirt_string = mirt_string,
                        itemtype    = itemtype,
-                       lambda      = lambda,
-                       values      = values))
+                       lambda      = lambda))
 
 }
 
@@ -270,4 +227,45 @@ control_mirt <- function(rm_mirt_internal = TRUE,
     checkmate::qassert(technical, "l")
 
     return(ctrl)
+}
+
+mirt_constrain_loadings <- function(object = NULL, mirt_values = NULL) {
+    if (!any(grepl("@", object$loading))) {
+        return(mirt_values)
+    }
+    my_values <- object$lambda[, c("item", "theta", "loading")]
+
+    my_values$est <- !grepl("@", my_values$loading)
+    my_values$value <- as.numeric(sub("@|[*]", "", my_values$loading))
+    my_values$name <- factor(my_values$theta, labels = paste0("a", seq_len(object$S)))
+
+    for (ii in seq_len(nrow(my_values))) {
+        vals <- my_values[ii, ]
+        mirt_values <- with(mirt_values,   est[item == vals$item & name == vals$name] <- vals$est)
+        mirt_values <- with(mirt_values, value[item == vals$item & name == vals$name] <- vals$value)
+    }
+    return(mirt_values)
+}
+
+mirt_constrain_var_cov <- function(object = NULL,
+                                   lambda = NULL,
+                                   mirt_values = NULL) {
+    # covariances
+    tmp1 <- expand.grid(seq_len(object$S), seq_len(object$S))
+    cov_names <- apply(tmp1[tmp1$Var1 > tmp1$Var2, ],
+                       1,
+                       function(x) paste0("COV_",
+                                          paste(x, collapse = "")))
+    mirt_values[mirt_values$name %in% cov_names, "est"] <- TRUE
+
+    # variances
+    var_names <- apply(tmp1[tmp1$Var1 == tmp1$Var2, ],
+                       1,
+                       function(x) paste0("COV_",
+                                          paste(x, collapse = "")))
+    var_free <- tapply(lambda$loading, lambda$theta, function(x) any(x == "@1"))
+
+    mirt_values[mirt_values$name %in% var_names[var_free], "est"] <- TRUE
+
+    return(mirt_values)
 }

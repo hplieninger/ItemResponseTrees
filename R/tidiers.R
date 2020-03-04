@@ -131,6 +131,8 @@ tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
         match.arg(par_type, choices = "difficulty")
         out <- tidy_mplus(x)
     } else if (engine == "mirt") {
+        checkmate::qassert(par_type, "S1")
+        match.arg(par_type, choices = c("difficulty", "easiness"))
         out <- tidy_mirt(x, par_type = par_type, ...)
     } else if (engine == "tam") {
         match.arg(par_type, choices = "difficulty")
@@ -147,8 +149,6 @@ tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
 #' @inherit tidy.irtree_fit return description
 #' @seealso [`tidy()`][tidy.irtree_fit()], [generics::tidy()]
 tidy_mirt <- function(x = NULL, par_type = NULL) {
-
-    checkmate::assert_choice(par_type, c("difficulty", "easiness"))
 
     f1 <- function(x) {
         tidyr::separate(x, .data$term, into = c("i", "p"), sep = "[.]") %>%
