@@ -275,7 +275,8 @@ test_that("Proper mixture model fails in fit()", {
         itempar = list(beta = matrix(0, 2, 3),
                        alpha = matrix(1, 2, 3)))
     expect_error(fit(model1, d1$data, "mirt"), "mixture model")
-    expect_error(fit(model1, d1$data, "mplus"), "mixture model")
+    expect_error(fit(model1, d1$data, "mplus",
+                     control = control_mplus(run = FALSE)), "mixture model")
     expect_error(fit(model1, d1$data, "tam"), "mixture model")
 })
 
@@ -311,7 +312,8 @@ test_that("Improper MPT equation throws warning (and error in fit)", {
                    "Equations do not constitute a proper model")
     expect_error(fit(model1, df1, engine = "mirt"), "improper model")
     expect_error(fit(model1, df1, engine = "tam"), "improper model")
-    expect_error(fit(model1, df1, engine = "mplus"), "improper model")
+    expect_error(fit(model1, df1, engine = "mplus",
+                     control = control_mplus(run = FALSE)), "improper model")
 
 })
 
