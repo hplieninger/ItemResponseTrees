@@ -24,11 +24,10 @@ irtree_fit_tam <- function(object = NULL,
                        set_min_to_0 = control$set_min_to_0)
     data <- tibble::as_tibble(data)
 
-    assert_irtree_equations(object)
     assert_irtree_proper(object, improper_okay = improper_okay)
 
     if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
-        stop("2Pl is not implemented in TAM.")
+        stop("2PL is not implemented in TAM.")
     }
 
     object$j_names <- sort2(object$j_names, names(data))
@@ -45,6 +44,8 @@ irtree_fit_tam <- function(object = NULL,
     spec$engine <- "tam"
 
     if (object$class == "tree") {
+
+        assert_irtree_not_mixture(object)
 
         pseudoitems <- irtree_recode(object = object, data = data[object$j_names])
 

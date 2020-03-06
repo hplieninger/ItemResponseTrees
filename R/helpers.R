@@ -110,7 +110,7 @@ sort2 <- function(x = NULL, y = NULL, subset = TRUE) {
             why <- ""
         }
         tmp1 <- glue::glue(
-            "Argument 'model' must {ifelse(must_have, '', 'NOT ')}",
+            "Problem in 'model': must {ifelse(must_have, '', 'NOT ')}",
              "contain a part with heading ",
              "'{.name}'{why}."
         )

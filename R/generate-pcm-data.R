@@ -60,7 +60,7 @@ irtree_gen_pcm <- function(object = NULL,
     .must_have(object, "addendum", FALSE, skip = skip)
 
     if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
-        stop("2Pl is not implemented for class PCM.")
+        warning("2Pl is not implemented for class PCM.")
     }
 
     checkmate::assert_int(N, lower = 1, null.ok = !is.null(theta))

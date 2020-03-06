@@ -300,10 +300,6 @@ irtree_model <- function(model = NULL) {
 
     irtree_model_equations(model_list = model_list, e1 = e1)
 
-    ##### Items #####
-
-    irtree_model_items(e1 = e1)
-
     ##### Weights #####
 
     irtree_model_weights(model_list, e1)

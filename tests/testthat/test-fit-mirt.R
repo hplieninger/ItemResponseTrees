@@ -165,7 +165,7 @@ data(column_glossary, package = "modeltests")
 
 test_that("tidy.irtree_fit()", {
 
-    expect_error(tidy(res1))
+    expect_error(tidy(res1), "Assertion on 'par_type' failed")
     td1 <- tidy(res1, par_type = "easiness")
     td2 <- tidy(res2, par_type = "difficulty")
     td3 <- tidy(res3, par_type = "easiness")

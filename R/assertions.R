@@ -59,12 +59,6 @@ assert_irtree_data <- function(data = NULL,
     }
 }
 
-assert_irtree_equations <- function(object = NULL) {
-    if (!is.null(object$equations)) {
-        irtree_model_check_equations(object$equations, unique(object$latent_names$mpt))
-    }
-}
-
 assert_irtree_proper <- function(object = NULL, improper_okay = FALSE) {
     checkmate::qassert(improper_okay, "B1")
     if (improper_okay == FALSE & object$proper_model == FALSE) {

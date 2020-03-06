@@ -31,7 +31,6 @@ irtree_fit_mplus <- function(object = NULL,
     assert_irtree_data(data = data, object = object, engine = "mplus")
     data <- tibble::as_tibble(data)
 
-    assert_irtree_equations(object)
     assert_irtree_proper(object, improper_okay = improper_okay)
 
     assert_nchar(object$lambda$new_name)
@@ -95,6 +94,7 @@ irtree_fit_mplus <- function(object = NULL,
     ##### Pseudoitems #####
 
     if (object$class == "tree") {
+        assert_irtree_not_mixture(object)
         pseudoitems <- irtree_recode(object = object, data = data, keep = TRUE)
     } else if (object$class == "grm") {
         pseudoitems <- data

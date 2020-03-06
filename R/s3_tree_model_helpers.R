@@ -6,20 +6,17 @@
 
 irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
 
-    irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
-    missing_sc <- stringr::str_count(irt0, "(?i)\\s+BY\\s+") > 1
-    if (any(missing_sc)) {
-        stop("Problem in model: Every definition in section 'IRT' must end with a ';'. ",
-             "Problem with:\n", clps("\n", "'", irt0[missing_sc], "'", sep = ""),
+    number_of_BY_and_semicolon <-
+        stringr::str_count(clps(" ", model_list$irt), c("BY", ";"))
+
+    if (!identical(number_of_BY_and_semicolon[1],
+                   number_of_BY_and_semicolon[2])) {
+        stop("Problem in 'model': Every definition in section 'IRT' must ",
+             "contain the keyword 'BY' and end with a ';'. ",
              call. = FALSE)
     }
 
-    tmp1 <- strsplit(paste(model_list$irt, collapse = " "), "(?i)\\s+BY\\s+")[[1]]
-    missing_BY <- stringr::str_count(tmp1, ";") > 1
-    if (any(missing_BY)) {
-        stop("Problem in model: Every definition in section 'IRT' must contain the keyword 'BY'. ",
-             "Problem with:\n", clps("\n", tmp1[missing_BY]), call. = FALSE)
-    }
+    irt0 <- trimws(strsplit(paste(model_list$irt, collapse = " "), ";")[[1]])
 
     irt1 <- vapply(irt0,
                    function(x)
@@ -34,12 +31,6 @@ irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
     irt3 <- aggregate(. ~ X1, irt2, paste, collapse = ", ")
 
     lv_names <- irt1[1, ]
-
-    tmp1 <- grepl("[^[:alnum:]_]", x = lv_names, perl = TRUE)
-    if (any(tmp1)) {
-        stop("Variable names may only contain letters, digits, ",
-             "and the underscore '_': ", clps(", ", lv_names[tmp1]), call. = FALSE)
-    }
     S <- length(lv_names)
 
     irt4 <- stringr::str_split(irt3$X2, ",\\s*")
@@ -59,16 +50,14 @@ irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
                        vapply,
                        sub, pattern = "@\\d+$|[*]$", replacement = "",
                        FUN.VALUE = "")
-    # irt_items <- lapply(irt_items, function(x) {names(x) <- x; x})
     irt_items <- lapply(irt_items, unname)
     names(irt_items) <- lv_names
     names(irt_loadings) <- lv_names
 
+
     checkmate::assert_character(lv_names, min.chars = 1, any.missing = FALSE,
+                                pattern = "^[A-z]\\w*$",
                                 min.len = 1, unique = TRUE)
-    lapply(irt_items, checkmate::assert_character,
-           min.chars = 1, any.missing = FALSE, min.len = 1,
-           unique = TRUE, .var.name = "irt_items")
 
     latent_names <- data.frame(irt   = lv_names,
                                mpt   = lv_names,
@@ -80,6 +69,7 @@ irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
                     irt_loadings = irt_loadings,
                     S = S,
                     latent_names = latent_names)
+    irtree_model_items(e1 = e1)
 }
 
 irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
@@ -92,6 +82,8 @@ irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
         gsub("\\s+", "", model_list$equations),
         function(x) strsplit(x, "[=]")[[1]],
         FUN.VALUE = character(2), USE.NAMES = FALSE)
+
+    assert_irtree_equations(e1)
 
     e1$expr <- lapply(e1$equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
     names(e1$expr) <- e1$equations[1, ]
@@ -109,45 +101,72 @@ irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
                                  unique = TRUE, .var.name = "lhs of equations")
 }
 
-irtree_model_check_equations <- function(equations = NULL, mpt_names = NULL) {
-    checkmate::assert_matrix(equations, mode = "character", min.cols = 2, nrows = 2)
+assert_irtree_equations <- function(object = NULL, mixture_okay = TRUE) {
 
-    tmp1 <- stringr::str_extract_all(
-        equations[2, , drop = TRUE], pattern = "[:alpha:]+") %>%
-        vapply(. %>% duplicated %>% any, FUN.VALUE = TRUE)
-    if (any(tmp1)) {
-        stop("Each model equation may contain each parameter only once. ",
-             "Problem with: ", clps(", ", "'", equations[2, tmp1], "'", sep = ""), ".")
+    checkmate::assert_matrix(object$equations, mode = "character", min.cols = 2, nrows = 2)
+
+    equations <- object$equations[2, ]
+
+    # check for: characters except *, -, +, 'mpt-names', (, )
+    bad_equ_1 <- stringr::str_detect(equations, "[^[\\w+][(][)][+][-][*]]")
+    # check for: )(
+    bad_equ_2 <- stringr::str_detect(equations, "[)][(]")
+    # check for: minus not preceded by 1
+    bad_equ_3 <- stringr::str_detect(equations, "(?<!1)-")
+    # check for: duplicated params
+    bad_equ_4 <- stringr::str_split(equations, "[^\\w+]") %>%
+        lapply(stringr::str_subset, pattern = "^[:alpha:]") %>%
+        lapply(duplicated) %>%
+        purrr::map_lgl(any)
+
+    bad_equ <- (bad_equ_1 | bad_equ_2 | bad_equ_3 | bad_equ_4)
+
+    if (any(bad_equ)) {
+        stop("Each model equation may either contain parameter 'p' or '1-p' and ",
+             "products of different parameters but nothing else.\n",
+             "Use only equations along the lines of a*(1-b).\n",
+             "Problem with: ", equations[bad_equ][1], ".",
+             call. = FALSE)
     }
 
-    tmp1 <- stringr::str_split(equations[2, , drop = TRUE], pattern = "[*]") %>%
-        lapply(stringr::str_replace, clps("|", mpt_names), "") %>%
-        lapply(stringr::str_replace_all, "\\(|\\)|1-", "") %>%
-        vapply(. %>% nchar %>% magrittr::is_greater_than(0) %>% any, FUN.VALUE = TRUE)
-
-    if (any(tmp1)) {
-        stop("Each model equation may contain parameters 'p' and '1-p' and ",
-             "possibly products thereof but nothing else. Use only equations ",
-             "along the lines of a*(1-b). ",
-             "Problem with: ", clps(", ", "'", equations[2, tmp1], "'", sep = ""), ".")
+    if (mixture_okay) {
+        assert_irtree_not_mixture(object, error = !mixture_okay)
     }
+}
 
+assert_irtree_not_mixture <- function(object = NULL, error = TRUE) {
+    checkmate::assert_matrix(object$equations, mode = "character",
+                             min.cols = 2, nrows = 2)
+    equations <- object$equations[2, ]
+    bad_equ <- stringr::str_detect(equations, "[+]")
+    if (any(bad_equ)) {
+        msg <- paste0(
+            "The model seems to be a mixture model, because it contains a `+`. ",
+            "Pseudoitems cannot be defined for such models so that fitting such ",
+            "models is not possible in ItemResponseTrees. ",
+            "Problem with the following equation: ", equations[bad_equ][1])
+        if (error) {
+            stop(msg, call. = FALSE)
+        } else {
+            message(msg)
+        }
+    }
 }
 
 irtree_model_items <- function(e1 = new.env()) {
-    # e1$j_names <- gtools::mixedsort(unique(unlist(e1$irt_items, use.names = F)))
     e1$j_names <- unique(unlist(e1$irt_items, use.names = F))
     e1$J <- length(e1$j_names)
 
-    tmp1 <- grepl("[^[:alnum:]_]", e1$j_names, perl = TRUE)
-    if (any(tmp1)) {
-        stop("Problem in 'model': Variables must be seperated by commas. ",
-             "Variable names may only contain letters, digits, ",
-             "and the underscore. Problem with: ",
-             paste0("'", e1$j_names[tmp1], "'", collapse = ", "), ".", call. = FALSE)
-    }
-    checkmate::assert_character(e1$j_names, unique = TRUE, min.chars = 1,
-                                any.missing = FALSE, names = "unnamed")
+    checkmate::assert_character(
+        e1$j_names,
+        min.chars = 1,
+        pattern = "^[A-z]\\w*$",
+        any.missing = FALSE,
+        min.len = 1,
+        unique = TRUE,
+        names = "unnamed",
+        .var.name = "irt_items")
+    return(invisible(NULL))
 }
 
 
@@ -204,8 +223,8 @@ irtree_model_constr_equ <- function(equ = NULL, e1 = new.env()) {
                        pattern = "\\s+",
                        replacement = "", FUN.VALUE = character(1))
         if (any(!stringr::str_detect(tmp2, tmp1))) {
-            stop("Problem in model: Constraints must be specified in the form of: ",
-                 "Name_of_LV = Name_of_LV")
+            stop("Problem in 'model': Constraints must be specified in the form of: ",
+                 "Name_of_LV = Name_of_LV", call. = FALSE)
         }
         names(tmp2) <- NULL
 
