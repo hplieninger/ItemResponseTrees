@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit-tam.R
 \name{control_tam}
 \alias{control_tam}
-\title{Control Aspects of Fitting a Model in TAM}
+\title{Control aspects of fitting a model in TAM}
 \usage{
 control_tam(
   set_min_to_0 = FALSE,

@@ -6,7 +6,7 @@
 #'   implemented in mirt.
 #' @inheritParams fit.irtree_model
 #' @inheritParams mirt::mirt
-#' @example inst/examples/example-fit.R
+#' @keywords internal
 irtree_fit_mirt <- function(object = NULL,
                             data = NULL,
                             link = "logit",
@@ -76,17 +76,17 @@ irtree_fit_mirt <- function(object = NULL,
     return(out)
 }
 
-#' Prepare a mirt Model
+#' Prepare a mirt model
 #'
 #' This is an internal function used by [irtree_fit_mirt()]. It receives its
 #' inputs from the model object and the data set and returns a
 #' [mirt::mirt.model] object.
 #'
 #' @inheritParams irtree_fit_mirt
-#' @return A list with four elements. `mirt_string` is the [mirt::mirt.model]
-#'   object; `itemtype` and `values` are used as arguments for [mirt::mirt()];
+#' @return A list with three elements. `mirt_string` is the [mirt::mirt.model]
+#'   object; `itemtype` can be passed to [mirt::mirt()];
 #'   `lambda` is the modified lambda matrix from the `object`-argument.
-#' @export
+#' @keywords internal
 write_mirt_input <- function(object = NULL,
                              data = NULL) {
 
@@ -187,16 +187,17 @@ write_mirt_input <- function(object = NULL,
 
 }
 
-#' Control Aspects of Fitting a Model in mirt
+#' Control aspects of fitting a model in mirt
 #'
 #' This function should be used to generate the `control` argument of the
 #' [`fit()`][fit.irtree_model] function.
 #'
-#' @param rm_mirt_internal Logical. [mirt::mirt()] returns a lot of
-#'   information including two functions that can take up a huge amount of space
-#'   (https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
-#'   two functions are removed from the output if `rm_mirt_internal =
-#'   TRUE`.
+#' @param rm_mirt_internal Logical. [mirt::mirt()] returns a lot of information
+#'   including two functions that can take up a huge amount of space (see mirt
+#'   issue
+#'   \href{https://github.com/philchalmers/mirt/issues/147#issue-352032654}{#147}).
+#'    These two functions are removed from the output if this argument is
+#'   `TRUE`.
 #' @param control List of arguments passed to argument `control` of
 #'   [mirt::mirt()]. See examples below.
 #' @param technical List of arguments passed to argument `technical` of

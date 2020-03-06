@@ -1,4 +1,4 @@
-#' Deprecated functions in package **ItemResponseTrees**.
+#' Deprecated functions in package **ItemResponseTrees**
 #'
 #' These functions are provided for compatibility with older versions only,
 #' and may be defunct as soon as the next release.

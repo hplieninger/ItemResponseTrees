@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate-data.R
 \name{irtree_recode}
 \alias{irtree_recode}
-\title{Recode Data Set Into Pseudoitems.}
+\title{Recode data into pseudoitems}
 \usage{
 irtree_recode(object = NULL, data = NULL, keep = FALSE)
 }
@@ -21,8 +21,8 @@ data frame of the generated pseudoitems}
 Data frame
 }
 \description{
-This function takes a data set with polytomous items and an IR-tree model and
-returns the recoded items, the so-called pseudoitems.
+This function takes a data set with polytomous items and an \code{irtree_model}
+and returns the recoded items, the so-called pseudoitems.
 }
 \examples{
 m1 <- "

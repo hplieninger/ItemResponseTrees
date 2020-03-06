@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{irtree_sim1}
 \alias{irtree_sim1}
-\title{Generate IR-Tree Data and Fit Model}
+\title{Generate data from and fit an ItemResponseTrees model}
 \usage{
 irtree_sim1(
   R = 1,
@@ -42,18 +42,18 @@ should be fit to the data. May be a list of multiple objects of class
 is the variance-covariance matrix of the person parameters that is passed
 to \code{\link[MASS:mvrnorm]{MASS::mvrnorm()}}. Note that the order of the person
 parameters is taken from the section Processes in the model \code{object} (see
-\code{\link[=irtree_model]{irtree_model()}}).}
+\link{irtree_model}).}
 
 \item{itempar}{Either a list or a function that returns a list. The list has
 an element \code{beta} and an element \code{alpha}. Each of these is a
 matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
-section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
+section Processes in the \code{model} (see \link{irtree_model}).}
 
 \item{link}{Character. Link function to use.}
 
 \item{na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
+categories are permitted. If \code{FALSE}, rejection sampling
 is used to ensure that all categories are observed.}
 
 \item{engine}{String specifying whether to use mirt, Mplus, or TAM for
@@ -63,9 +63,9 @@ estimation.}
 console.}
 
 \item{control}{List. The allowed elements of this list depend on the
-\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
-convenience. Note that the \code{fit()} function does not use \code{...}, but that you
-can use the \verb{control_*()} functions to pass additional arguments.}
+\code{engine}. Use \code{\link[=control_mirt]{control_mirt()}}, \code{\link[=control_mplus]{control_mplus()}}, or \code{\link[=control_tam]{control_tam()}} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that
+you can use the \verb{control_*()} functions to pass additional arguments.}
 
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
@@ -105,3 +105,4 @@ external RData file.
 \code{\link[=irtree_sim]{irtree_sim()}}, and the wrapped functions
 \code{\link[=fit.irtree_model]{fit()}} and \code{\link[=irtree_gen_data]{irtree_gen_data()}}.
 }
+\keyword{internal}

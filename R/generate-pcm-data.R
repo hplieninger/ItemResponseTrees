@@ -1,39 +1,11 @@
-#' Generate Data From a Partial Credit Model
+#' Generate data from a partial credit model
 #'
-#' This function generates data from a (multidimensional) PCM
+#' This function generates data from a (multidimensional) PCM.
 #'
 #' @inheritParams irtree_gen_data
 #' @return A list with element `data` containing the data and an
 #'   element `spec` containing the true parameter values etc.
-#' @examples
-#' m1 <- "
-#' IRT:
-#' t BY x1@1;
-#' e BY x1@1;
-#' m BY x1@1;
-#' Weights:
-#' t = c(0, 1, 2, 3, 4)
-#' e = c(1, 0, 0, 0, 1)
-#' m = c(0, 0, 1, 0, 0)
-#' Class:
-#' PCM
-#' "
-#' model1 <- irtree_model(m1)
-#' dat <- irtree_gen_pcm(model1, N = 5, sigma = diag(3),
-#'                       itempar = list(beta = matrix(rnorm(4), 1, 4)))
-#'
-#' m2 <- "
-#' IRT:
-#' t BY x1@1, x2@1, x3@1, x4@1, x5@1;
-#' Weights:
-#' t = c(0, 1, 2, 3, 4)
-#' Class:
-#' PCM
-#' "
-#' model2 <- irtree_model(m2)
-#' dat <- irtree_gen_pcm(model2, N = 5, sigma = diag(1),
-#'                       itempar = list(beta = matrix(sort(rnorm(4*5)), 5, 4)))
-#' @export
+#' @keywords internal
 irtree_gen_pcm <- function(object = NULL,
                            N = NULL,
                            sigma = NULL,

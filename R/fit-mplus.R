@@ -19,6 +19,7 @@
 #'
 #' fit1 <- fit(model1, Science, engine = "mplus")
 #' }
+#' @keywords internal
 irtree_fit_mplus <- function(object = NULL,
                              data = NULL,
                              link = c("logit", "probit"),
@@ -235,10 +236,8 @@ irtree_fit_mplus <- function(object = NULL,
 #' @inheritParams irtree_fit_mplus
 #' @inheritParams control_mplus
 #' @return A list of of class [MplusAutomation::mplusObject]
-#' @export
-write_mplus_input <- function(object = object,
-                              # lambda = NULL,
-                              # addendum = NULL,
+#' @keywords internal
+write_mplus_input <- function(object = NULL,
                               pseudoitems = NULL,
                               data_file = NULL,
                               fsco_file = NULL,
@@ -246,7 +245,6 @@ write_mplus_input <- function(object = object,
                               quadpts = NULL,
                               estimator = NULL,
                               link = NULL,
-                              # processors = 1,
                               analysis_list = list()) {
 
     lambda <- object$lambda
@@ -269,6 +267,8 @@ write_mplus_input <- function(object = object,
         collapse = "\n")
 
     ##### MODEL CONSTRAINT Statement #####
+
+    # TODO: If all loadings are free, fix variance to 1.
 
     model_constr0 <-
         vapply(seq_along(mplus1), function(x) {
@@ -393,17 +393,17 @@ extract_mplus_converged <- function(outfiletext) {
     any(grepl("THE MODEL ESTIMATION TERMINATED NORMALLY", outfiletext))
 }
 
-#' Control Aspects of Fitting a Model in Mplus
+#' Control aspects of fitting a model in Mplus
 #'
 #' This function should be used to generate the `control` argument of the
 #' [`fit()`][fit.irtree_model] function.
 #'
 #' @param file String naming the file (or path) of the Mplus files and the data
 #'   file. Do not provide file endings, those will be automatically appended.
-#' @param quadpts This is passed to argument 'INTEGRATION'. Thus, it may be an
-#'   integer specifying the number of integration points for the Mplus default
-#'   of rectangular numerical integration (e.g., `quadpts = 15`). Or it may be a
-#'   string, which gives more fine grained control (e.g., `quadpts =
+#' @param quadpts This is passed to argument 'INTEGRATION' of Mplus. Thus, it
+#'   may be an integer specifying the number of integration points for the Mplus
+#'   default of rectangular numerical integration (e.g., `quadpts = 15`). Or it
+#'   may be a string, which gives more fine grained control (e.g., `quadpts =
 #'   "MONTECARLO(2000)"`).
 #' @param estimator String, passed to argument 'ESTIMATOR' in Mplus.
 #' @param cleanup Logical, whether the Mplus files should be removed on exit.

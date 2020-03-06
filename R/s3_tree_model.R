@@ -1,15 +1,17 @@
-#' ItemResponseTree Model Syntax
+#' ItemResponseTrees model syntax
 #'
-#' The ItemResponseTree model syntax describes the statistical model. The
+#' The ItemResponseTrees model syntax describes the statistical model. The
 #' function `irtree_model()` turns a user-defined model string into an object of
 #' class `irtree_model` that represents the full model as needed by the package.
 #'
 #' @section Overview of the Model Syntax:
 #'
 #' \enumerate{
-#'   \item The `model` string must contain at least the sections **IRT**, **Class**, and (if class is tree) **Equations**.
+#'   \item The `model` string must contain at least the sections **IRT**,
+#'     **Class**, and (if class is tree) **Equations**.
 #'   \item Section headings must appear on a separate line ending with a colon (:).
-#'   \item The model may contain empty lines and comments, which begin with `#`.
+#'   \item The model may contain empty lines and commented lines, which begin
+#'     with `#` (do not use inline comments).
 #'   \item Line breaks are only allowed in section **IRT**.
 #' }
 #' Details for all the required and optional sections of the `model` string are
@@ -19,11 +21,11 @@
 #'
 #'   The `model` must contain a section with heading **IRT**. Therein, the IRT
 #'   structure of the model is described in a way resembling the MODEL part of
-#'   an Mplus input file. It has a structure of `LV BY item1*, item2@1`,
+#'   an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
 #'   where `LV` is the name of the latent variable/parameter/process, and
 #'   `item` is the name of the observed variable in the data set, which
 #'   is followed by the loading. The loading may either be fixed (e.g., to 1)
-#'   using `@1` or it may be set free using `*` or omitting the
+#'   using \code{@1} or it may be set free using `*` or omitting the
 #'   loading completely.
 #'
 #'   Each measurement model (i.e., the LV and its items) must appear on a
@@ -66,8 +68,7 @@
 #'
 #'   The `model` must contain a section with heading **Class** to specify the
 #'   type/class of IRT model to use.
-#'   Currently, may be either `Tree` or `GRM` (graded response model). For
-#'   example:
+#'   Currently, may be either `Tree`, `GRM`, or `PCM`. For example:
 #'
 #'   ```
 #'   Class:
@@ -99,9 +100,9 @@
 #'   response style parameters to equality across trees but not the target trait
 #'   parameters.
 #'
-#'   Each line in this section has a structure of `param = lv |
-#'   lv`, where `param` is the name of the process used only in section
-#'   **Equations** and `lv` it the name of the process used only in
+#'   Each line in this section has a structure of `Param = LV |
+#'   LV`, where `Param` is the name of the process used only in section
+#'   **Equations** and `LV` it the name of the process used only in
 #'   section **IRT**.
 #'   Use one line for each definition. For example:
 #'
@@ -119,15 +120,15 @@
 #'   However, the latent variables corresponding to these processes would
 #'   typically be assumed to be equal and need thus be constrained accordingly.
 #'
-#'   Each line in this section has a structure of `lv1 = lv2`, where
-#'   `lv1` and `lv2` are the names of the latent variables used in
+#'   Each line in this section has a structure of `LV1 = LV2`, where
+#'   `LV1` and `LV2` are the names of the latent variables used in
 #'   section **IRT**.
 #'   Use one line for each definition. For example:
 #'
 #'   ```
 #'   Constraints:
-#'   lv1 = lv2
-#'   lv1 = lv3
+#'   LV1 = LV2
+#'   LV1 = LV3
 #'   ```
 #'
 #' ## Addendum
@@ -148,7 +149,7 @@
 #' ## Weights
 #'
 #'   The `model` may contain a section with heading **Weights** if model
-#'   **Class** is PCM and `engine = "tam"` is used for estimation.
+#'   **Class** is PCM.
 #'   This allows to specify (uni- and) multidimensional partial credit models.
 #'   They have been proposed, for example, by Wetzel and Carstensen (2017), as
 #'   an alternative to IR-tree models.
@@ -365,5 +366,5 @@ irtree_model <- function(model = NULL) {
 
 #' @export
 print.irtree_model <- function(x, ...) {
-    cat(x$string, ...)
+    cat(x$string, "\n", ...)
 }

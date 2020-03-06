@@ -118,7 +118,7 @@ sort2 <- function(x = NULL, y = NULL, subset = TRUE) {
     }
 }
 
-#' Sample From a Truncated Normal Distribution
+#' Sample from a truncated normal distribution
 #'
 #' @param n Number of observations
 #' @param mean Mean
@@ -128,6 +128,7 @@ sort2 <- function(x = NULL, y = NULL, subset = TRUE) {
 #' @seealso There is a discussion and code on
 #'   \url{https://stackoverflow.com/a/14034577}, and there is also the truncnorm
 #'   package.
+#' @keywords internal
 rtruncatednorm <- function(n = NULL, mean = 0, sd = 1, ll = -Inf, ul = Inf) {
     checkmate::qassert(n, "X1[1,)")
     checkmate::qassert(mean, "N1")

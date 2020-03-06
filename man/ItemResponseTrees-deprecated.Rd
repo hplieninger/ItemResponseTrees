@@ -5,7 +5,7 @@
 \alias{ItemResponseTrees-deprecated}
 \alias{extract_mirt_output}
 \alias{extract_mplus_output}
-\title{Deprecated functions in package \strong{ItemResponseTrees}.}
+\title{Deprecated functions in package \strong{ItemResponseTrees}}
 \description{
 These functions are provided for compatibility with older versions only,
 and may be defunct as soon as the next release.
@@ -26,3 +26,4 @@ This function is deprecated. Use \code{glance()}, \code{tidy()}, and \code{augme
 instead.
 }
 
+\keyword{internal}

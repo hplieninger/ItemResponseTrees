@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpers.R
 \name{rtruncatednorm}
 \alias{rtruncatednorm}
-\title{Sample From a Truncated Normal Distribution}
+\title{Sample from a truncated normal distribution}
 \usage{
 rtruncatednorm(n = NULL, mean = 0, sd = 1, ll = -Inf, ul = Inf)
 }
@@ -18,10 +18,11 @@ rtruncatednorm(n = NULL, mean = 0, sd = 1, ll = -Inf, ul = Inf)
 \item{ul}{Upper bound}
 }
 \description{
-Sample From a Truncated Normal Distribution
+Sample from a truncated normal distribution
 }
 \seealso{
 There is a discussion and code on
 \url{https://stackoverflow.com/a/14034577}, and there is also the truncnorm
 package.
 }
+\keyword{internal}

@@ -28,9 +28,9 @@ implemented in mirt.}
 console.}
 
 \item{control}{List. The allowed elements of this list depend on the
-\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
-convenience. Note that the \code{fit()} function does not use \code{...}, but that you
-can use the \verb{control_*()} functions to pass additional arguments.}
+\code{engine}. Use \code{\link[=control_mirt]{control_mirt()}}, \code{\link[=control_mplus]{control_mplus()}}, or \code{\link[=control_tam]{control_tam()}} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that
+you can use the \verb{control_*()} functions to pass additional arguments.}
 
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
@@ -39,22 +39,4 @@ know what you are doing.}
 \description{
 This function takes a \code{data} frame and a model \code{object} and runs the model in mirt.
 }
-\examples{
-m1 <- "
-IRT:
-attitude BY Comfort, Work, Future, Benefit;
-Class:
-GRM
-"
-
-model1 <- irtree_model(m1)
-
-data(Science, package = "mirt")
-
-fit1 <- fit(model1, data = Science, engine = "mirt",
-            control = control_mirt(quadpts = 15))
-
-glance(fit1)
-tidy(fit1, par_type = "difficulty")
-augment(fit1)
-}
+\keyword{internal}

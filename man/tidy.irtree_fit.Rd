@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidiers.R
 \name{tidy.irtree_fit}
 \alias{tidy.irtree_fit}
-\title{Tidy an irtree_fit object.}
+\title{Tidy an irtree_fit object}
 \usage{
 \method{tidy}{irtree_fit}(x = NULL, par_type = NULL, ...)
 }
@@ -23,29 +23,27 @@ parameter and the following columns:
 \item{\code{estimate}}{The estimated value of the term.}
 \item{\code{std.error}}{The standard error of the term.}
 \item{\code{statistic}}{The value of the test statistic of the term (Mplus only).}
-\item{\code{p.value}}{The p-value associated with the statistic.}
+\item{\code{p.value}}{The p-value associated with the statistic (Mplus only).}
 }
 }
 \description{
-Tidy summarizes information about the parameter estimates of the IR-tree model.
+Tidy summarizes information about the parameter estimates of an ItemResponseTrees model.
 }
 \examples{
+data("jackson")
+df1 <- jackson[1:234, paste0("C", 1:5)]
+irtree_create_template(names(df1))
 m1 <- "
 IRT:
-attitude BY Comfort, Work, Future, Benefit;
+t BY C1@1, C2@1, C3@1, C4@1, C5@1;
 Class:
-GRM
-"
+GRM"
+fit1 <- fit(irtree_model(m1), data = df1)
 
-model1 <- irtree_model(m1)
-
-data(Science, package = "mirt")
-
-fit1 <- fit(model1, data = Science, engine = "mirt",
-            control = control_mirt(quadpts = 15))
+tidy(fit1, par_type = "difficulty")
 
 glance(fit1)
-tidy(fit1, par_type = "difficulty")
+
 augment(fit1)
 }
 \seealso{

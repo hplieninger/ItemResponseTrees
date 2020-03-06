@@ -5,7 +5,7 @@
 #' @param link String specifying the link function. Only `logit` is
 #'   implemented in TAM.
 #' @inheritParams fit.irtree_model
-#' @example inst/examples/example-fit.R
+#' @keywords internal
 irtree_fit_tam <- function(object = NULL,
                            data = NULL,
                            link = "logit",
@@ -124,7 +124,7 @@ irtree_fit_tam <- function(object = NULL,
 
 }
 
-#' Control Aspects of Fitting a Model in TAM
+#' Control aspects of fitting a model in TAM
 #'
 #' This function should be used to generate the `control` argument of the
 #' [`fit()`][fit.irtree_model] function.
@@ -145,12 +145,13 @@ irtree_fit_tam <- function(object = NULL,
 #'                            fac.oldxsi = 0),
 #'             constraint = "items")
 #' @export
-control_tam <- function(set_min_to_0 = FALSE,
-                        control = list(snodes = 0,
-                                       maxiter = 1000,
-                                       increment.factor = 1,
-                                       fac.oldxsi = 0),
-                        ...) {
+control_tam <- function(
+    set_min_to_0 = FALSE,
+    control = list(snodes = 0,
+                   maxiter = 1000,
+                   increment.factor = 1,
+                   fac.oldxsi = 0),
+    ...) {
 
     ctrl <- c(as.list(environment()), list(...))
 

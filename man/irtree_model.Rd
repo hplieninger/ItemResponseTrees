@@ -2,7 +2,7 @@
 % Please edit documentation in R/s3_tree_model.R
 \name{irtree_model}
 \alias{irtree_model}
-\title{ItemResponseTree Model Syntax}
+\title{ItemResponseTrees model syntax}
 \usage{
 irtree_model(model = NULL)
 }
@@ -17,7 +17,7 @@ instructive, and it might be used as an input to the \code{dendrify()}
 function of the irtrees package.
 }
 \description{
-The ItemResponseTree model syntax describes the statistical model. The
+The ItemResponseTrees model syntax describes the statistical model. The
 function \code{irtree_model()} turns a user-defined model string into an object of
 class \code{irtree_model} that represents the full model as needed by the package.
 }
@@ -25,9 +25,11 @@ class \code{irtree_model} that represents the full model as needed by the packag
 
 
 \enumerate{
-\item The \code{model} string must contain at least the sections \strong{IRT}, \strong{Class}, and (if class is tree) \strong{Equations}.
+\item The \code{model} string must contain at least the sections \strong{IRT},
+\strong{Class}, and (if class is tree) \strong{Equations}.
 \item Section headings must appear on a separate line ending with a colon (:).
-\item The model may contain empty lines and comments, which begin with \verb{#}.
+\item The model may contain empty lines and commented lines, which begin
+with \verb{#} (do not use inline comments).
 \item Line breaks are only allowed in section \strong{IRT}.
 }
 Details for all the required and optional sections of the \code{model} string are
@@ -36,11 +38,11 @@ given in the following.
 
 The \code{model} must contain a section with heading \strong{IRT}. Therein, the IRT
 structure of the model is described in a way resembling the MODEL part of
-an Mplus input file. It has a structure of \verb{LV BY item1*, item2@1},
+an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
 where \code{LV} is the name of the latent variable/parameter/process, and
 \code{item} is the name of the observed variable in the data set, which
 is followed by the loading. The loading may either be fixed (e.g., to 1)
-using \verb{@1} or it may be set free using \code{*} or omitting the
+using \code{@1} or it may be set free using \code{*} or omitting the
 loading completely.
 
 Each measurement model (i.e., the LV and its items) must appear on a
@@ -79,8 +81,7 @@ Each equation must appear on a separate, non-broken line. For example:\preformat
 
 The \code{model} must contain a section with heading \strong{Class} to specify the
 type/class of IRT model to use.
-Currently, may be either \code{Tree} or \code{GRM} (graded response model). For
-example:\preformatted{Class:
+Currently, may be either \code{Tree}, \code{GRM}, or \code{PCM}. For example:\preformatted{Class:
 Tree
 }
 }
@@ -109,8 +110,8 @@ For example, one would use one tree for each Big Five scale and fix the
 response style parameters to equality across trees but not the target trait
 parameters.
 
-Each line in this section has a structure of \code{param = lv | lv}, where \code{param} is the name of the process used only in section
-\strong{Equations} and \code{lv} it the name of the process used only in
+Each line in this section has a structure of \code{Param = LV | LV}, where \code{Param} is the name of the process used only in section
+\strong{Equations} and \code{LV} it the name of the process used only in
 section \strong{IRT}.
 Use one line for each definition. For example:\preformatted{Constraints:
 t = t1 | t2 | t3 | t4 | t5
@@ -126,12 +127,12 @@ pseudoitem of \code{NA-0-1}.
 However, the latent variables corresponding to these processes would
 typically be assumed to be equal and need thus be constrained accordingly.
 
-Each line in this section has a structure of \code{lv1 = lv2}, where
-\code{lv1} and \code{lv2} are the names of the latent variables used in
+Each line in this section has a structure of \code{LV1 = LV2}, where
+\code{LV1} and \code{LV2} are the names of the latent variables used in
 section \strong{IRT}.
 Use one line for each definition. For example:\preformatted{Constraints:
-lv1 = lv2
-lv1 = lv3
+LV1 = LV2
+LV1 = LV3
 }
 }
 
@@ -153,7 +154,7 @@ m WITH t@0;
 \subsection{Weights}{
 
 The \code{model} may contain a section with heading \strong{Weights} if model
-\strong{Class} is PCM and \code{engine = "tam"} is used for estimation.
+\strong{Class} is PCM.
 This allows to specify (uni- and) multidimensional partial credit models.
 They have been proposed, for example, by Wetzel and Carstensen (2017), as
 an alternative to IR-tree models.

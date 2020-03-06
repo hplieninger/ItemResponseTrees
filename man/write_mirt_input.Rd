@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit-mirt.R
 \name{write_mirt_input}
 \alias{write_mirt_input}
-\title{Prepare a mirt Model}
+\title{Prepare a mirt model}
 \usage{
 write_mirt_input(object = NULL, data = NULL)
 }
@@ -15,8 +15,8 @@ column per variable. The variable names must correspond to those used in
 \code{object}.}
 }
 \value{
-A list with four elements. \code{mirt_string} is the \link[mirt:mirt.model]{mirt::mirt.model}
-object; \code{itemtype} and \code{values} are used as arguments for \code{\link[mirt:mirt]{mirt::mirt()}};
+A list with three elements. \code{mirt_string} is the \link[mirt:mirt.model]{mirt::mirt.model}
+object; \code{itemtype} can be passed to \code{\link[mirt:mirt]{mirt::mirt()}};
 \code{lambda} is the modified lambda matrix from the \code{object}-argument.
 }
 \description{
@@ -24,3 +24,4 @@ This is an internal function used by \code{\link[=irtree_fit_mirt]{irtree_fit_mi
 inputs from the model object and the data set and returns a
 \link[mirt:mirt.model]{mirt::mirt.model} object.
 }
+\keyword{internal}

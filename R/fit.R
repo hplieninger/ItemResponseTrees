@@ -1,4 +1,4 @@
-#' Fit an `irtree_model.
+#' Fit an ItemResponseTrees model
 #'
 #' This function takes a `data` frame and an `object` of class [irtree_model]
 #' and runs the model in either mirt, Mplus, or TAM.
@@ -23,14 +23,14 @@
 #' @param verbose Logical indicating whether output should be printed to the
 #'   console.
 #' @param control List. The allowed elements of this list depend on the
-#'   `engine`. Use [control_mirt], [control_mplus], or [control_tam] for
-#'   convenience. Note that the `fit()` function does not use `...`, but that you
-#'   can use the `control_*()` functions to pass additional arguments.
+#'   `engine`. Use [control_mirt()], [control_mplus()], or [control_tam()] for
+#'   convenience. Note that the `fit()` function does not use `...`, but that
+#'   you can use the `control_*()` functions to pass additional arguments.
 #' @param improper_okay Logical indicating whether the model should also be fit
 #'   if it is not a proper IR-tree model. Set this only to `TRUE` if you really
 #'   know what you are doing.
 #' @return Returns a list of class `irtree_fit`. The first list element is the
-#'   return value of either [mirt::mirt()], [MplusAutomation::readModels()] or
+#'   return value of either [mirt::mirt()], [MplusAutomation::readModels()], or
 #'   [TAM::tam.mml()]. Further information is provided in the element
 #'   `spec`.
 #' @param ... Not currently used. Use `control` instead.

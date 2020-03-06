@@ -1,4 +1,4 @@
-#' IPIP Big Five Personality Test Answers (Data Set)
+#' IPIP Big Five personality test answers (data set)
 #'
 #' @description "This is data from an online big five personality test:
 #' \url{http://personality-testing.info/tests/BIG5.php}. The following items

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit-mirt.R
 \name{control_mirt}
 \alias{control_mirt}
-\title{Control Aspects of Fitting a Model in mirt}
+\title{Control aspects of fitting a model in mirt}
 \usage{
 control_mirt(
   rm_mirt_internal = TRUE,
@@ -14,10 +14,12 @@ control_mirt(
 )
 }
 \arguments{
-\item{rm_mirt_internal}{Logical. \code{\link[mirt:mirt]{mirt::mirt()}} returns a lot of
-information including two functions that can take up a huge amount of space
-(https://github.com/philchalmers/mirt/issues/147#issue-352032654). These
-two functions are removed from the output if \code{rm_mirt_internal = TRUE}.}
+\item{rm_mirt_internal}{Logical. \code{\link[mirt:mirt]{mirt::mirt()}} returns a lot of information
+including two functions that can take up a huge amount of space (see mirt
+issue
+\href{https://github.com/philchalmers/mirt/issues/147#issue-352032654}{#147}).
+These two functions are removed from the output if this argument is
+\code{TRUE}.}
 
 \item{SE}{logical; estimate the standard errors by computing the parameter information matrix?
 See \code{SE.type} for the type of estimates available}

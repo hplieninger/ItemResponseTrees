@@ -26,6 +26,7 @@ NULL
 #'   instead.
 #'
 #' @export
+#' @keywords internal
 extract_mirt_output <- function(results = NULL, # nocov start
                                 object = NULL,
                                 method = "MAP",

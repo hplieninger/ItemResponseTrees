@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit-mplus.R
 \name{control_mplus}
 \alias{control_mplus}
-\title{Control Aspects of Fitting a Model in Mplus}
+\title{Control aspects of fitting a model in Mplus}
 \usage{
 control_mplus(
   file = tempfile("irtree_"),
@@ -30,10 +30,10 @@ files should be overwritten.}
 
 \item{estimator}{String, passed to argument 'ESTIMATOR' in Mplus.}
 
-\item{quadpts}{This is passed to argument 'INTEGRATION'. Thus, it may be an
-integer specifying the number of integration points for the Mplus default
-of rectangular numerical integration (e.g., \code{quadpts = 15}). Or it may be a
-string, which gives more fine grained control (e.g., \code{quadpts = "MONTECARLO(2000)"}).}
+\item{quadpts}{This is passed to argument 'INTEGRATION' of Mplus. Thus, it
+may be an integer specifying the number of integration points for the Mplus
+default of rectangular numerical integration (e.g., \code{quadpts = 15}). Or it
+may be a string, which gives more fine grained control (e.g., \code{quadpts = "MONTECARLO(2000)"}).}
 
 \item{save_fscores}{Logical, whether to save FSCORES or not.}
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulation.R
 \name{irtree_sim}
 \alias{irtree_sim}
-\title{Run a Simulation by Generating From and Fitting a Tree Model}
+\title{Run a simulation by generating from and fitting an ItemResponseTrees model}
 \usage{
 irtree_sim(
   R = 1,
@@ -44,18 +44,18 @@ should be fit to the data. May be a list of multiple objects of class
 is the variance-covariance matrix of the person parameters that is passed
 to \code{\link[MASS:mvrnorm]{MASS::mvrnorm()}}. Note that the order of the person
 parameters is taken from the section Processes in the model \code{object} (see
-\code{\link[=irtree_model]{irtree_model()}}).}
+\link{irtree_model}).}
 
 \item{itempar}{Either a list or a function that returns a list. The list has
 an element \code{beta} and an element \code{alpha}. Each of these is a
 matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
-section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
+section Processes in the \code{model} (see \link{irtree_model}).}
 
 \item{link}{Character. Link function to use.}
 
 \item{na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
+categories are permitted. If \code{FALSE}, rejection sampling
 is used to ensure that all categories are observed.}
 
 \item{engine}{String specifying whether to use mirt, Mplus, or TAM for
@@ -65,9 +65,9 @@ estimation.}
 console.}
 
 \item{control}{List. The allowed elements of this list depend on the
-\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
-convenience. Note that the \code{fit()} function does not use \code{...}, but that you
-can use the \verb{control_*()} functions to pass additional arguments.}
+\code{engine}. Use \code{\link[=control_mirt]{control_mirt()}}, \code{\link[=control_mplus]{control_mplus()}}, or \code{\link[=control_tam]{control_tam()}} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that
+you can use the \verb{control_*()} functions to pass additional arguments.}
 
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
@@ -95,19 +95,28 @@ file.}
 
 \item{in_memory}{Character string indicating what output should be kept in
 memory (note the argument \code{save_rdata}, which is not affected by
-\code{in_memory}).}
-
-\item{...}{Other parameters passed \code{\link[=irtree_sim1]{irtree_sim1()}}.}
+\code{in_memory}). If \code{"reduced"}, the output of \code{\link[=fit.irtree_model]{fit()}} is
+discarded and only summary information is retained. The alternative is to
+keep \code{"everything"} in memory, or to keep \code{"nothing"} in memory (which
+makes only sense in combination with \code{save_rdata = TRUE}).}
 }
 \value{
-Returns a list of length \code{R}, where each element is the output of
-\code{\link[=irtree_sim1]{irtree_sim1()}}. If \code{in_memory = "nothing"}, returns \code{NULL}.
+Returns a list of length \code{R}. For each replication, a list is
+returned with two elements. The element \code{spec} contains various
+specifications (such as the data). The element \code{fits} is a list with one
+element for each \code{fit_model} that contains the output of
+\code{\link[=fit.irtree_model]{fit()}} as well as the elements \code{glanced}, \code{tidied},
+and \code{augmented} (see \code{\link[=glance]{glance()}}, \code{\link[=tidy]{tidy()}}, and \code{\link[=augment]{augment()}}). Thus,
+\code{res$sim3$fits$m2$glanced} gives model-fit information such as AIC for the
+second model in the third replication, and \code{res$sim3$spec$data} contains
+the corresponding data set.
+
+If \code{in_memory = "nothing"}, returns \code{NULL}.
 }
 \description{
-The function \code{\link[=irtree_sim1]{irtree_sim1()}} generates a data set from an IR-tree model and
-fits one or more models to that data set. The present function \code{irtree_sim()}
-repeats this process \code{R} times, and the argument \code{plan} allows to
-run the simulation in parallel.
+The function \code{irtree_sim()} generates data from an \link{irtree_model} and fits
+one or more models to these data. This process is repeated \code{R} times, and the
+argument \code{plan} allows to run the simulation in parallel.
 }
 \examples{
 m1 <- "
@@ -178,5 +187,6 @@ tab1
 #> [4,]    2     2 9918.594 10011.315
 }
 \seealso{
-\code{\link[=irtree_sim1]{irtree_sim1()}}
+The data are generated via \code{\link[=irtree_gen_data]{irtree_gen_data()}}, and the models are
+fit via \code{\link[=fit.irtree_model]{fit()}}.
 }

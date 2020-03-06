@@ -26,6 +26,7 @@ NULL
 #'   instead.
 #'
 #' @export
+#' @keywords internal
 extract_mplus_output <- function(results = NULL, # nocov start
                                  object = NULL,
                                  class = NULL,

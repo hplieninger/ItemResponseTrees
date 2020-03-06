@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidiers.R
 \name{glance.irtree_fit}
 \alias{glance.irtree_fit}
-\title{Glance at an irtree_fit object.}
+\title{Glance at an irtree_fit object}
 \usage{
 \method{glance}{irtree_fit}(x = NULL, ...)
 }
@@ -15,11 +15,12 @@
 A one-row \link[tibble:tibble-package]{tibble} with columns such as \code{AIC} and \code{BIC}.
 \subsection{Converged}{
 
-The column \code{converged} indicates whether the model
-converged or not. For Mplus, this is \code{TRUE} if the output contained the
-phrase "The model estimation terminated normally". For mirt, this is equal
-to the output of \code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "converged")}}. You are encouraged to check any warnings
-or errors in any case.
+The column \code{converged} indicates whether the model converged or not. For
+Mplus, this is \code{TRUE} if the output contained the phrase "The model
+estimation terminated normally". For mirt, this is equal to the output of
+\code{\link[mirt:extract.mirt]{mirt::extract.mirt(x, "converged")}}. For TAM, this is
+\code{NA} if no clear signs of non-convergence were observed. You are encouraged
+to check any warnings or errors in any case.
 }
 
 \subsection{Iterations}{
@@ -33,22 +34,20 @@ Glance accepts an \code{irtree_fit} object and returns a \link[tibble:tibble-pac
 with exactly one row of model summaries.
 }
 \examples{
+data("jackson")
+df1 <- jackson[1:234, paste0("C", 1:5)]
+irtree_create_template(names(df1))
 m1 <- "
 IRT:
-attitude BY Comfort, Work, Future, Benefit;
+t BY C1@1, C2@1, C3@1, C4@1, C5@1;
 Class:
-GRM
-"
+GRM"
+fit1 <- fit(irtree_model(m1), data = df1)
 
-model1 <- irtree_model(m1)
-
-data(Science, package = "mirt")
-
-fit1 <- fit(model1, data = Science, engine = "mirt",
-            control = control_mirt(quadpts = 15))
+tidy(fit1, par_type = "difficulty")
 
 glance(fit1)
-tidy(fit1, par_type = "difficulty")
+
 augment(fit1)
 }
 \seealso{

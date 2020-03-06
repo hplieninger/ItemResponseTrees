@@ -28,9 +28,9 @@ the link function.}
 console.}
 
 \item{control}{List. The allowed elements of this list depend on the
-\code{engine}. Use \link{control_mirt}, \link{control_mplus}, or \link{control_tam} for
-convenience. Note that the \code{fit()} function does not use \code{...}, but that you
-can use the \verb{control_*()} functions to pass additional arguments.}
+\code{engine}. Use \code{\link[=control_mirt]{control_mirt()}}, \code{\link[=control_mplus]{control_mplus()}}, or \code{\link[=control_tam]{control_tam()}} for
+convenience. Note that the \code{fit()} function does not use \code{...}, but that
+you can use the \verb{control_*()} functions to pass additional arguments.}
 
 \item{improper_okay}{Logical indicating whether the model should also be fit
 if it is not a proper IR-tree model. Set this only to \code{TRUE} if you really
@@ -54,3 +54,4 @@ data(Science, package = "mirt")
 fit1 <- fit(model1, Science, engine = "mplus")
 }
 }
+\keyword{internal}

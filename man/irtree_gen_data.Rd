@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate-data.R
 \name{irtree_gen_data}
 \alias{irtree_gen_data}
-\title{Generate Data}
+\title{Generate data}
 \usage{
 irtree_gen_data(
   object = NULL,
@@ -25,7 +25,7 @@ information.}
 is the variance-covariance matrix of the person parameters that is passed
 to \code{\link[MASS:mvrnorm]{MASS::mvrnorm()}}. Note that the order of the person
 parameters is taken from the section Processes in the model \code{object} (see
-\code{\link[=irtree_model]{irtree_model()}}).}
+\link{irtree_model}).}
 
 \item{theta}{Optional numeric matrix of person parameters with one row per person and
 one column per dimension (i.e., \code{object$S}). If provided, this overrides
@@ -35,12 +35,12 @@ one column per dimension (i.e., \code{object$S}). If provided, this overrides
 an element \code{beta} and an element \code{alpha}. Each of these is a
 matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
-section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
+section Processes in the \code{model} (see \link{irtree_model}).}
 
 \item{link}{Character. Link function to use.}
 
 \item{na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
+categories are permitted. If \code{FALSE}, rejection sampling
 is used to ensure that all categories are observed.}
 
 \item{skip}{Logical. Some features of the \link{irtree_model} syntax,
@@ -53,25 +53,70 @@ A list with element \code{data} containing the data and an
 element \code{spec} containing the true parameter values etc.
 }
 \description{
-This function generates data from an ItemResponseTree model.
+This function generates data from an ItemResponseTrees model.
 }
 \examples{
+# IR-Tree Model -----------------------------------------------------------
+
 m1 <- "
 IRT:
-t BY x1;
-e BY x1;
-m BY x1;
+t BY x1, x2, x3;
+e BY x1, x2, x3;
+m BY x1, x2, x3;
+
 Equations:
 1 = (1-m)*(1-t)*e
 2 = (1-m)*(1-t)*(1-e)
 3 = m
 4 = (1-m)*t*(1-e)
 5 = (1-m)*t*e
+
 Class:
 Tree
 "
+
 model1 <- irtree_model(m1)
-dat <- irtree_gen_data(model1, N = 5, sigma = diag(3),
-                       itempar = list(beta = matrix(runif(3), 1, 3),
-                                      alpha = matrix(1, 1, 3)))
+
+dat1 <- irtree_gen_data(model1, N = 5, sigma = diag(3),
+                        itempar = list(beta = matrix(rnorm(9), 3, 3),
+                                       alpha = matrix(1, 3, 3)))
+dat1$data
+
+# Partial Credit Model ----------------------------------------------------
+
+m2 <- "
+IRT:
+t BY x1@1, x2@1, x3@1;
+e BY x1@1, x2@1, x3@1;
+m BY x1@1, x2@1, x3@1;
+
+Weights:
+t = c(0, 1, 2, 3, 4)
+e = c(1, 0, 0, 0, 1)
+m = c(0, 0, 1, 0, 0)
+
+Class:
+PCM
+"
+model2 <- irtree_model(m2)
+dat2 <- irtree_gen_data(model2, N = 5, sigma = diag(3),
+                       itempar = list(beta = matrix(sort(rnorm(12)), 3, 4)))
+dat2$data
+
+m3 <- "
+IRT:
+t BY x1@1, x2@1, x3@1;
+
+Weights:
+t = 0:4
+
+Class:
+PCM
+"
+
+model3 <- irtree_model(m3)
+
+dat3 <- irtree_gen_data(model3, N = 5, sigma = diag(1),
+                       itempar = list(beta = matrix(sort(rnorm(12)), 3, 4)))
+dat3$data
 }

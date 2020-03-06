@@ -1,4 +1,4 @@
-#' Generate IR-Tree Data and Fit Model
+#' Generate data from and fit an ItemResponseTrees model
 #'
 #' This function generates data from `gen_model`, subsequently fits all the
 #' models in `fit_model`, and returns the results and/or saves them to an
@@ -24,7 +24,7 @@
 #'   only summary information is retained).
 #' @inheritParams irtree_gen_data
 #' @inheritParams fit.irtree_model
-#' @inheritParams tidy_mirt
+#' @inheritParams tidy.irtree_fit
 #' @return List with two elements. The second element `spec` contains various
 #'   arguments (such as the data). The first element `fits` is a list with one
 #'   element for each `fit_model` that contains the output of
@@ -32,7 +32,7 @@
 #'   and `augmented` (see [glance()], [tidy()], and [augment()]).
 #' @seealso [irtree_sim()], and the wrapped functions
 #'   [`fit()`][fit.irtree_model] and [irtree_gen_data()].
-#' @export
+#' @keywords internal
 irtree_sim1 <- function(R = 1,
                         gen_model = NULL,
                         fit_model = gen_model,
@@ -169,12 +169,11 @@ irtree_sim1 <- function(R = 1,
     }
 }
 
-#' Run a Simulation by Generating From and Fitting a Tree Model
+#' Run a simulation by generating from and fitting an ItemResponseTrees model
 #'
-#' The function [irtree_sim1()] generates a data set from an IR-tree model and
-#' fits one or more models to that data set. The present function `irtree_sim()`
-#' repeats this process `R` times, and the argument `plan` allows to
-#' run the simulation in parallel.
+#' The function `irtree_sim()` generates data from an [irtree_model] and fits
+#' one or more models to these data. This process is repeated `R` times, and the
+#' argument `plan` allows to run the simulation in parallel.
 #'
 #' @param R Number of replications. Can be either a single number indicating the
 #'   number of replications (e.g., `R = 100`), or can be a range (e.g., `R =
@@ -190,12 +189,24 @@ irtree_sim1 <- function(R = 1,
 #   exceed memory.
 #' @param in_memory Character string indicating what output should be kept in
 #'   memory (note the argument `save_rdata`, which is not affected by
-#'   `in_memory`).
-#' @param ... Other parameters passed [irtree_sim1()].
-#' @return Returns a list of length `R`, where each element is the output of
-#'   [irtree_sim1()]. If `in_memory = "nothing"`, returns `NULL`.
+#'   `in_memory`). If `"reduced"`, the output of [`fit()`][fit.irtree_model] is
+#'   discarded and only summary information is retained. The alternative is to
+#'   keep `"everything"` in memory, or to keep `"nothing"` in memory (which
+#'   makes only sense in combination with `save_rdata = TRUE`).
+#' @return Returns a list of length `R`. For each replication, a list is
+#'   returned with two elements. The element `spec` contains various
+#'   specifications (such as the data). The element `fits` is a list with one
+#'   element for each `fit_model` that contains the output of
+#'   [`fit()`][fit.irtree_model] as well as the elements `glanced`, `tidied`,
+#'   and `augmented` (see [glance()], [tidy()], and [augment()]). Thus,
+#'   `res$sim3$fits$m2$glanced` gives model-fit information such as AIC for the
+#'   second model in the third replication, and `res$sim3$spec$data` contains
+#'   the corresponding data set.
+#'
+#'   If `in_memory = "nothing"`, returns `NULL`.
 #' @inheritParams irtree_sim1
-#' @seealso [irtree_sim1()]
+#' @seealso The data are generated via [irtree_gen_data()], and the models are
+#'   fit via [`fit()`][fit.irtree_model].
 #' @example inst/examples/example-sim.R
 #' @export
 irtree_sim <- function(R = 1,

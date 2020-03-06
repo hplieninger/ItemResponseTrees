@@ -1,13 +1,13 @@
-#' Generate Data
+#' Generate data
 #'
-#' This function generates data from an ItemResponseTree model.
+#' This function generates data from an ItemResponseTrees model.
 #'
 #' @param N Integer, the number of persons.
 #' @param sigma Either a matrix or a function that returns a matrix. This matrix
 #'   is the variance-covariance matrix of the person parameters that is passed
 #'   to [MASS::mvrnorm()]. Note that the order of the person
 #'   parameters is taken from the section Processes in the model `object` (see
-#'   [irtree_model()]).
+#'   [irtree_model]).
 #' @param theta Optional numeric matrix of person parameters with one row per person and
 #'   one column per dimension (i.e., `object$S`). If provided, this overrides
 #'   `N` and `sigma`.
@@ -15,10 +15,10 @@
 #'   an element `beta` and an element `alpha`. Each of these is a
 #'   matrix of item parameters. Note that the order of items (rows) is taken from the
 #'   section Items and the order of processes (columns) is taken from the
-#'   section Processes in the `model` (see [irtree_model()]).
+#'   section Processes in the `model` (see [irtree_model]).
 #' @param link Character. Link function to use.
 #' @param na_okay Logical indicating whether variables with unobserved response
-#'   categories are permitted. If not (`na_okay = FALSE`), rejection sampling
+#'   categories are permitted. If `FALSE`, rejection sampling
 #'   is used to ensure that all categories are observed.
 #' @param skip Logical. Some features of the [irtree_model] syntax,
 #'   which are available for model fitting (e.g., `Addendum`), are not
@@ -27,25 +27,7 @@
 #' @inheritParams fit.irtree_model
 #' @return A list with element `data` containing the data and an
 #'   element `spec` containing the true parameter values etc.
-#' @examples
-#' m1 <- "
-#' IRT:
-#' t BY x1;
-#' e BY x1;
-#' m BY x1;
-#' Equations:
-#' 1 = (1-m)*(1-t)*e
-#' 2 = (1-m)*(1-t)*(1-e)
-#' 3 = m
-#' 4 = (1-m)*t*(1-e)
-#' 5 = (1-m)*t*e
-#' Class:
-#' Tree
-#' "
-#' model1 <- irtree_model(m1)
-#' dat <- irtree_gen_data(model1, N = 5, sigma = diag(3),
-#'                        itempar = list(beta = matrix(runif(3), 1, 3),
-#'                                       alpha = matrix(1, 1, 3)))
+#' @example inst/examples/example-generate-data.R
 #' @export
 irtree_gen_data <- function(object = NULL,
                             N = NULL,
@@ -81,39 +63,19 @@ irtree_gen_data <- function(object = NULL,
                               na_okay = na_okay,
                               skip = skip)
     } else {
-        stop("Class ", object$class, " not implemented in irtree_gen_data().",
-             call. = FALSE)
+        stop("Class ", object$class, " not implemented in irtree_gen_data().", call. = FALSE)
     }
     return(out)
 }
 
-#' Generate Data From an IR-Tree Model
+#' Generate data from an IR-tree model
 #'
 #' This function generates data from an IR-tree model.
 #'
 #' @inheritParams irtree_gen_data
 #' @return A list with element `data` containing the data and an
 #'   element `spec` containing the true parameter values etc.
-#' @examples
-#' m1 <- "
-#' IRT:
-#' t BY x1;
-#' e BY x1;
-#' m BY x1;
-#' Equations:
-#' 1 = (1-m)*(1-t)*e
-#' 2 = (1-m)*(1-t)*(1-e)
-#' 3 = m
-#' 4 = (1-m)*t*(1-e)
-#' 5 = (1-m)*t*e
-#' Class:
-#' Tree
-#' "
-#' model1 <- irtree_model(m1)
-#' dat <- irtree_gen_tree(model1, N = 5, sigma = diag(3),
-#'                        itempar = list(beta = matrix(runif(3), 1, 3),
-#'                                       alpha = matrix(1, 1, 3)))
-#' @export
+#' @keywords internal
 irtree_gen_tree <- function(object = NULL,
                             N = NULL,
                             sigma = NULL,
@@ -302,10 +264,10 @@ irtree_gen_tree <- function(object = NULL,
 
 }
 
-#' Recode Data Set Into Pseudoitems.
+#' Recode data into pseudoitems
 #'
-#' This function takes a data set with polytomous items and an IR-tree model and
-#' returns the recoded items, the so-called pseudoitems.
+#' This function takes a data set with polytomous items and an `irtree_model`
+#' and returns the recoded items, the so-called pseudoitems.
 #'
 #' @inheritParams fit.irtree_model
 #' @param keep Logical indicating whether to append the original items to the

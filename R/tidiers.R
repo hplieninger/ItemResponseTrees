@@ -1,16 +1,16 @@
-#' Glance at an irtree_fit object.
+#' Glance at an irtree_fit object
 #'
 #' Glance accepts an `irtree_fit` object and returns a [tibble][tibble::tibble-package]
 #'   with exactly one row of model summaries.
 #'
 #' @return A one-row [tibble][tibble::tibble-package] with columns such as `AIC` and `BIC`.
 #' ## Converged
-#' The column `converged` indicates whether the model
-#'   converged or not. For Mplus, this is `TRUE` if the output contained the
-#'   phrase "The model estimation terminated normally". For mirt, this is equal
-#'   to the output of [`mirt::extract.mirt(x,
-#'   "converged")`][mirt::extract.mirt]. You are encouraged to check any warnings
-#'   or errors in any case.
+#' The column `converged` indicates whether the model converged or not. For
+#' Mplus, this is `TRUE` if the output contained the phrase "The model
+#' estimation terminated normally". For mirt, this is equal to the output of
+#' [`mirt::extract.mirt(x, "converged")`][mirt::extract.mirt]. For TAM, this is
+#' `NA` if no clear signs of non-convergence were observed. You are encouraged
+#' to check any warnings or errors in any case.
 #'
 #' ## Iterations
 #' `iterations` is `NA` for Mplus models since respective
@@ -18,7 +18,7 @@
 #'
 #' @param x object of class `irtree_fit` as returned from [`fit()`][fit.irtree_model].
 #' @param ... Additional arguments. Not used.
-#' @example inst/examples/example-fit.R
+#' @example inst/examples/example-tidiers.R
 #' @seealso [generics::glance()], [`mirt::extract.mirt(x,
 #'   "secondordertest")`][mirt::extract.mirt]
 #' @export
@@ -101,9 +101,9 @@ glance.irtree_fit <- function(x = NULL, ...) {
     return(out)
 }
 
-#' Tidy an irtree_fit object.
+#' Tidy an irtree_fit object
 #'
-#' Tidy summarizes information about the parameter estimates of the IR-tree model.
+#' Tidy summarizes information about the parameter estimates of an ItemResponseTrees model.
 #'
 #' @param x object of class irtree_fit as returned from  [`fit()`][fit.irtree_model].
 #' @param par_type Only used if the fit engine was mirt. Item parameters (or
@@ -117,9 +117,9 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #'   \item{`estimate`}{The estimated value of the term.}
 #'   \item{`std.error`}{The standard error of the term.}
 #'   \item{`statistic`}{The value of the test statistic of the term (Mplus only).}
-#'   \item{`p.value`}{The p-value associated with the statistic.}
+#'   \item{`p.value`}{The p-value associated with the statistic (Mplus only).}
 #' }
-#' @example inst/examples/example-fit.R
+#' @example inst/examples/example-tidiers.R
 #' @seealso [generics::tidy()]
 #' @export
 tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
@@ -141,13 +141,6 @@ tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
     return(out)
 }
 
-#' Tidy an irtree_fit object estimated using mirt.
-#'
-#' Tidy summarizes information about the parameter estimates of the IR-tree model.
-#'
-#' @inheritParams tidy.irtree_fit
-#' @inherit tidy.irtree_fit return description
-#' @seealso [`tidy()`][tidy.irtree_fit()], [generics::tidy()]
 tidy_mirt <- function(x = NULL, par_type = NULL) {
 
     f1 <- function(x) {
@@ -256,7 +249,7 @@ tidy_tam <- function(x = NULL) {
     return(out)
 }
 
-#' Augment data with information from an irtree_fit object.
+#' Augment data with information from an irtree_fit object
 #'
 #' @description Augment accepts a model object and a dataset and adds
 #'   information about each observation in the dataset, namely, predicted values
@@ -282,7 +275,7 @@ tidy_tam <- function(x = NULL) {
 #'   observation and one (two) additional columns for each latent variable if
 #'   `se.fit = FALSE` (if `se.fit = TRUE`). The names of the new columns start
 #'   with `.fit` (and `.se.fit`).
-#' @example inst/examples/example-fit.R
+#' @example inst/examples/example-tidiers.R
 #' @seealso [generics::augment()]
 #' @export
 augment.irtree_fit <- function(x = NULL,

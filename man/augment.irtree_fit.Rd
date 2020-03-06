@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidiers.R
 \name{augment.irtree_fit}
 \alias{augment.irtree_fit}
-\title{Augment data with information from an irtree_fit object.}
+\title{Augment data with information from an irtree_fit object}
 \usage{
 \method{augment}{irtree_fit}(x = NULL, data = NULL, se.fit = TRUE, method = "EAP", ...)
 }
@@ -41,22 +41,20 @@ Note that \code{method} is used only for objects returned from
 \code{irtree_fit(engine = "mirt")}.
 }
 \examples{
+data("jackson")
+df1 <- jackson[1:234, paste0("C", 1:5)]
+irtree_create_template(names(df1))
 m1 <- "
 IRT:
-attitude BY Comfort, Work, Future, Benefit;
+t BY C1@1, C2@1, C3@1, C4@1, C5@1;
 Class:
-GRM
-"
+GRM"
+fit1 <- fit(irtree_model(m1), data = df1)
 
-model1 <- irtree_model(m1)
-
-data(Science, package = "mirt")
-
-fit1 <- fit(model1, data = Science, engine = "mirt",
-            control = control_mirt(quadpts = 15))
+tidy(fit1, par_type = "difficulty")
 
 glance(fit1)
-tidy(fit1, par_type = "difficulty")
+
 augment(fit1)
 }
 \seealso{

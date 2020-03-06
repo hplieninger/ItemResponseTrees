@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate-data.R
 \name{irtree_gen_tree}
 \alias{irtree_gen_tree}
-\title{Generate Data From an IR-Tree Model}
+\title{Generate data from an IR-tree model}
 \usage{
 irtree_gen_tree(
   object = NULL,
@@ -24,7 +24,7 @@ information.}
 is the variance-covariance matrix of the person parameters that is passed
 to \code{\link[MASS:mvrnorm]{MASS::mvrnorm()}}. Note that the order of the person
 parameters is taken from the section Processes in the model \code{object} (see
-\code{\link[=irtree_model]{irtree_model()}}).}
+\link{irtree_model}).}
 
 \item{theta}{Optional numeric matrix of person parameters with one row per person and
 one column per dimension (i.e., \code{object$S}). If provided, this overrides
@@ -34,12 +34,12 @@ one column per dimension (i.e., \code{object$S}). If provided, this overrides
 an element \code{beta} and an element \code{alpha}. Each of these is a
 matrix of item parameters. Note that the order of items (rows) is taken from the
 section Items and the order of processes (columns) is taken from the
-section Processes in the \code{model} (see \code{\link[=irtree_model]{irtree_model()}}).}
+section Processes in the \code{model} (see \link{irtree_model}).}
 
 \item{link}{Character. Link function to use.}
 
 \item{na_okay}{Logical indicating whether variables with unobserved response
-categories are permitted. If not (\code{na_okay = FALSE}), rejection sampling
+categories are permitted. If \code{FALSE}, rejection sampling
 is used to ensure that all categories are observed.}
 }
 \value{
@@ -49,23 +49,4 @@ element \code{spec} containing the true parameter values etc.
 \description{
 This function generates data from an IR-tree model.
 }
-\examples{
-m1 <- "
-IRT:
-t BY x1;
-e BY x1;
-m BY x1;
-Equations:
-1 = (1-m)*(1-t)*e
-2 = (1-m)*(1-t)*(1-e)
-3 = m
-4 = (1-m)*t*(1-e)
-5 = (1-m)*t*e
-Class:
-Tree
-"
-model1 <- irtree_model(m1)
-dat <- irtree_gen_tree(model1, N = 5, sigma = diag(3),
-                       itempar = list(beta = matrix(runif(3), 1, 3),
-                                      alpha = matrix(1, 1, 3)))
-}
+\keyword{internal}

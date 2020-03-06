@@ -3,7 +3,7 @@
 \docType{data}
 \name{jackson}
 \alias{jackson}
-\title{IPIP Big Five Personality Test Answers (Data Set)}
+\title{IPIP Big Five personality test answers (data set)}
 \format{A data frame with 9051 rows and 58 variables:
 \describe{
 \item{E1}{Am the life of the party.}
