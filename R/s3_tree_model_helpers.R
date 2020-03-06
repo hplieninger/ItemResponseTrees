@@ -85,7 +85,7 @@ irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 
     assert_irtree_equations(e1)
 
-    e1$expr <- lapply(e1$equations[2, ], function(x) do.call(parse, list(text = x))[[1]])
+    e1$expr <- lapply(e1$equations[2, ], str2expression)
     names(e1$expr) <- e1$equations[1, ]
     e1$K <- length(e1$expr)
     e1$k_names <- as.integer(e1$equations[1, ])
