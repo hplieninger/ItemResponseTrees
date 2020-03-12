@@ -41,6 +41,9 @@ irtree_fit_mplus <- function(object = NULL,
     checkmate::qassert(verbose, "B1")
     checkmate::qassert(control, "l")
     checkmate::assert_names(names(control), must.include = formalArgs(control_mplus))
+    if (control$run) {
+        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+    }
 
     spec <- c(as.list(environment()))
     spec$engine <- "mplus"
@@ -209,11 +212,15 @@ irtree_fit_mplus <- function(object = NULL,
 
         wrn1 <- res$warnings
         if (length(wrn1) > 0) {
-            sapply(wrn1, function(x) mywarn("Mplus warning: ", clps(, x)))
+            sapply(wrn1, function(x) {
+                mywarn("Mplus returned the following warning:\n", clps(, x))
+            })
         }
         err1 <- res$errors
         if (length(err1) > 0) {
-            sapply(err1, function(x) mywarn("Mplus error: ", clps(, x)))
+            sapply(err1, function(x) {
+                mywarn("Mplus returned the following error:\n", clps(, x))
+            })
         }
     } else {
         res <- NULL
@@ -419,13 +426,11 @@ extract_mplus_converged <- function(outfiletext) {
 #' @inheritParams MplusAutomation::runModels
 #' @return A list with one element for every argument of `control_mplus()`.
 #' @examples
-#' \donttest{
 #' control_mplus(file = tempfile("irtree_", tmpdir = "."),
 #'               quadpts = "GAUSS(10)",
 #'               analysis_list = list(COVERAGE = "0",
 #'                                    MITERATIONS = "500",
 #'                                    MCONVERGENCE = ".001"))
-#' }
 #' @export
 control_mplus <- function(file = tempfile("irtree_"),
                           overwrite = FALSE,
@@ -444,9 +449,6 @@ control_mplus <- function(file = tempfile("irtree_"),
     checkmate::qassert(overwrite, "B1")
     checkmate::qassert(cleanup, "B1")
     checkmate::qassert(run, "B1")
-    if (run) {
-        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
-    }
     checkmate::qassert(save_fscores, "B1")
     checkmate::assert_list(analysis_list,  types = "character", names = "unique")
     checkmate::qassertr(analysis_list, "S1")

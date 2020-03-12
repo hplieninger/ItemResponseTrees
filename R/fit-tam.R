@@ -27,7 +27,12 @@ irtree_fit_tam <- function(object = NULL,
     assert_irtree_proper(object, improper_okay = improper_okay)
 
     if (!isTRUE(all(unlist(object$irt_loadings) == "@1"))) {
-        stop("2PL is not implemented in TAM.")
+        tmp1 <- object$irt_items[1]
+        tmp2 <- paste(names(tmp1), "BY",
+                      paste0(tmp1[[1]][1:3], "@1,", collapse = " "), "... ;")
+        stop("2PL is not implemented for TAM.\n",
+             "Please modify section IRT like so:\n",
+             tmp2, call. = FALSE)
     }
 
     object$j_names <- sort2(object$j_names, names(data))
@@ -71,10 +76,12 @@ irtree_fit_tam <- function(object = NULL,
         res <- myTryCatch(
             do.call(TAM::tam.mml, tmp1))
         if (!is.null(res$warning)) {
-            warning(conditionMessage(res$warning))
+            warning("TAM::tam() returned the following warning:\n",
+                    conditionMessage(res$warning))
         }
         if (!is.null(res$error)) {
-            warning(conditionMessage(res$error))
+            warning("TAM::tam() returned the following error:\n",
+                    conditionMessage(res$error))
         }
     } else {
         res <- list(value = NULL)

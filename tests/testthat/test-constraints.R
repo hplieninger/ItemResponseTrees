@@ -112,7 +112,7 @@ test_that("Model constraints work", {
     ag2 <- augment(res12)
 
     expect_gt(min(diag(cor(select(ag1, matches(".fitted.")),
-                           select(ag2, matches(".fitted."))))), .95)
+                           select(ag2, matches(".fitted."))))), .90)
 
     gl11 <- glance(res11)
     gl12 <- glance(res12)
@@ -156,7 +156,7 @@ test_that("Model constraints work", {
     ag3 <- augment(res13)
 
     expect_gt(min(diag(cor(select(ag1, matches(".fitted.")),
-                           select(ag3, matches(".fitted."))))), .95)
+                           select(ag3, matches(".fitted."))))), .99)
 
     gl13 <- glance(res13)
     gl32 <- glance(res32)

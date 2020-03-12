@@ -54,10 +54,12 @@ irtree_fit_mirt <- function(object = NULL,
         res <- myTryCatch(
             do.call(mirt::mirt, tmp1))
         if (!is.null(res$warning)) {
-            warning(conditionMessage(res$warning))
+            warning("mirt::mirt() returned the following warning:\n",
+                    conditionMessage(res$warning), call. = FALSE)
         }
         if (!is.null(res$error)) {
-            warning(conditionMessage(res$error))
+            warning("mirt::mirt() returned the following error:\n",
+                    conditionMessage(res$error), call. = FALSE)
         }
     } else {
         res <- list(value = NULL)

@@ -155,18 +155,23 @@ assert_irtree_not_mixture <- function(object = NULL, error = TRUE) {
 }
 
 irtree_model_items <- function(e1 = new.env()) {
+
+    # REVIEW: error message if comma is forgotten in model string
+
+    for (ii in seq_along(e1$irt_items)) {
+        checkmate::assert_character(
+            e1$irt_items[[ii]],
+            min.chars = 1,
+            pattern = "^[A-z]\\w*$",
+            any.missing = FALSE,
+            min.len = 1,
+            unique = TRUE,
+            names = "unnamed",
+            .var.name = "Item names")
+    }
     e1$j_names <- unique(unlist(e1$irt_items, use.names = F))
     e1$J <- length(e1$j_names)
 
-    checkmate::assert_character(
-        e1$j_names,
-        min.chars = 1,
-        pattern = "^[A-z]\\w*$",
-        any.missing = FALSE,
-        min.len = 1,
-        unique = TRUE,
-        names = "unnamed",
-        .var.name = "irt_items")
     return(invisible(NULL))
 }
 
