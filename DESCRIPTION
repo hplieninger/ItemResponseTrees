@@ -22,7 +22,7 @@ Imports:
     MASS,
     Matrix,
     methods,
-    mirt,
+    mirt (>= 1.30),
     purrr,
     rlang (>= 0.4.0),
     stringr,

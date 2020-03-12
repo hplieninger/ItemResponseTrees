@@ -50,7 +50,7 @@ irtree_fit_mirt <- function(object = NULL,
                        model    = mirt_input$mirt_string,
                        itemtype = mirt_input$itemtype,
                        verbose  = verbose),
-                  control[names(control) != "rm_mirt_internal"])
+                  control)
         res <- myTryCatch(
             do.call(mirt::mirt, tmp1))
         if (!is.null(res$warning)) {
@@ -63,13 +63,8 @@ irtree_fit_mirt <- function(object = NULL,
         res <- list(value = NULL)
     }
 
-    if (control$rm_mirt_internal) {
-        try(silent = TRUE, expr = {
-            res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@den <- function() {}
-            res$value@ParObjects$pars[[length(res$value@ParObjects$pars)]]@safe_den <- function() {}
-            res$value@Call <- call("mirt")
-        })
-    }
+    # Remove call, can take up large amount of disk space
+    try(silent = TRUE, expr = {res$value@Call <- call("mirt")})
 
     out <- list(mirt = res$value, error = res$error, warning = res$warning, spec = spec)
     class(out) <- c("irtree_fit", class(out))
@@ -192,12 +187,6 @@ write_mirt_input <- function(object = NULL,
 #' This function should be used to generate the `control` argument of the
 #' [`fit()`][fit.irtree_model] function.
 #'
-#' @param rm_mirt_internal Logical. [mirt::mirt()] returns a lot of information
-#'   including two functions that can take up a huge amount of space (see mirt
-#'   issue
-#'   \href{https://github.com/philchalmers/mirt/issues/147#issue-352032654}{#147}).
-#'    These two functions are removed from the output if this argument is
-#'   `TRUE`.
 #' @param control List of arguments passed to argument `control` of
 #'   [mirt::mirt()]. See examples below.
 #' @param technical List of arguments passed to argument `technical` of
@@ -212,8 +201,7 @@ write_mirt_input <- function(object = NULL,
 #'              technical = list(NCYCLES = 500),
 #'              TOL = .0001)
 #' @export
-control_mirt <- function(rm_mirt_internal = TRUE,
-                         SE = TRUE,
+control_mirt <- function(SE = TRUE,
                          quadpts = NULL,
                          control = list(),
                          technical = list(NCYCLES = NULL),
@@ -221,7 +209,6 @@ control_mirt <- function(rm_mirt_internal = TRUE,
 
     ctrl <- c(as.list(environment()), list(...))
 
-    checkmate::qassert(rm_mirt_internal, "B1")
     checkmate::qassert(SE, "B1")
     checkmate::assert_int(quadpts, null.ok = TRUE, lower = 3)
     checkmate::qassert(control, "l")
