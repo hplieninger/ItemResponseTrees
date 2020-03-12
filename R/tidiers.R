@@ -131,7 +131,10 @@ tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
         match.arg(par_type, choices = "difficulty")
         out <- tidy_mplus(x)
     } else if (engine == "mirt") {
-        checkmate::qassert(par_type, "S1")
+        if (is.null(par_type)) {
+            checkmate::assert_choice(par_type,
+                                     c("difficulty", "easiness"))
+        }
         match.arg(par_type, choices = c("difficulty", "easiness"))
         out <- tidy_mirt(x, par_type = par_type, ...)
     } else if (engine == "tam") {
@@ -143,13 +146,27 @@ tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
 
 tidy_mirt <- function(x = NULL, par_type = NULL) {
 
-    f1 <- function(x) {
-        tidyr::separate(x, .data$term, into = c("i", "p"), sep = "[.]") %>%
-            dplyr::arrange(.data$p) %>%
-            tidyr::unite("term", .data$i, .data$p, sep = ".")
-    }
+    nfact <- x$mirt@Model$nfact
+    facnm <- x$mirt@Model$factorNames
 
-    est1 <- mirt::coef(x$mirt, printSE = TRUE, as.data.frame = TRUE) %>%
+    pattern_component <- c(
+        setNames(facnm, paste0("^a", 1:nfact, "$")),
+        setNames(facnm, paste0("^MEAN_", 1:nfact, "$")),
+        setNames(facnm, paste0("^COV_", 1:nfact, 1:nfact, "$")),
+        "^d\\d?$" = NA_character_,
+        "^COV_\\d+" = NA_character_
+        )
+
+    pattern_parameter <- c(
+        setNames(rep("Discrim.", nfact), paste0("^a", 1:nfact)),
+        setNames(rep("Mean", nfact),     paste0("^MEAN_", 1:nfact)),
+        setNames(rep("Var", nfact),      paste0("^COV_", 1:nfact, 1:nfact)),
+        "^d\\d?$" = "Threshold",
+        "^COV_\\d+$" = "Cov"
+    )
+
+    est1 <-
+        mirt::coef(x$mirt, printSE = TRUE, as.data.frame = TRUE) %>%
         as.data.frame %>%
         tibble::rownames_to_column(var = "term") %>%
         tibble::as_tibble() %>%
@@ -160,8 +177,18 @@ tidy_mirt <- function(x = NULL, par_type = NULL) {
         dplyr::filter(!(grepl("[.]a\\d+$", .data$term) &
                             .data$estimate == 0 &
                             is.na(.data$std.error))) %>%
-        dplyr::mutate(group = grepl("GroupPars", .data$term),
-                      term = sub("GroupPars[.]", "", .data$term))
+        dplyr::mutate(
+            term = sub("GroupPars[.]", "", .data$term),
+            parameter = stringr::str_extract(
+                string = .data$term,
+                pattern = "(a\\d+$)|(d\\d?$)|(^MEAN_\\d+$)|(^COV_\\d+$)"),
+            component = stringr::str_replace_all(.data$parameter, pattern_component),
+            parameter = stringr::str_replace_all(.data$parameter, pattern_parameter),
+            myorder = match(.data$parameter, c("Threshold", "Discrim.", "Mean", "Var", "Cov"))) %>%
+
+        dplyr::arrange(.data$myorder) %>%
+        dplyr::select(.data$parameter, .data$component, .data$term,
+                      .data$estimate, .data$std.error)
 
     if (par_type == "difficulty") {
         est1 <- dplyr::mutate(
@@ -170,82 +197,127 @@ tidy_mirt <- function(x = NULL, par_type = NULL) {
                               grepl("[.]d$", .data$term), ~-.x)))
     }
 
-    est2 <- tidyr::nest(est1, data = c("term", "estimate", "std.error"))
+    cor1 <- cov2cor(mirt::coef(x$mirt, simplify = TRUE)$cov)
+    cor1[upper.tri(cor1, diag = TRUE)] <- NA
+    cor2 <- cbind(expand.grid(1:nfact, 1:nfact), estimate = as.numeric(cor1))
 
-    est3 <- est2 %>%
-        dplyr::mutate(data = purrr::map_if(.data$data, !.data$group, f1)) %>%
-        tidyr::unnest(cols = .data$data) %>%
-        dplyr::select(-"group")
+    cor3 <- dplyr::transmute(na.omit(cor2),
+                      parameter = "Corr",
+                      component = NA_character_,
+                      term      = paste0("CORR_", .data$Var1, .data$Var2),
+                      estimate  = .data$estimate,
+                      std.error = NA_real_)
 
-    est4 <- mirt::coef(x$mirt, simplify = TRUE)$cov %>%
-        cov2cor %>%
-        {.[lower.tri(., diag = TRUE)] <- NA; return(.)} %>%
-        as.data.frame() %>%
-        tibble::rownames_to_column() %>%
-        tidyr::pivot_longer(cols = -.data$rowname, values_to = "estimate") %>%
-        na.omit %>%
-        tidyr::unite(col = "term", .data$rowname, .data$name, sep = ".") %>%
-        dplyr::mutate(term = paste0("COR_", .data$term))
-
-    out <- dplyr::bind_rows(est3, est4) %>%
-        dplyr::mutate(effect = ifelse(grepl("^(MEAN_|COV_|COR_)", .data$term), "ran_pars", "fixed")) %>%
-        dplyr::select(.data$effect, dplyr::everything()) %>%
-        dplyr::arrange(.data$effect)
+    out <- dplyr::bind_rows(est1, cor3)
 
     return(out)
 }
 
 tidy_mplus <- function(x = NULL) {
 
-    x1 <- coef(x$mplus, type = "un")
-    tmp1 <- sub(".standardized", "",
-                grep("[.]standardized", names(x$mplus$parameters), value = T))
+    nfact <- x$spec$object$S
+    facnm <- x$spec$object$latent_names$theta
+    pars <- c("Threshold", "Discrim.", "Var", "Cov", "Corr")
 
-    f1 <-
-        purrr::possibly(
-            ~ coef(.x, type = tmp1, params = "undirected") %>%
-                dplyr::mutate(Label = paste0("COR_", trimws(.data$Label))),
-            otherwise = dplyr::slice(x1, 0))
+    pattern_component <- c(
+        setNames(facnm, toupper(paste0(facnm, "<->", facnm))),
+        setNames(facnm, toupper(paste0(".*<-", facnm, "$")))
+    )
 
-    x2 <- f1(x$mplus)
+    pattern_parameter <- c(
+        ".*<-Thresholds$" = "Threshold",
+        setNames(rep("Var", nfact), toupper(paste0(facnm, "<->", facnm))),
+        setNames(rep("Discrim.", nfact), toupper(paste0(".*<-", facnm, "$"))),
+        setNames("Cov", toupper(glue::glue("({clps('|' , facnm)})<->({clps('|', facnm)})")))
+    )
 
-    out <- dplyr::bind_rows(x1, x2) %>%
-        dplyr::mutate(effect = ifelse(grepl("<->", .data$Label), "ran_pars", "fixed")) %>%
-        dplyr::select("effect", term = "Label", estimate = "est", std.error = "se",
+    est1 <-
+        coef(x$mplus, type = "un") %>%
+        dplyr::rename(term = "Label", estimate = "est", std.error = "se",
                       p.value = "pval") %>%
-        dplyr::mutate(tmp1 = .data$std.error == 0 & .data$p.value == 999,
-                      std.error = ifelse(.data$tmp1, NA, .data$std.error),
-                      p.value = ifelse(.data$tmp1, NA, .data$p.value),
+        dplyr::mutate(term = trimws(.data$term),
+                      component = stringr::str_replace_all(.data$term, pattern_component),
+                      component = stringr::str_extract(.data$component, clps("|", facnm))) %>%
+        dplyr::mutate(parameter = stringr::str_replace_all(.data$term, pattern_parameter),
+                      parameter = stringr::str_extract(.data$parameter, clps("|", pars)))
+
+    stdyx <- na.omit(stringr::str_extract(names(x$mplus$parameters),
+                                         ".*(?=[.]standardized)"))
+
+    coef_corr <- purrr::possibly(
+        ~ coef(.x, type = stdyx, params = "undirected") %>%
+            dplyr::mutate(Label = paste0("CORR_", trimws(.data$Label))),
+        otherwise = data.frame(Label = character(0), est = numeric(0),
+                               se = numeric(0), pval = numeric(0), stringsAsFactors = FALSE))
+
+    est2 <- coef_corr(x$mplus) %>%
+        dplyr::rename(term = "Label", estimate = "est", std.error = "se",
+                      p.value = "pval") %>%
+        dplyr::mutate(parameter = "Corr", component = NA_integer_)
+
+    out <-
+        dplyr::bind_rows(est1, est2) %>%
+        dplyr::mutate(tmp1 = .data$p.value == 999,
+                      std.error = dplyr::if_else(.data$tmp1, NA_real_, .data$std.error),
+                      p.value = dplyr::if_else(.data$tmp1, NA_real_, .data$p.value),
                       tmp1 = NULL,
-                      term = trimws(.data$term)) %>%
-        dplyr::arrange(.data$effect) %>%
+                      myorder = match(.data$parameter, pars)) %>%
+        # TODO: Check order of parameters
+        dplyr::arrange(.data$myorder) %>%
+        dplyr::select(.data$parameter, .data$component, .data$term,
+                      .data$estimate, .data$std.error, .data$p.value) %>%
         tibble::as_tibble()
+
     return(out)
 }
 
 tidy_tam <- function(x = NULL) {
-    xsi <- x$tam$xsi
-    names(xsi) <- c("estimate", "std.error")
-    out1 <- data.frame(
-        effect = "fixed",
-        tibble::as_tibble(xsi, rownames = "term"))
+
+    nfact <- x$spec$object$S
+    facnm <- x$spec$object$latent_names$theta
+    pars <- c("Threshold", "Discrim.", "Var", "Cov", "Corr")
+
+    est1 <- tibble::as_tibble(x$tam$xsi, rownames = "term") %>%
+        dplyr::rename(estimate = "xsi", std.error = "se.xsi") %>%
+        dplyr::mutate(parameter = "Threshold",
+                      component = NA_character_)
+
+    pattern_var <- c(
+        setNames(paste0("VAR_", 1:nfact), paste0("V", 1:nfact, 1:nfact)),
+        setNames(paste0("COV_\\1"), "V(\\d+)")
+    )
+
+    pattern_parameter <- c(
+        "^VAR_\\d+" = "Var",
+        "^COV_\\d+" = "Cov",
+        "^CORR_\\d+" = "Corr"
+    )
 
     varx <- x$tam$variance
+    tmp1 <- unlist(as.data.frame(varx))
+    tmp2 <- tmp1[as.vector(upper.tri(varx, TRUE))]
+    names(tmp2) <- stringr::str_replace_all(names(tmp2), pattern_var)
+
     corx <- cov2cor(varx)
-    tmp1 <- unlist(as.data.frame(varx, row.names = FALSE))
-    tmp2 <- tmp1[as.vector(lower.tri(varx, TRUE))]
-    names(tmp2) <- sub("V", "COV_", names(tmp2))
-
     tmp3 <- unlist(as.data.frame(corx, row.names = FALSE))
-    tmp4 <- tmp3[as.vector(lower.tri(corx))]
-    names(tmp4) <- sub("V", "COR_", names(tmp4))
+    tmp4 <- tmp3[as.vector(upper.tri(corx))]
+    names(tmp4) <- sub("V", "CORR_", names(tmp4))
 
-    out2 <- data.frame(
-        effect = "ran_pars",
-        tibble::enframe(c(tmp2, tmp4), "term", "estimate"),
-        std.error = NA_real_)
+    est2 <-
+        tibble::enframe(c(tmp2, tmp4), "term", "estimate") %>%
+        dplyr::mutate(
+            parameter = stringr::str_replace_all(.data$term,
+                                                 pattern_parameter),
+            component = stringr::str_extract(.data$term, "(?<=VAR_)\\d+"),
+            component = stringr::str_replace_all(.data$component,
+                                                 setNames(facnm, 1:nfact)))
 
-    out <- tibble::as_tibble(rbind(out1, out2))
+    out <- dplyr::bind_rows(est1, est2) %>%
+        dplyr::mutate(myorder = match(.data$parameter, pars)) %>%
+        dplyr::arrange(.data$myorder) %>%
+        dplyr::select(.data$parameter, .data$component, .data$term,
+                      .data$estimate, .data$std.error) %>%
+        tibble::as_tibble()
     return(out)
 }
 

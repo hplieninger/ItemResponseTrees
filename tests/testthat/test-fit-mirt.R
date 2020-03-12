@@ -172,11 +172,11 @@ test_that("tidy.irtree_fit()", {
     td4 <- tidy(res4, par_type = "difficulty")
     td5 <- tidy(res5, par_type = "difficulty")
 
-    modeltests::check_tidy_output(subset(td1, select = -effect))
-    modeltests::check_tidy_output(subset(td2, select = -effect))
-    modeltests::check_tidy_output(subset(td3, select = -effect))
-    modeltests::check_tidy_output(subset(td4, select = -effect))
-    modeltests::check_tidy_output(subset(td5, select = -effect))
+    modeltests::check_tidy_output(td1)
+    modeltests::check_tidy_output(td2)
+    modeltests::check_tidy_output(td3)
+    modeltests::check_tidy_output(td4)
+    modeltests::check_tidy_output(td5)
 
     n_ipar_1 <- with(model1, J*4 + S + S*(S+1)/2 + S*(S-1)/2)
     n_ipar_2 <- with(model2, J + J*3 + S + S)
@@ -184,21 +184,17 @@ test_that("tidy.irtree_fit()", {
     n_ipar_4 <- with(model4, J*3 + J + S + S*(S+1)/2 + S*(S-1)/2)
     n_ipar_5 <- with(model5, J*4 + S + S)
 
-    modeltests::check_dims(td1, n_ipar_1, 4)  # optional but a good idea
-    modeltests::check_dims(td2, n_ipar_2, 4)  # optional but a good idea
-    modeltests::check_dims(td3, n_ipar_3, 4)  # optional but a good idea
-    modeltests::check_dims(td4, n_ipar_4, 4)  # optional but a good idea
-    modeltests::check_dims(td5, n_ipar_5, 4)  # optional but a good idea
+    modeltests::check_dims(td1, n_ipar_1, 5)
+    modeltests::check_dims(td2, n_ipar_2, 5)
+    modeltests::check_dims(td3, n_ipar_3, 5)
+    modeltests::check_dims(td4, n_ipar_4, 5)
+    modeltests::check_dims(td5, n_ipar_5, 5)
 
     ### Own tests ###
 
     tmp1 <- tibble::deframe(select(td1, term, estimate))
     tmp2 <- tmp1[["COV_21"]]/sqrt(tmp1[["COV_11"]])/sqrt(tmp1[["COV_22"]])
-    expect_equal(tmp2, tmp1[["COR_a.b"]], tolerance = .002)
-
-    # tmp1 <- tibble::deframe(select(td2, term, estimate))
-    # expect_equal(tmp1[["MEAN_1"]], 0)
-    # expect_equal(tmp1[["COV_11"]], 1)
+    expect_equal(tmp2, tmp1[["CORR_21"]], tolerance = .002)
 
     checkmate::expect_numeric(td1$std.error, lower = 0, finite = TRUE)
     checkmate::expect_numeric(td2$std.error, lower = 0, finite = TRUE)

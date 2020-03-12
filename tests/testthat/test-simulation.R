@@ -105,9 +105,7 @@ test_that("irtree_sim() works", {
 
     skip_if_not_installed("modeltests")
 
-    modeltests::check_tidy_output(
-        subset(
-            res11$fits$m1$tidied, select = -effect))
+    modeltests::check_tidy_output(res11$fits$m1$tidied)
 
 })
 
@@ -170,8 +168,6 @@ test_that("irtree_sim() works with mplus", {
 
     skip_if_not_installed("modeltests")
 
-    modeltests::check_tidy_output(
-        subset(
-            res31$fits$m1$tidied, select = -effect))
+    modeltests::check_tidy_output(res31$fits$m1$tidied)
 
 })

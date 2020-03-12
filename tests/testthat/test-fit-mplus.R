@@ -210,27 +210,27 @@ test_that("tidy.irtree_fit()", {
     td2 <- tidy(res2)
     td3 <- tidy(res3)
 
-    modeltests::check_tidy_output(subset(td1, select = -effect))
-    modeltests::check_tidy_output(subset(td2, select = -effect))
-    modeltests::check_tidy_output(subset(td3, select = -effect))
+    modeltests::check_tidy_output(td1)
+    modeltests::check_tidy_output(td2)
+    modeltests::check_tidy_output(td3)
 
     n_ipar_1 <- with(model1, J*4 + S + S*(S+1)/2 + S*(S-1)/2 + 2)
 
-    modeltests::check_dims(td1, n_ipar_1, 5)  # optional but a good idea
-    modeltests::check_dims(td2, 17, 5)  # optional but a good idea
-    modeltests::check_dims(td3, 17, 5)  # optional but a good idea
+    modeltests::check_dims(td1, n_ipar_1, 6)
+    modeltests::check_dims(td2, 17, 6)
+    modeltests::check_dims(td3, 17, 6)
 
     ### Own tests ###
 
     tmp1 <- tibble::deframe(select(td3, term, estimate))
     tmp2 <- tmp1[["T<->BENEFIT"]]/sqrt(tmp1[["BENEFIT<->BENEFIT"]])/sqrt(tmp1[["T<->T"]])
-    expect_equal(tmp2, tmp1[["COR_T<->BENEFIT"]], tolerance = .002)
+    expect_equal(tmp2, tmp1[["CORR_T<->BENEFIT"]], tolerance = .002)
 
     tmp1 <- dplyr::filter(td3, grepl("Thresholds", term)) %>%
-        select(3) %>%
+        select(4) %>%
         as.data.frame
     tmp2 <- dplyr::filter(td2, grepl("Thresholds", term)) %>%
-        select(3) %>%
+        select(4) %>%
         slice(1:9) %>%
         as.data.frame
     expect_equal(tmp1, tmp2, tolerance = .1)

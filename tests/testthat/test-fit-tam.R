@@ -3,8 +3,8 @@
 m1 <- "
 # Comment
 IRT:
-a BY X1@1, X2@1, X3@1, X4@1, X5@1;
-b BY X1@1, X2@1, X3@1, X4@1, X5@1;
+a BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
+b BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
 
 Equations:
 1 = (1-a)
@@ -28,8 +28,8 @@ a = c(0, 1, 2, 3)
 
 m3 <- "
 IRT:
-a BY x1@1, x2@1, x3@1, x4@1;
-b BY x1@1, x2@1, x3@1, x4@1;
+a BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
+b BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
 
 Class:
 PCM
@@ -41,8 +41,8 @@ b = c(1, 0, 0, 0, 1)
 
 m4 <- "
 IRT:
-a1 BY x1@1, x2@1;
-a2 BY x3@1, x4@1;
+a1 BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
+a2 BY X1@1, X2@1, X3@1, X4@1, X5@1, X6@1, X7@1;
 
 Class:
 PCM
@@ -61,8 +61,10 @@ model4 <- irtree_model(m4)
 
 ##### Data #####
 
+set.seed(123)
+
 data1 <- irtree_gen_data(
-    object = model1, N = 100,
+    object = model1, N = 150,
     sigma = diag(model1$S),
     itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                    alpha = matrix(1, model1$J, model1$P)),
@@ -76,7 +78,7 @@ ScienceNew <- Science - 1
 names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 
 data3 <- irtree_gen_data(
-    object = model3, N = 100,
+    object = model3, N = 150,
     link = "logit",
     sigma = function() diag(model3$S),
     itempar = function() {
@@ -86,7 +88,7 @@ data3 <- irtree_gen_data(
 
 ##### Fit #####
 
-control_list <- list(snodes = 1000)
+control_list <- list(snodes = 1000, convD = .01, conv = .001)
 
 res1 <- fit(data = data1$data,
             engine = "tam",
@@ -172,19 +174,22 @@ test_that("tidy.irtree_fit()", {
     td2 <- tidy(res2)
     td3 <- tidy(res3)
 
-    modeltests::check_tidy_output(subset(td1, select = -effect))
-    modeltests::check_tidy_output(subset(td2, select = -effect))
-    modeltests::check_tidy_output(subset(td3, select = -effect))
+    modeltests::check_tidy_output(td1)
+    modeltests::check_tidy_output(td2)
+    modeltests::check_tidy_output(td3)
 
-    modeltests::check_dims(td1, 14, 4)  # optional but a good idea
-    modeltests::check_dims(td2, 13, 4)  # optional but a good idea
-    modeltests::check_dims(td3, 20, 4)  # optional but a good idea
+    npar1 <- with(model1, J*S + S*(S+1)/2 + S*(S-1)/2)
+    npar2 <- with(model2, J*(K-1) + S*(S+1)/2 + S*(S-1)/2)
+    npar3 <- with(model3, J*(K-1) + S*(S+1)/2 + S*(S-1)/2)
+    modeltests::check_dims(td1, npar1, 5)
+    modeltests::check_dims(td2, npar2, 5)
+    modeltests::check_dims(td3, npar3, 5)
 
     ### Own tests ###
 
     tmp1 <- tibble::deframe(select(td1, term, estimate))
-    tmp2 <- tmp1[["COV_12"]]/sqrt(tmp1[["COV_11"]])/sqrt(tmp1[["COV_22"]])
-    expect_equal(tmp2, tmp1[["COR_12"]], tolerance = .002)
+    tmp2 <- tmp1[["COV_21"]]/sqrt(tmp1[["VAR_1"]])/sqrt(tmp1[["VAR_2"]])
+    expect_equal(tmp2, tmp1[["CORR_21"]], tolerance = .002)
 
     checkmate::expect_numeric(td1$estimate, finite = TRUE, any.missing = FALSE)
     checkmate::expect_numeric(td2$estimate, finite = TRUE, any.missing = FALSE)
@@ -227,6 +232,29 @@ test_that("implementation of augment.irtree_fit()", {
     ag1 <- augment(res1)
     ag2 <- augment(res2, method = "WLE")
     ag3 <- augment(res3)
+
+    expect_gt(
+        expected = .50,
+        min(
+            diag(
+                subset(
+                    cor(data1$spec$personpar, ag1),
+                    select = .fitted.Dim1:.fitted.Dim2))))
+    expect_gt(
+        expected = .90,
+        min(
+            # diag(
+                subset(
+                    cor(rowMeans(ScienceNew), ag2),
+                    select = .fitted)))
+
+    expect_gt(
+        expected = .90,
+        min(
+            # diag(
+                subset(
+                    cor(data3$spec$personpar[, 1], ag3),
+                    select = .fitted.Dim1)))
 
     modeltests::check_dims(ag1, nrow(data1$data), ncol(data1$data) + model1$S*2)
     modeltests::check_dims(ag2, nrow(ScienceNew), ncol(ScienceNew) + model2$S*2)
