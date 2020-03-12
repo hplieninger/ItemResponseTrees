@@ -4,34 +4,34 @@
 \alias{irtree_create_template}
 \title{Create a template of a model string}
 \usage{
-irtree_create_template(variables = NULL, rasch = TRUE)
+irtree_create_template(data = NULL, rasch = TRUE)
 }
 \arguments{
-\item{variables}{Character vector of variable names.}
+\item{data}{Data frame.}
 
 \item{rasch}{Logical. The string \verb{@1} will be appended to each variable name
 if \code{TRUE} with no effect otherwise.}
 }
 \description{
 This is a helper function that prints a template of a model string to the
-console based on the supplied variable names. This template can be
-copy-pasted and modified to define an \code{\link{irtree_model}}.
+console based on the supplied data frame. This template can be
+copy-pasted and modified to define an \link{irtree_model}.
 }
 \examples{
-irtree_create_template(c("X1", "X2", "X3"))
-#> model1 <- "
+irtree_create_template(jackson[, c(1, 6, 11)])
+#> m1 <- "
 #> IRT:
-#> ... BY X1@1, X2@1, X3@1;
-#> ... BY X1@1, X2@1, X3@1;
+#> ... BY E1@1, E2@1, E3@1;
+#> ... BY E1@1, E2@1, E3@1;
 #>
 #> Equations:
-#> 0 = ...
 #> 1 = ...
+#> 2 = ...
+#> 3 = ...
+#> 4 = ...
+#> 5 = ...
 #>
 #> Class:
 #> Tree
 #> "
-}
-\seealso{
-irtree_model()
 }

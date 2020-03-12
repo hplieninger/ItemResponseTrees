@@ -21,7 +21,7 @@ test_that("rtruncatednorm() works as expected", {
 })
 
 test_that("irtree_create_template() works as expected", {
-    expect_message(irtree_create_template("a"), "Equations")
+    expect_message(irtree_create_template(data.frame(a = 1)), "Equations")
 })
 
 test_that("has_namespace", {
