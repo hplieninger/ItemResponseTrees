@@ -56,11 +56,9 @@ This function should be used to generate the \code{control} argument of the
 \code{\link[=fit.irtree_model]{fit()}} function.
 }
 \examples{
-\donttest{
 control_mplus(file = tempfile("irtree_", tmpdir = "."),
               quadpts = "GAUSS(10)",
               analysis_list = list(COVERAGE = "0",
                                    MITERATIONS = "500",
                                    MCONVERGENCE = ".001"))
-}
 }

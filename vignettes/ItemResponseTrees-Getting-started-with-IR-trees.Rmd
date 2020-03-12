@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(tibble.print_min = 10, tibble.print_max = 20, pillar.min_title_chars = 16)
 ```
 
 [![R build status](https://github.com/hplieninger/ItemResponseTrees/workflows/R-CMD-check/badge.svg)](https://github.com/hplieninger/ItemResponseTrees/actions)
@@ -32,6 +33,7 @@ This allows new users to quickly adopt this model class, and this allows experie
 The package can be installed as follows:
 
 ```{r, eval = FALSE}
+install.packages("remotes")
 remotes::install_github("hplieninger/ItemResponseTrees")
 ```
 
@@ -40,17 +42,13 @@ remotes::install_github("hplieninger/ItemResponseTrees")
 Herein, an illustrative example will be shown using a popular IR-tree model for 5-point items (Böckenholt, 2012).
 The model is applied to a Big Five data set from Jackson (2012), more precisely to seven conscientiousness items.
 
-```{r setup, message = FALSE}
+```{r data, message = FALSE}
 library("ItemResponseTrees")
-library("dplyr")
-```
 
-```{r data}
 data("jackson")
-set.seed(1432)
 
-df1 <- select(jackson, paste0("C", 1:7)) %>% 
-    sample_n(250)
+set.seed(9701)
+df1 <- jackson[sample(nrow(jackson), 321), paste0("E", 1:9)]
 df1
 ```
 
@@ -82,18 +80,21 @@ The format for this section is highly similar to the MODEL statement in Mplus: a
 The syntax below fixes all loadings corresponding to dimensions *e* and *m* to 1 corresponding to a 1PL or Rasch model, whereas all loadings corresponding to dimension *t* are freely estimated (i.e., 2PL-structure).
 3. `Class:` Can be either `Tree` for an IR-tree model or `GRM` for a graded response model.
 
-The function `irtree_create_template()` may be used to create a model-string template, which can be copy-pasted and modified.
+```{r template, eval = FALSE}
+# Use irtree_create_template() to create a model-string template:
+irtree_create_template(df1)
+```
+
+In the following, the model string for the desired IR-tree model for the nine items is specified and saved as `m1`.
 
 ```{r model-tree}
-# irtree_create_template(names(df1))
-
 m1 <- "
 # IR-tree model for 5-point items (Böckenholt, 2012)
 
 IRT:
-t  BY  C1,   C2,   C3,   C4,   C5,   C6,   C7;
-e  BY  C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1;
-m  BY  C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1;
+t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;
+e  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
+m  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
 
 Equations:
 1 = (1-m)*(1-t)*e
@@ -114,14 +115,26 @@ m2 <- "
 # Graded response model
 
 IRT:
-t  BY  C1,   C2,   C3,   C4,   C5,   C6,   C7;
+t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;
 
 Class:
 GRM
 "
 ```
 
-Further information about the model syntax is provided in `?irtree_model()`.
+Subsequently, the model strings `m1` and `m2` need to be parsed by `irtree_model()`. 
+The resulting objects `model1` and `model2` of class `irtree_model` contain all the necessary information for fitting the model.
+Furthermore, one may inspect specific elements, for example, the pseudoitems contained in the mapping matrix.
+
+Further information on creating model strings is provided in `?irtree_model()`.
+
+```{r}
+model1 <- irtree_model(m1)
+model2 <- irtree_model(m2)
+
+model1$mapping_matrix
+```
+
 
 ## Fitting the model
 
@@ -130,11 +143,10 @@ To fit a model, the model string as defined above has to be converted into an ob
 Then, the model can be `fit()` as follows:
 
 ```{r fit, cache = TRUE, warning = FALSE, message = FALSE}
-model1 <- irtree_model(m1)
-model2 <- irtree_model(m2)
-
-# The following control parameters are lax but increase speed
-ctrl <- control_mirt(quadpts = 8, TOL = .01)
+# mirt can be used with an EM algorithm (the default) or, for example, with the
+# MH-RM algorithm, which seems a little bit faster here.
+# See ?mirt::mirt for details.
+ctrl <- control_mirt(method = "MHRM")
 
 fit1 <- fit(model1, data = df1, engine = "mirt", control = ctrl)
 fit2 <- fit(model2, data = df1, engine = "mirt", control = ctrl)
@@ -145,8 +157,8 @@ fit2 <- fit(model2, data = df1, engine = "mirt", control = ctrl)
 ### Model Fit
 
 Information about model fit is obtained via `glance()`.
-As seen below, the IR-tree model has 33 freely estimated parameters (3 x 7 thresholds + 7 loadings + 2 variances + 3 covariances).
-The GRM has 35 estimated parameters (4 x 7 thresholds + 7 loadings).
+As seen below, the IR-tree model has 41 freely estimated parameters (3 x 9 thresholds + 9 loadings + 2 variances + 3 covariances).
+The GRM has 45 estimated parameters (4 x 9 thresholds + 9 loadings).
 (Of course, this comparison is a little bit unfair, because the IR-tree model is much more flexible in terms of dimensionality/"random effects" even though it is less flexible with respect to the thresholds/"fixed effects".)
 
 For the present data, the IR-tree model slightly outperforms the GRM according to AIC and BIC, and thus one may conclude that response styles are present in these data.
@@ -154,16 +166,15 @@ For the present data, the IR-tree model slightly outperforms the GRM according t
 ```{r}
 glance(fit1)
 
-list("tree" = fit1, "grm" = fit2) %>% 
-    purrr::map_dfr(glance, .id = "Model")
+rbind(glance(fit1), glance(fit2))
 ```
 
 ### Parameter Estimates
 
 The parameter estimates are obtained via `tidy()`.
-For the IR-tree model, this returns a tibble with 54 rows (pertaining to the fixed and estimated parameters).
-Below, the seven loading/discrimination parameters `t_*.a1` pertaining to parameter *t* are shown.
-The loadings pertaining to parameter *e* (`e_*.a2`) and *m* (`m_*.a3`) were fixed to one and thus no standard error is returned for these.
+For the IR-tree model, this returns a tibble with 66 rows (pertaining to the fixed and estimated parameters).
+Below, the nine threshold/difficulty parameters `t_E*.d` pertaining to parameter *t* are shown plus the threshold of pseudoitem `e_E1`.
+<!-- The loadings pertaining to parameter *e* (`e_*.a2`) and *m* (`m_*.a3`) were fixed to one and thus no standard error is returned for these. -->
 The latent correlations are shown below as well, and these show the typical pattern of a negative correlation between *e* and *m*.
 
 ```{r}
@@ -177,7 +188,7 @@ tail(tidy(fit1, par_type = "difficulty"), 3)
 The factor scores or person parameter estimates are obtained via `augment()`.
 This returns a tibble comprised of the data set and the factor scores (plus respective standard errors) for the three dimensions *t* (F1), *e* (F2), and *m* (F3).^[The order corresponds to the order of appearance in the section `IRT` of the model string.]
 
-The correlation of the scores for the target trait (conscientiousness in this case) between the IR-tree model and the GRM indicates that the models differ in this respect even though not drastically.
+The correlation of the scores for the target trait (extraversion in this case) between the IR-tree model and the GRM indicates that the models differ in this respect even though not drastically.
 
 ```{r augment, cache = TRUE}
 augment(fit1)

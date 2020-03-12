@@ -189,24 +189,27 @@ write_mirt_input <- function(object = NULL,
 #' This function should be used to generate the `control` argument of the
 #' [`fit()`][fit.irtree_model] function.
 #'
+#' @param SE,method,quadpts,... These arguments are passed to and documented
+#'   in [mirt::mirt()]. They can be used to tweak the estimation algorithm.
 #' @param control List of arguments passed to argument `control` of
-#'   [mirt::mirt()]. See examples below.
+#'   [mirt::mirt()].
 #' @param technical List of arguments passed to argument `technical` of
-#'   [mirt::mirt()]. See examples below.
-#' @param ... Other arguments passed to [mirt::mirt()].
+#'   [mirt::mirt()].
 #' @return A list with one element for every argument of `control_mirt()`.
-#' @inheritParams mirt::mirt
 #' @examples
 #' control_mirt(SE = FALSE,
-#'              quadpts = 15,
-#'              control = list(),
-#'              technical = list(NCYCLES = 500),
-#'              TOL = .0001)
+#'              method = "QMCEM",
+#'              quadpts = 4455,
+#'              technical = list(NCYCLES = 567),
+#'              TOL = .001)
+#' control_mirt(method = "MHRM",
+#'              draws = 5544)
 #' @export
 control_mirt <- function(SE = TRUE,
+                         method = "EM",
                          quadpts = NULL,
                          control = list(),
-                         technical = list(NCYCLES = NULL),
+                         technical = list(),
                          ...) {
 
     ctrl <- c(as.list(environment()), list(...))

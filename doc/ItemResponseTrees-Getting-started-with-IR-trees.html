@@ -18,9 +18,9 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -30,16 +30,14 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
 }
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
+    border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +46,9 @@ pre.numberSource code > span > a:first-child::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {   }
+  {  }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+a.sourceLine::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -303,38 +301,38 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<p><a href="https://github.com/hplieninger/ItemResponseTrees/actions"><img src="data:image/svg+xml; charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDUiIGhlaWdodD0iMjAiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJ3b3JrZmxvdy1maWxsIiB4MT0iNTAlIiB5MT0iMCUiIHgyPSI1MCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iIzQ0NEQ1NiIgb2Zmc2V0PSIwJSI+PC9zdG9wPgogICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjMjQyOTJFIiBvZmZzZXQ9IjEwMCUiPjwvc3RvcD4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN0YXRlLWZpbGwiIHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjRDczQTQ5IiBvZmZzZXQ9IjAlIj48L3N0b3A+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNDQjI0MzEiIG9mZnNldD0iMTAwJSI+PC9zdG9wPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxnIGZvbnQtZmFtaWx5PSImIzM5O0RlamFWdSBTYW5zJiMzOTssVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICAgIDxwYXRoIGlkPSJ3b3JrZmxvdy1iZyIgZD0iTTAsMyBDMCwxLjM0MzEgMS4zNTUyLDAgMy4wMjcwMjcwMywwIEwxMDIsMCBMMTAyLDIwIEwzLjAyNzAyNzAzLDIwIEMxLjM1NTIsMjAgMCwxOC42NTY5IDAsMTcgTDAsMyBaIiBmaWxsPSJ1cmwoI3dvcmtmbG93LWZpbGwpIiBmaWxsLXJ1bGU9Im5vbnplcm8iPjwvcGF0aD4KICAgICAgPHRleHQgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+CiAgICAgICAgPHRzcGFuIHg9IjIyLjE5ODE5ODIiIHk9IjE1Ij5SLUNNRC1jaGVjazwvdHNwYW4+CiAgICAgIDwvdGV4dD4KICAgICAgPHRleHQgZmlsbD0iI0ZGRkZGRiI+CiAgICAgICAgPHRzcGFuIHg9IjIyLjE5ODE5ODIiIHk9IjE0Ij5SLUNNRC1jaGVjazwvdHNwYW4+CiAgICAgIDwvdGV4dD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwMikiIGZvbnQtZmFtaWx5PSImIzM5O0RlamFWdSBTYW5zJiMzOTssVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICAgIDxwYXRoIGQ9Ik0wIDBoNDAuNDdDNDEuODY5IDAgNDMgMS4zNDMgNDMgM3YxNGMwIDEuNjU3LTEuMTMyIDMtMi41MyAzSDBWMHoiIGlkPSJzdGF0ZS1iZyIgZmlsbD0idXJsKCNzdGF0ZS1maWxsKSIgZmlsbC1ydWxlPSJub256ZXJvIj48L3BhdGg+CiAgICAgIDx0ZXh0IGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPgogICAgICAgIDx0c3BhbiB4PSI1IiB5PSIxNSI+ZmFpbGluZzwvdHNwYW4+CiAgICAgIDwvdGV4dD4KICAgICAgPHRleHQgZmlsbD0iI0ZGRkZGRiI+CiAgICAgICAgPHRzcGFuIHg9IjUiIHk9IjE0Ij5mYWlsaW5nPC90c3Bhbj4KICAgICAgPC90ZXh0PgogICAgPC9nPgogICAgPHBhdGggZmlsbD0iIzk1OURBNSIgZD0iTTExIDNjLTMuODY4IDAtNyAzLjEzMi03IDdhNi45OTYgNi45OTYgMCAwIDAgNC43ODYgNi42NDFjLjM1LjA2Mi40ODItLjE0OC40ODItLjMzMiAwLS4xNjYtLjAxLS43MTgtLjAxLTEuMzA0LTEuNzU4LjMyNC0yLjIxMy0uNDI5LTIuMzUzLS44MjItLjA3OS0uMjAyLS40Mi0uODIzLS43MTctLjk5LS4yNDUtLjEzLS41OTUtLjQ1NC0uMDEtLjQ2My41NTItLjAwOS45NDYuNTA4IDEuMDc3LjcxOC42MyAxLjA1OCAxLjYzNi43NiAyLjAzOS41NzcuMDYxLS40NTUuMjQ1LS43NjEuNDQ2LS45MzYtMS41NTctLjE3NS0zLjE4NS0uNzc5LTMuMTg1LTMuNDU2IDAtLjc2Mi4yNzEtMS4zOTIuNzE4LTEuODgyLS4wNy0uMTc1LS4zMTUtLjg5Mi4wNy0xLjg1NSAwIDAgLjU4Ni0uMTgzIDEuOTI1LjcxOGE2LjUgNi41IDAgMCAxIDEuNzUtLjIzNiA2LjUgNi41IDAgMCAxIDEuNzUuMjM2YzEuMzM4LS45MSAxLjkyNS0uNzE4IDEuOTI1LS43MTguMzg1Ljk2My4xNCAxLjY4LjA3IDEuODU1LjQ0Ni40OS43MTcgMS4xMTIuNzE3IDEuODgyIDAgMi42ODYtMS42MzYgMy4yOC0zLjE5NCAzLjQ1Ni4yNTQuMjE5LjQ3My42MzkuNDczIDEuMjk1IDAgLjkzNi0uMDA5IDEuNjg5LS4wMDkgMS45MjUgMCAuMTg0LjEzMS40MDIuNDgxLjMzMkE3LjAxMSA3LjAxMSAwIDAgMCAxOCAxMGMwLTMuODY3LTMuMTMzLTctNy03eiI+PC9wYXRoPgogIDwvZz4KPC9zdmc+Cgo=" alt="R build status" /></a> <a href="https://codecov.io/gh/hplieninger/ItemResponseTrees"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMTIiIGhlaWdodD0iMjAiPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIgLz4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPG1hc2sgaWQ9ImEiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMTIiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIiAvPgogICAgPC9tYXNrPgogICAgPGcgbWFzaz0idXJsKCNhKSI+CiAgICAgICAgPHBhdGggZmlsbD0iIzU1NSIgZD0iTTAgMGg3NnYyMEgweiIgLz4KICAgICAgICA8cGF0aCBmaWxsPSIjZWJhZDE1IiBkPSJNNzYgMGgzNnYyMEg3NnoiIC8+CiAgICAgICAgPHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGgxMTJ2MjBIMHoiIC8+CiAgICA8L2c+CiAgICA8ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICAgICAgPHRleHQgeD0iNDYiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj5jb2RlY292PC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjQ2IiB5PSIxNCI+Y29kZWNvdjwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI5MyIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPjgxJTwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI5MyIgeT0iMTQiPjgxJTwvdGV4dD4KICAgIDwvZz4KICAgIDxzdmcgdmlld0JveD0iMTIwIC04IDYwIDYwIj4KICAgICAgICA8cGF0aCBkPSJNMjMuMDEzIDBDMTAuMzMzLjAwOS4wMSAxMC4yMiAwIDIyLjc2MnYuMDU4bDMuOTE0IDIuMjc1LjA1My0uMDM2YTExLjI5MSAxMS4yOTEgMCAwIDEgOC4zNTItMS43NjcgMTAuOTExIDEwLjkxMSAwIDAgMSA1LjUgMi43MjZsLjY3My42MjQuMzgtLjgyOGMuMzY4LS44MDIuNzkzLTEuNTU2IDEuMjY0LTIuMjQuMTktLjI3Ni4zOTgtLjU1NC42MzctLjg1MWwuMzkzLS40OS0uNDg0LS40MDRhMTYuMDggMTYuMDggMCAwIDAtNy40NTMtMy40NjYgMTYuNDgyIDE2LjQ4MiAwIDAgMC03LjcwNS40NDlDNy4zODYgMTAuNjgzIDE0LjU2IDUuMDE2IDIzLjAzIDUuMDFjNC43NzkgMCA5LjI3MiAxLjg0IDEyLjY1MSA1LjE4IDIuNDEgMi4zODIgNC4wNjkgNS4zNSA0LjgwNyA4LjU5MWExNi41MyAxNi41MyAwIDAgMC00Ljc5Mi0uNzIzbC0uMjkyLS4wMDJhMTYuNzA3IDE2LjcwNyAwIDAgMC0xLjkwMi4xNGwtLjA4LjAxMmMtLjI4LjAzNy0uNTI0LjA3NC0uNzQ4LjExNS0uMTEuMDE5LS4yMTguMDQxLS4zMjcuMDYzLS4yNTcuMDUyLS41MS4xMDgtLjc1LjE2OWwtLjI2NS4wNjdhMTYuMzkgMTYuMzkgMCAwIDAtLjkyNi4yNzZsLS4wNTYuMDE4Yy0uNjgyLjIzLTEuMzYuNTExLTIuMDE2LjgzOGwtLjA1Mi4wMjZjLS4yOS4xNDUtLjU4NC4zMDUtLjg5OS40OWwtLjA2OS4wNGExNS41OTYgMTUuNTk2IDAgMCAwLTQuMDYxIDMuNDY2bC0uMTQ1LjE3NWMtLjI5LjM2LS41MjEuNjY2LS43MjMuOTYtLjE3LjI0Ny0uMzQuNTEzLS41NTIuODY0bC0uMTE2LjE5OWMtLjE3LjI5Mi0uMzIuNTctLjQ0OS44MjRsLS4wMy4wNTdhMTYuMTE2IDE2LjExNiAwIDAgMC0uODQzIDIuMDI5bC0uMDM0LjEwMmExNS42NSAxNS42NSAwIDAgMC0uNzg2IDUuMTc0bC4wMDMuMjE0YTIxLjUyMyAyMS41MjMgMCAwIDAgLjA0Ljc1NGMuMDA5LjExOS4wMi4yMzcuMDMyLjM1NS4wMTQuMTQ1LjAzMi4yOS4wNDkuNDMybC4wMS4wOGMuMDEuMDY3LjAxNy4xMzMuMDI2LjE5Ny4wMzQuMjQyLjA3NC40OC4xMTkuNzIuNDYzIDIuNDE5IDEuNjIgNC44MzYgMy4zNDUgNi45OWwuMDc4LjA5OC4wOC0uMDk1Yy42ODgtLjgxIDIuMzk1LTMuMzggMi41MzktNC45MjJsLjAwMy0uMDI5LS4wMTQtLjAyNWExMC43MjcgMTAuNzI3IDAgMCAxLTEuMjI2LTQuOTU2YzAtNS43NiA0LjU0NS0xMC41NDQgMTAuMzQzLTEwLjg5bC4zODEtLjAxNGExMS40MDMgMTEuNDAzIDAgMCAxIDYuNjUxIDEuOTU3bC4wNTQuMDM2IDMuODYyLTIuMjM3LjA1LS4wM3YtLjA1NmMuMDA2LTYuMDgtMi4zODQtMTEuNzkzLTYuNzI5LTE2LjA4OUMzNC45MzIgMi4zNjEgMjkuMTYgMCAyMy4wMTMgMCIgZmlsbD0iI0YwMUY3QSIgZmlsbC1ydWxlPSJldmVub2RkIi8+CiAgICA8L3N2Zz4KPC9zdmc+" alt="codecov" /></a> <a href="https://saythanks.io/to/plieninger@uni-mannheim.de"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iOTAiIGhlaWdodD0iMjAiPjxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNiYmIiIHN0b3Atb3BhY2l0eT0iLjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiLz48L2xpbmVhckdyYWRpZW50PjxjbGlwUGF0aCBpZD0iYSI+PHJlY3Qgd2lkdGg9IjkwIiBoZWlnaHQ9IjIwIiByeD0iMyIgZmlsbD0iI2ZmZiIvPjwvY2xpcFBhdGg+PGcgY2xpcC1wYXRoPSJ1cmwoI2EpIj48cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDc1djIwSDB6Ii8+PHBhdGggZmlsbD0iIzFlYWVkYiIgZD0iTTc1IDBoMTV2MjBINzV6Ii8+PHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGg5MHYyMEgweiIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMTAiPiA8dGV4dCB4PSIzODUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjY1MCI+U2F5IFRoYW5rczwvdGV4dD48dGV4dCB4PSIzODUiIHk9IjE0MCIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjY1MCI+U2F5IFRoYW5rczwvdGV4dD48dGV4dCB4PSI4MTUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjUwIj4hPC90ZXh0Pjx0ZXh0IHg9IjgxNSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgdGV4dExlbmd0aD0iNTAiPiE8L3RleHQ+PC9nPiA8L3N2Zz4=" alt="Say Thanks!" /></a></p>
+<p><a href="https://github.com/hplieninger/ItemResponseTrees/actions"><img src="data:image/svg+xml; charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDUiIGhlaWdodD0iMjAiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJ3b3JrZmxvdy1maWxsIiB4MT0iNTAlIiB5MT0iMCUiIHgyPSI1MCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iIzQ0NEQ1NiIgb2Zmc2V0PSIwJSI+PC9zdG9wPgogICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjMjQyOTJFIiBvZmZzZXQ9IjEwMCUiPjwvc3RvcD4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InN0YXRlLWZpbGwiIHgxPSI1MCUiIHkxPSIwJSIgeDI9IjUwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjRDczQTQ5IiBvZmZzZXQ9IjAlIj48L3N0b3A+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNDQjI0MzEiIG9mZnNldD0iMTAwJSI+PC9zdG9wPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxnIGZvbnQtZmFtaWx5PSImIzM5O0RlamFWdSBTYW5zJiMzOTssVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICAgIDxwYXRoIGlkPSJ3b3JrZmxvdy1iZyIgZD0iTTAsMyBDMCwxLjM0MzEgMS4zNTUyLDAgMy4wMjcwMjcwMywwIEwxMDIsMCBMMTAyLDIwIEwzLjAyNzAyNzAzLDIwIEMxLjM1NTIsMjAgMCwxOC42NTY5IDAsMTcgTDAsMyBaIiBmaWxsPSJ1cmwoI3dvcmtmbG93LWZpbGwpIiBmaWxsLXJ1bGU9Im5vbnplcm8iPjwvcGF0aD4KICAgICAgPHRleHQgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyI+CiAgICAgICAgPHRzcGFuIHg9IjIyLjE5ODE5ODIiIHk9IjE1Ij5SLUNNRC1jaGVjazwvdHNwYW4+CiAgICAgIDwvdGV4dD4KICAgICAgPHRleHQgZmlsbD0iI0ZGRkZGRiI+CiAgICAgICAgPHRzcGFuIHg9IjIyLjE5ODE5ODIiIHk9IjE0Ij5SLUNNRC1jaGVjazwvdHNwYW4+CiAgICAgIDwvdGV4dD4KICAgIDwvZz4KICAgIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwMikiIGZvbnQtZmFtaWx5PSImIzM5O0RlamFWdSBTYW5zJiMzOTssVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICAgIDxwYXRoIGQ9Ik0wIDBoNDAuNDdDNDEuODY5IDAgNDMgMS4zNDMgNDMgM3YxNGMwIDEuNjU3LTEuMTMyIDMtMi41MyAzSDBWMHoiIGlkPSJzdGF0ZS1iZyIgZmlsbD0idXJsKCNzdGF0ZS1maWxsKSIgZmlsbC1ydWxlPSJub256ZXJvIj48L3BhdGg+CiAgICAgIDx0ZXh0IGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPgogICAgICAgIDx0c3BhbiB4PSI1IiB5PSIxNSI+ZmFpbGluZzwvdHNwYW4+CiAgICAgIDwvdGV4dD4KICAgICAgPHRleHQgZmlsbD0iI0ZGRkZGRiI+CiAgICAgICAgPHRzcGFuIHg9IjUiIHk9IjE0Ij5mYWlsaW5nPC90c3Bhbj4KICAgICAgPC90ZXh0PgogICAgPC9nPgogICAgPHBhdGggZmlsbD0iIzk1OURBNSIgZD0iTTExIDNjLTMuODY4IDAtNyAzLjEzMi03IDdhNi45OTYgNi45OTYgMCAwIDAgNC43ODYgNi42NDFjLjM1LjA2Mi40ODItLjE0OC40ODItLjMzMiAwLS4xNjYtLjAxLS43MTgtLjAxLTEuMzA0LTEuNzU4LjMyNC0yLjIxMy0uNDI5LTIuMzUzLS44MjItLjA3OS0uMjAyLS40Mi0uODIzLS43MTctLjk5LS4yNDUtLjEzLS41OTUtLjQ1NC0uMDEtLjQ2My41NTItLjAwOS45NDYuNTA4IDEuMDc3LjcxOC42MyAxLjA1OCAxLjYzNi43NiAyLjAzOS41NzcuMDYxLS40NTUuMjQ1LS43NjEuNDQ2LS45MzYtMS41NTctLjE3NS0zLjE4NS0uNzc5LTMuMTg1LTMuNDU2IDAtLjc2Mi4yNzEtMS4zOTIuNzE4LTEuODgyLS4wNy0uMTc1LS4zMTUtLjg5Mi4wNy0xLjg1NSAwIDAgLjU4Ni0uMTgzIDEuOTI1LjcxOGE2LjUgNi41IDAgMCAxIDEuNzUtLjIzNiA2LjUgNi41IDAgMCAxIDEuNzUuMjM2YzEuMzM4LS45MSAxLjkyNS0uNzE4IDEuOTI1LS43MTguMzg1Ljk2My4xNCAxLjY4LjA3IDEuODU1LjQ0Ni40OS43MTcgMS4xMTIuNzE3IDEuODgyIDAgMi42ODYtMS42MzYgMy4yOC0zLjE5NCAzLjQ1Ni4yNTQuMjE5LjQ3My42MzkuNDczIDEuMjk1IDAgLjkzNi0uMDA5IDEuNjg5LS4wMDkgMS45MjUgMCAuMTg0LjEzMS40MDIuNDgxLjMzMkE3LjAxMSA3LjAxMSAwIDAgMCAxOCAxMGMwLTMuODY3LTMuMTMzLTctNy03eiI+PC9wYXRoPgogIDwvZz4KPC9zdmc+Cgo=" alt="R build status" /></a> <a href="https://codecov.io/gh/hplieninger/ItemResponseTrees"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMTIiIGhlaWdodD0iMjAiPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPgogICAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIgLz4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPG1hc2sgaWQ9ImEiPgogICAgICAgIDxyZWN0IHdpZHRoPSIxMTIiIGhlaWdodD0iMjAiIHJ4PSIzIiBmaWxsPSIjZmZmIiAvPgogICAgPC9tYXNrPgogICAgPGcgbWFzaz0idXJsKCNhKSI+CiAgICAgICAgPHBhdGggZmlsbD0iIzU1NSIgZD0iTTAgMGg3NnYyMEgweiIgLz4KICAgICAgICA8cGF0aCBmaWxsPSIjYTFiOTBlIiBkPSJNNzYgMGgzNnYyMEg3NnoiIC8+CiAgICAgICAgPHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGgxMTJ2MjBIMHoiIC8+CiAgICA8L2c+CiAgICA8ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSI+CiAgICAgICAgPHRleHQgeD0iNDYiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj5jb2RlY292PC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjQ2IiB5PSIxNCI+Y29kZWNvdjwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI5MyIgeT0iMTUiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiPjkxJTwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI5MyIgeT0iMTQiPjkxJTwvdGV4dD4KICAgIDwvZz4KICAgIDxzdmcgdmlld0JveD0iMTIwIC04IDYwIDYwIj4KICAgICAgICA8cGF0aCBkPSJNMjMuMDEzIDBDMTAuMzMzLjAwOS4wMSAxMC4yMiAwIDIyLjc2MnYuMDU4bDMuOTE0IDIuMjc1LjA1My0uMDM2YTExLjI5MSAxMS4yOTEgMCAwIDEgOC4zNTItMS43NjcgMTAuOTExIDEwLjkxMSAwIDAgMSA1LjUgMi43MjZsLjY3My42MjQuMzgtLjgyOGMuMzY4LS44MDIuNzkzLTEuNTU2IDEuMjY0LTIuMjQuMTktLjI3Ni4zOTgtLjU1NC42MzctLjg1MWwuMzkzLS40OS0uNDg0LS40MDRhMTYuMDggMTYuMDggMCAwIDAtNy40NTMtMy40NjYgMTYuNDgyIDE2LjQ4MiAwIDAgMC03LjcwNS40NDlDNy4zODYgMTAuNjgzIDE0LjU2IDUuMDE2IDIzLjAzIDUuMDFjNC43NzkgMCA5LjI3MiAxLjg0IDEyLjY1MSA1LjE4IDIuNDEgMi4zODIgNC4wNjkgNS4zNSA0LjgwNyA4LjU5MWExNi41MyAxNi41MyAwIDAgMC00Ljc5Mi0uNzIzbC0uMjkyLS4wMDJhMTYuNzA3IDE2LjcwNyAwIDAgMC0xLjkwMi4xNGwtLjA4LjAxMmMtLjI4LjAzNy0uNTI0LjA3NC0uNzQ4LjExNS0uMTEuMDE5LS4yMTguMDQxLS4zMjcuMDYzLS4yNTcuMDUyLS41MS4xMDgtLjc1LjE2OWwtLjI2NS4wNjdhMTYuMzkgMTYuMzkgMCAwIDAtLjkyNi4yNzZsLS4wNTYuMDE4Yy0uNjgyLjIzLTEuMzYuNTExLTIuMDE2LjgzOGwtLjA1Mi4wMjZjLS4yOS4xNDUtLjU4NC4zMDUtLjg5OS40OWwtLjA2OS4wNGExNS41OTYgMTUuNTk2IDAgMCAwLTQuMDYxIDMuNDY2bC0uMTQ1LjE3NWMtLjI5LjM2LS41MjEuNjY2LS43MjMuOTYtLjE3LjI0Ny0uMzQuNTEzLS41NTIuODY0bC0uMTE2LjE5OWMtLjE3LjI5Mi0uMzIuNTctLjQ0OS44MjRsLS4wMy4wNTdhMTYuMTE2IDE2LjExNiAwIDAgMC0uODQzIDIuMDI5bC0uMDM0LjEwMmExNS42NSAxNS42NSAwIDAgMC0uNzg2IDUuMTc0bC4wMDMuMjE0YTIxLjUyMyAyMS41MjMgMCAwIDAgLjA0Ljc1NGMuMDA5LjExOS4wMi4yMzcuMDMyLjM1NS4wMTQuMTQ1LjAzMi4yOS4wNDkuNDMybC4wMS4wOGMuMDEuMDY3LjAxNy4xMzMuMDI2LjE5Ny4wMzQuMjQyLjA3NC40OC4xMTkuNzIuNDYzIDIuNDE5IDEuNjIgNC44MzYgMy4zNDUgNi45OWwuMDc4LjA5OC4wOC0uMDk1Yy42ODgtLjgxIDIuMzk1LTMuMzggMi41MzktNC45MjJsLjAwMy0uMDI5LS4wMTQtLjAyNWExMC43MjcgMTAuNzI3IDAgMCAxLTEuMjI2LTQuOTU2YzAtNS43NiA0LjU0NS0xMC41NDQgMTAuMzQzLTEwLjg5bC4zODEtLjAxNGExMS40MDMgMTEuNDAzIDAgMCAxIDYuNjUxIDEuOTU3bC4wNTQuMDM2IDMuODYyLTIuMjM3LjA1LS4wM3YtLjA1NmMuMDA2LTYuMDgtMi4zODQtMTEuNzkzLTYuNzI5LTE2LjA4OUMzNC45MzIgMi4zNjEgMjkuMTYgMCAyMy4wMTMgMCIgZmlsbD0iI0YwMUY3QSIgZmlsbC1ydWxlPSJldmVub2RkIi8+CiAgICA8L3N2Zz4KPC9zdmc+" alt="codecov" /></a> <a href="https://saythanks.io/to/plieninger@uni-mannheim.de"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iOTAiIGhlaWdodD0iMjAiPjxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNiYmIiIHN0b3Atb3BhY2l0eT0iLjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3Atb3BhY2l0eT0iLjEiLz48L2xpbmVhckdyYWRpZW50PjxjbGlwUGF0aCBpZD0iYSI+PHJlY3Qgd2lkdGg9IjkwIiBoZWlnaHQ9IjIwIiByeD0iMyIgZmlsbD0iI2ZmZiIvPjwvY2xpcFBhdGg+PGcgY2xpcC1wYXRoPSJ1cmwoI2EpIj48cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDc1djIwSDB6Ii8+PHBhdGggZmlsbD0iIzFlYWVkYiIgZD0iTTc1IDBoMTV2MjBINzV6Ii8+PHBhdGggZmlsbD0idXJsKCNiKSIgZD0iTTAgMGg5MHYyMEgweiIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iRGVqYVZ1IFNhbnMsVmVyZGFuYSxHZW5ldmEsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMTAiPiA8dGV4dCB4PSIzODUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjY1MCI+U2F5IFRoYW5rczwvdGV4dD48dGV4dCB4PSIzODUiIHk9IjE0MCIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjY1MCI+U2F5IFRoYW5rczwvdGV4dD48dGV4dCB4PSI4MTUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjUwIj4hPC90ZXh0Pjx0ZXh0IHg9IjgxNSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgdGV4dExlbmd0aD0iNTAiPiE8L3RleHQ+PC9nPiA8L3N2Zz4=" alt="Say Thanks!" /></a></p>
 <div id="itemresponsetrees" class="section level2">
 <h2>ItemResponseTrees</h2>
 <p>ItemResponseTrees is an R package that allows to fit IR-tree models in mirt, Mplus, or TAM. If you’re unfamiliar with IR-trees, the paper of <a href="https://dx.doi.org/10.1037/a0028111">Böckenholt (2012)</a> is a good starting point. If you’re familiar with the class of IR-tree models, this tutorial will get you started. The package automates some of the hassle of IR-tree modeling by means of a consistent syntax. This allows new users to quickly adopt this model class, and this allows experienced users to fit many complex models effortlessly.</p>
 <p>The package can be installed as follows:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;hplieninger/ItemResponseTrees&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</a>
+<a class="sourceLine" id="cb1-2" title="2">remotes<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;hplieninger/ItemResponseTrees&quot;</span>)</a></code></pre></div>
 </div>
 <div id="example-data" class="section level2">
 <h2>Example Data</h2>
 <p>Herein, an illustrative example will be shown using a popular IR-tree model for 5-point items (Böckenholt, 2012). The model is applied to a Big Five data set from Jackson (2012), more precisely to seven conscientiousness items.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(<span class="st">&quot;ItemResponseTrees&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">library</span>(<span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">data</span>(<span class="st">&quot;jackson&quot;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">set.seed</span>(<span class="dv">1432</span>)</span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a>df1 &lt;-<span class="st"> </span><span class="kw">select</span>(jackson, <span class="kw">paste0</span>(<span class="st">&quot;C&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">7</span>)) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="st">    </span><span class="kw">sample_n</span>(<span class="dv">250</span>)</span>
-<span id="cb3-6"><a href="#cb3-6"></a>df1</span>
-<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt; # A tibble: 250 x 7</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt;       C1    C2    C3    C4    C5    C6    C7</span></span>
-<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt;    &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt;</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt;  1     4     5     5     4     4     5     5</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt;  2     3     3     3     5     3     2     3</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt;  3     3     1     5     2     3     2     5</span></span>
-<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt;  4     5     2     4     4     5     4     5</span></span>
-<span id="cb3-14"><a href="#cb3-14"></a><span class="co">#&gt;  5     4     4     5     4     2     4     4</span></span>
-<span id="cb3-15"><a href="#cb3-15"></a><span class="co">#&gt;  6     4     3     4     4     2     3     5</span></span>
-<span id="cb3-16"><a href="#cb3-16"></a><span class="co">#&gt;  7     5     2     4     5     2     3     4</span></span>
-<span id="cb3-17"><a href="#cb3-17"></a><span class="co">#&gt;  8     3     3     4     2     2     3     3</span></span>
-<span id="cb3-18"><a href="#cb3-18"></a><span class="co">#&gt;  9     3     3     3     2     4     2     3</span></span>
-<span id="cb3-19"><a href="#cb3-19"></a><span class="co">#&gt; 10     5     5     5     5     4     5     5</span></span>
-<span id="cb3-20"><a href="#cb3-20"></a><span class="co">#&gt; # ... with 240 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="kw">library</span>(<span class="st">&quot;ItemResponseTrees&quot;</span>)</a>
+<a class="sourceLine" id="cb2-2" title="2"></a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="kw">data</span>(<span class="st">&quot;jackson&quot;</span>)</a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="kw">set.seed</span>(<span class="dv">9701</span>)</a>
+<a class="sourceLine" id="cb2-6" title="6">df1 &lt;-<span class="st"> </span>jackson[<span class="kw">sample</span>(<span class="kw">nrow</span>(jackson), <span class="dv">321</span>), <span class="kw">paste0</span>(<span class="st">&quot;E&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">9</span>)]</a>
+<a class="sourceLine" id="cb2-7" title="7">df1</a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="co">#&gt; # A tibble: 321 x 9</span></a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="co">#&gt;       E1    E2    E3    E4    E5    E6    E7    E8    E9</span></a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="co">#&gt;    &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="co">#&gt;  1     3     3     3     3     3     3     2     3     3</span></a>
+<a class="sourceLine" id="cb2-12" title="12"><span class="co">#&gt;  2     3     5     3     3     5     5     5     1     5</span></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="co">#&gt;  3     4     4     3     3     4     3     5     4     2</span></a>
+<a class="sourceLine" id="cb2-14" title="14"><span class="co">#&gt;  4     4     3     5     4     3     4     4     3     4</span></a>
+<a class="sourceLine" id="cb2-15" title="15"><span class="co">#&gt;  5     3     1     4     1     2     4     2     3     4</span></a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="co">#&gt;  6     1     2     3     2     2     2     2     2     2</span></a>
+<a class="sourceLine" id="cb2-17" title="17"><span class="co">#&gt;  7     4     5     4     3     4     4     4     3     3</span></a>
+<a class="sourceLine" id="cb2-18" title="18"><span class="co">#&gt;  8     3     5     3     4     4     5     3     5     4</span></a>
+<a class="sourceLine" id="cb2-19" title="19"><span class="co">#&gt;  9     2     2     3     4     2     1     2     2     2</span></a>
+<a class="sourceLine" id="cb2-20" title="20"><span class="co">#&gt; 10     2     4     4     2     3     4     2     3     3</span></a>
+<a class="sourceLine" id="cb2-21" title="21"><span class="co">#&gt; # ... with 311 more rows</span></a></code></pre></div>
 </div>
 <div id="defining-the-model" class="section level2">
 <h2>Defining the Model</h2>
@@ -347,129 +345,138 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 The format for this section is highly similar to the MODEL statement in Mplus: a semicolon is used after each definition; loadings (discrimination parameters) can be fixed using <code>@</code>. The syntax below fixes all loadings corresponding to dimensions <em>e</em> and <em>m</em> to 1 corresponding to a 1PL or Rasch model, whereas all loadings corresponding to dimension <em>t</em> are freely estimated (i.e., 2PL-structure).</li>
 <li><code>Class:</code> Can be either <code>Tree</code> for an IR-tree model or <code>GRM</code> for a graded response model.</li>
 </ol>
-<p>The function <code>irtree_create_template()</code> may be used to create a model-string template, which can be copy-pasted and modified.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># irtree_create_template(names(df1))</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a></span>
-<span id="cb4-3"><a href="#cb4-3"></a>m1 &lt;-<span class="st"> &quot;</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="st"># IR-tree model for 5-point items (Böckenholt, 2012)</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="st">IRT:</span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="st">t  BY  C1,   C2,   C3,   C4,   C5,   C6,   C7;</span></span>
-<span id="cb4-8"><a href="#cb4-8"></a><span class="st">e  BY  C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1;</span></span>
-<span id="cb4-9"><a href="#cb4-9"></a><span class="st">m  BY  C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1;</span></span>
-<span id="cb4-10"><a href="#cb4-10"></a></span>
-<span id="cb4-11"><a href="#cb4-11"></a><span class="st">Equations:</span></span>
-<span id="cb4-12"><a href="#cb4-12"></a><span class="st">1 = (1-m)*(1-t)*e</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a><span class="st">2 = (1-m)*(1-t)*(1-e)</span></span>
-<span id="cb4-14"><a href="#cb4-14"></a><span class="st">3 = m</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a><span class="st">4 = (1-m)*t*(1-e)</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a><span class="st">5 = (1-m)*t*e</span></span>
-<span id="cb4-17"><a href="#cb4-17"></a></span>
-<span id="cb4-18"><a href="#cb4-18"></a><span class="st">Class:</span></span>
-<span id="cb4-19"><a href="#cb4-19"></a><span class="st">Tree</span></span>
-<span id="cb4-20"><a href="#cb4-20"></a><span class="st">&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># Use irtree_create_template() to create a model-string template:</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">irtree_create_template</span>(df1)</a></code></pre></div>
+<p>In the following, the model string for the desired IR-tree model for the nine items is specified and saved as <code>m1</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">m1 &lt;-<span class="st"> &quot;</span></a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="st"># IR-tree model for 5-point items (Böckenholt, 2012)</span></a>
+<a class="sourceLine" id="cb4-3" title="3"></a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="st">IRT:</span></a>
+<a class="sourceLine" id="cb4-5" title="5"><span class="st">t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;</span></a>
+<a class="sourceLine" id="cb4-6" title="6"><span class="st">e  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;</span></a>
+<a class="sourceLine" id="cb4-7" title="7"><span class="st">m  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;</span></a>
+<a class="sourceLine" id="cb4-8" title="8"></a>
+<a class="sourceLine" id="cb4-9" title="9"><span class="st">Equations:</span></a>
+<a class="sourceLine" id="cb4-10" title="10"><span class="st">1 = (1-m)*(1-t)*e</span></a>
+<a class="sourceLine" id="cb4-11" title="11"><span class="st">2 = (1-m)*(1-t)*(1-e)</span></a>
+<a class="sourceLine" id="cb4-12" title="12"><span class="st">3 = m</span></a>
+<a class="sourceLine" id="cb4-13" title="13"><span class="st">4 = (1-m)*t*(1-e)</span></a>
+<a class="sourceLine" id="cb4-14" title="14"><span class="st">5 = (1-m)*t*e</span></a>
+<a class="sourceLine" id="cb4-15" title="15"></a>
+<a class="sourceLine" id="cb4-16" title="16"><span class="st">Class:</span></a>
+<a class="sourceLine" id="cb4-17" title="17"><span class="st">Tree</span></a>
+<a class="sourceLine" id="cb4-18" title="18"><span class="st">&quot;</span></a></code></pre></div>
 <p>In case of a graded response model, only two sections need to be specified.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>m2 &lt;-<span class="st"> &quot;</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="st"># Graded response model</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a></span>
-<span id="cb5-4"><a href="#cb5-4"></a><span class="st">IRT:</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a><span class="st">t  BY  C1,   C2,   C3,   C4,   C5,   C6,   C7;</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a></span>
-<span id="cb5-7"><a href="#cb5-7"></a><span class="st">Class:</span></span>
-<span id="cb5-8"><a href="#cb5-8"></a><span class="st">GRM</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a><span class="st">&quot;</span></span></code></pre></div>
-<p>Further information about the model syntax is provided in <code>?irtree_model()</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">m2 &lt;-<span class="st"> &quot;</span></a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="st"># Graded response model</span></a>
+<a class="sourceLine" id="cb5-3" title="3"></a>
+<a class="sourceLine" id="cb5-4" title="4"><span class="st">IRT:</span></a>
+<a class="sourceLine" id="cb5-5" title="5"><span class="st">t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;</span></a>
+<a class="sourceLine" id="cb5-6" title="6"></a>
+<a class="sourceLine" id="cb5-7" title="7"><span class="st">Class:</span></a>
+<a class="sourceLine" id="cb5-8" title="8"><span class="st">GRM</span></a>
+<a class="sourceLine" id="cb5-9" title="9"><span class="st">&quot;</span></a></code></pre></div>
+<p>Subsequently, the model strings <code>m1</code> and <code>m2</code> need to be parsed by <code>irtree_model()</code>. The resulting objects <code>model1</code> and <code>model2</code> of class <code>irtree_model</code> contain all the necessary information for fitting the model. Furthermore, one may inspect specific elements, for example, the pseudoitems contained in the mapping matrix.</p>
+<p>Further information on creating model strings is provided in <code>?irtree_model()</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">model1 &lt;-<span class="st"> </span><span class="kw">irtree_model</span>(m1)</a>
+<a class="sourceLine" id="cb6-2" title="2">model2 &lt;-<span class="st"> </span><span class="kw">irtree_model</span>(m2)</a>
+<a class="sourceLine" id="cb6-3" title="3"></a>
+<a class="sourceLine" id="cb6-4" title="4">model1<span class="op">$</span>mapping_matrix</a>
+<a class="sourceLine" id="cb6-5" title="5"><span class="co">#&gt;      cate  t  e m</span></a>
+<a class="sourceLine" id="cb6-6" title="6"><span class="co">#&gt; [1,]    1  0  1 0</span></a>
+<a class="sourceLine" id="cb6-7" title="7"><span class="co">#&gt; [2,]    2  0  0 0</span></a>
+<a class="sourceLine" id="cb6-8" title="8"><span class="co">#&gt; [3,]    3 NA NA 1</span></a>
+<a class="sourceLine" id="cb6-9" title="9"><span class="co">#&gt; [4,]    4  1  0 0</span></a>
+<a class="sourceLine" id="cb6-10" title="10"><span class="co">#&gt; [5,]    5  1  1 0</span></a></code></pre></div>
 </div>
 <div id="fitting-the-model" class="section level2">
 <h2>Fitting the model</h2>
 <p>The ItemResponseTrees package provides wrapper functions for Mplus (via the <a href="https://cran.r-project.org/package=MplusAutomation">MplusAutomation</a> package), for the <a href="https://cran.r-project.org/package=mirt">mirt</a> package, and for the <a href="https://cran.r-project.org/package=TAM">TAM</a> package. To fit a model, the model string as defined above has to be converted into an object of class <code>irtree_model</code> using the function <code>irtree_model()</code>. Then, the model can be <code>fit()</code> as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>model1 &lt;-<span class="st"> </span><span class="kw">irtree_model</span>(m1)</span>
-<span id="cb6-2"><a href="#cb6-2"></a>model2 &lt;-<span class="st"> </span><span class="kw">irtree_model</span>(m2)</span>
-<span id="cb6-3"><a href="#cb6-3"></a></span>
-<span id="cb6-4"><a href="#cb6-4"></a><span class="co"># The following control parameters are lax but increase speed</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a>ctrl &lt;-<span class="st"> </span><span class="kw">control_mirt</span>(<span class="dt">quadpts =</span> <span class="dv">8</span>, <span class="dt">TOL =</span> <span class="fl">.01</span>)</span>
-<span id="cb6-6"><a href="#cb6-6"></a></span>
-<span id="cb6-7"><a href="#cb6-7"></a>fit1 &lt;-<span class="st"> </span><span class="kw">fit</span>(model1, <span class="dt">data =</span> df1, <span class="dt">engine =</span> <span class="st">&quot;mirt&quot;</span>, <span class="dt">control =</span> ctrl)</span>
-<span id="cb6-8"><a href="#cb6-8"></a>fit2 &lt;-<span class="st"> </span><span class="kw">fit</span>(model2, <span class="dt">data =</span> df1, <span class="dt">engine =</span> <span class="st">&quot;mirt&quot;</span>, <span class="dt">control =</span> ctrl)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="co"># mirt can be used with an EM algorithm (the default) or, for example, with the</span></a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="co"># MH-RM algorithm, which seems a little bit faster here.</span></a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="co"># See ?mirt::mirt for details.</span></a>
+<a class="sourceLine" id="cb7-4" title="4">ctrl &lt;-<span class="st"> </span><span class="kw">control_mirt</span>(<span class="dt">method =</span> <span class="st">&quot;MHRM&quot;</span>)</a>
+<a class="sourceLine" id="cb7-5" title="5"></a>
+<a class="sourceLine" id="cb7-6" title="6">fit1 &lt;-<span class="st"> </span><span class="kw">fit</span>(model1, <span class="dt">data =</span> df1, <span class="dt">engine =</span> <span class="st">&quot;mirt&quot;</span>, <span class="dt">control =</span> ctrl)</a>
+<a class="sourceLine" id="cb7-7" title="7">fit2 &lt;-<span class="st"> </span><span class="kw">fit</span>(model2, <span class="dt">data =</span> df1, <span class="dt">engine =</span> <span class="st">&quot;mirt&quot;</span>, <span class="dt">control =</span> ctrl)</a></code></pre></div>
 </div>
 <div id="results" class="section level2">
 <h2>Results</h2>
 <div id="model-fit" class="section level3">
 <h3>Model Fit</h3>
-<p>Information about model fit is obtained via <code>glance()</code>. As seen below, the IR-tree model has 33 freely estimated parameters (3 x 7 thresholds + 7 loadings + 2 variances + 3 covariances). The GRM has 35 estimated parameters (4 x 7 thresholds + 7 loadings). (Of course, this comparison is a little bit unfair, because the IR-tree model is much more flexible in terms of dimensionality/“random effects” even though it is less flexible with respect to the thresholds/“fixed effects”.)</p>
+<p>Information about model fit is obtained via <code>glance()</code>. As seen below, the IR-tree model has 41 freely estimated parameters (3 x 9 thresholds + 9 loadings + 2 variances + 3 covariances). The GRM has 45 estimated parameters (4 x 9 thresholds + 9 loadings). (Of course, this comparison is a little bit unfair, because the IR-tree model is much more flexible in terms of dimensionality/“random effects” even though it is less flexible with respect to the thresholds/“fixed effects”.)</p>
 <p>For the present data, the IR-tree model slightly outperforms the GRM according to AIC and BIC, and thus one may conclude that response styles are present in these data.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">glance</span>(fit1)</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="co">#&gt; # A tibble: 1 x 11</span></span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="co">#&gt;     AIC   BIC  AICc logLik converged iterations estimator  npar  nobs n.factors</span></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="co">#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;          &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;int&gt;     &lt;int&gt;</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="co">#&gt; 1 4853. 4969. 4863. -2393. TRUE              16 EM           33   250         3</span></span>
-<span id="cb7-6"><a href="#cb7-6"></a><span class="co">#&gt; # ... with 1 more variable: ngroups &lt;int&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7"></a></span>
-<span id="cb7-8"><a href="#cb7-8"></a><span class="kw">list</span>(<span class="st">&quot;tree&quot;</span> =<span class="st"> </span>fit1, <span class="st">&quot;grm&quot;</span> =<span class="st"> </span>fit2) <span class="op">%&gt;%</span><span class="st"> </span></span>
-<span id="cb7-9"><a href="#cb7-9"></a><span class="st">    </span>purrr<span class="op">::</span><span class="kw">map_dfr</span>(glance, <span class="dt">.id =</span> <span class="st">&quot;Model&quot;</span>)</span>
-<span id="cb7-10"><a href="#cb7-10"></a><span class="co">#&gt; # A tibble: 2 x 12</span></span>
-<span id="cb7-11"><a href="#cb7-11"></a><span class="co">#&gt;   Model   AIC   BIC  AICc logLik converged iterations estimator  npar  nobs</span></span>
-<span id="cb7-12"><a href="#cb7-12"></a><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;          &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;int&gt;</span></span>
-<span id="cb7-13"><a href="#cb7-13"></a><span class="co">#&gt; 1 tree  4853. 4969. 4863. -2393. TRUE              16 EM           33   250</span></span>
-<span id="cb7-14"><a href="#cb7-14"></a><span class="co">#&gt; 2 grm   4880. 5003. 4892. -2405. TRUE               8 EM           35   250</span></span>
-<span id="cb7-15"><a href="#cb7-15"></a><span class="co">#&gt; # ... with 2 more variables: n.factors &lt;int&gt;, ngroups &lt;int&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">glance</span>(fit1)</a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="co">#&gt; # A tibble: 1 x 11</span></a>
+<a class="sourceLine" id="cb8-3" title="3"><span class="co">#&gt;     AIC   BIC  AICc logLik converged iterations estimator  npar  nobs n.factors</span></a>
+<a class="sourceLine" id="cb8-4" title="4"><span class="co">#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;          &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;int&gt;     &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb8-5" title="5"><span class="co">#&gt; 1 7660. 7815. 7672. -3789. TRUE             369 MHRM         41   321         3</span></a>
+<a class="sourceLine" id="cb8-6" title="6"><span class="co">#&gt; # ... with 1 more variable: ngroups &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb8-7" title="7"></a>
+<a class="sourceLine" id="cb8-8" title="8"><span class="kw">rbind</span>(<span class="kw">glance</span>(fit1), <span class="kw">glance</span>(fit2))</a>
+<a class="sourceLine" id="cb8-9" title="9"><span class="co">#&gt; # A tibble: 2 x 11</span></a>
+<a class="sourceLine" id="cb8-10" title="10"><span class="co">#&gt;     AIC   BIC  AICc logLik converged iterations estimator  npar  nobs n.factors</span></a>
+<a class="sourceLine" id="cb8-11" title="11"><span class="co">#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;          &lt;int&gt; &lt;chr&gt;     &lt;int&gt; &lt;int&gt;     &lt;int&gt;</span></a>
+<a class="sourceLine" id="cb8-12" title="12"><span class="co">#&gt; 1 7660. 7815. 7672. -3789. TRUE             369 MHRM         41   321         3</span></a>
+<a class="sourceLine" id="cb8-13" title="13"><span class="co">#&gt; 2 7686. 7856. 7701. -3798. TRUE              84 MHRM         45   321         1</span></a>
+<a class="sourceLine" id="cb8-14" title="14"><span class="co">#&gt; # ... with 1 more variable: ngroups &lt;int&gt;</span></a></code></pre></div>
 </div>
 <div id="parameter-estimates" class="section level3">
 <h3>Parameter Estimates</h3>
-<p>The parameter estimates are obtained via <code>tidy()</code>. For the IR-tree model, this returns a tibble with 54 rows (pertaining to the fixed and estimated parameters). Below, the seven loading/discrimination parameters <code>t_*.a1</code> pertaining to parameter <em>t</em> are shown. The loadings pertaining to parameter <em>e</em> (<code>e_*.a2</code>) and <em>m</em> (<code>m_*.a3</code>) were fixed to one and thus no standard error is returned for these. The latent correlations are shown below as well, and these show the typical pattern of a negative correlation between <em>e</em> and <em>m</em>.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">tidy</span>(fit1, <span class="dt">par_type =</span> <span class="st">&quot;difficulty&quot;</span>)</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt; # A tibble: 54 x 4</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt;    effect term    estimate std.error</span></span>
-<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt;    &lt;chr&gt;  &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt;  1 fixed  t_C1.a1    7.55     60.9  </span></span>
-<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt;  2 fixed  t_C2.a1    1.47      0.247</span></span>
-<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt;  3 fixed  t_C3.a1    0.806     0.336</span></span>
-<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt;  4 fixed  t_C4.a1    1.87      0.387</span></span>
-<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt;  5 fixed  t_C5.a1    1.45      0.269</span></span>
-<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt;  6 fixed  t_C6.a1    2.52      0.566</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt;  7 fixed  t_C7.a1    1.12      0.346</span></span>
-<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt;  8 fixed  e_C1.a2    1        NA    </span></span>
-<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt;  9 fixed  e_C2.a2    1        NA    </span></span>
-<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt; 10 fixed  e_C3.a2    1        NA    </span></span>
-<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt; # ... with 44 more rows</span></span>
-<span id="cb8-16"><a href="#cb8-16"></a></span>
-<span id="cb8-17"><a href="#cb8-17"></a><span class="kw">tail</span>(<span class="kw">tidy</span>(fit1, <span class="dt">par_type =</span> <span class="st">&quot;difficulty&quot;</span>), <span class="dv">3</span>)</span>
-<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt; # A tibble: 3 x 4</span></span>
-<span id="cb8-19"><a href="#cb8-19"></a><span class="co">#&gt;   effect   term    estimate std.error</span></span>
-<span id="cb8-20"><a href="#cb8-20"></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span id="cb8-21"><a href="#cb8-21"></a><span class="co">#&gt; 1 ran_pars COR_t.e    0.118        NA</span></span>
-<span id="cb8-22"><a href="#cb8-22"></a><span class="co">#&gt; 2 ran_pars COR_t.m   -0.188        NA</span></span>
-<span id="cb8-23"><a href="#cb8-23"></a><span class="co">#&gt; 3 ran_pars COR_e.m   -0.535        NA</span></span></code></pre></div>
+<p>The parameter estimates are obtained via <code>tidy()</code>. For the IR-tree model, this returns a tibble with 66 rows (pertaining to the fixed and estimated parameters). Below, the nine threshold/difficulty parameters <code>t_E*.d</code> pertaining to parameter <em>t</em> are shown plus the threshold of pseudoitem <code>e_E1</code>. <!-- The loadings pertaining to parameter *e* (`e_*.a2`) and *m* (`m_*.a3`) were fixed to one and thus no standard error is returned for these. --> The latent correlations are shown below as well, and these show the typical pattern of a negative correlation between <em>e</em> and <em>m</em>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">tidy</span>(fit1, <span class="dt">par_type =</span> <span class="st">&quot;difficulty&quot;</span>)</a>
+<a class="sourceLine" id="cb9-2" title="2"><span class="co">#&gt; # A tibble: 66 x 5</span></a>
+<a class="sourceLine" id="cb9-3" title="3"><span class="co">#&gt;    parameter component term   estimate std.error</span></a>
+<a class="sourceLine" id="cb9-4" title="4"><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb9-5" title="5"><span class="co">#&gt;  1 Threshold &lt;NA&gt;      t_E1.d    1.08      0.574</span></a>
+<a class="sourceLine" id="cb9-6" title="6"><span class="co">#&gt;  2 Threshold &lt;NA&gt;      t_E2.d   -1.07      0.652</span></a>
+<a class="sourceLine" id="cb9-7" title="7"><span class="co">#&gt;  3 Threshold &lt;NA&gt;      t_E3.d   -1.34      0.383</span></a>
+<a class="sourceLine" id="cb9-8" title="8"><span class="co">#&gt;  4 Threshold &lt;NA&gt;      t_E4.d   -0.208     0.563</span></a>
+<a class="sourceLine" id="cb9-9" title="9"><span class="co">#&gt;  5 Threshold &lt;NA&gt;      t_E5.d   -1.81      0.522</span></a>
+<a class="sourceLine" id="cb9-10" title="10"><span class="co">#&gt;  6 Threshold &lt;NA&gt;      t_E6.d   -2.12      0.632</span></a>
+<a class="sourceLine" id="cb9-11" title="11"><span class="co">#&gt;  7 Threshold &lt;NA&gt;      t_E7.d    0.622     0.540</span></a>
+<a class="sourceLine" id="cb9-12" title="12"><span class="co">#&gt;  8 Threshold &lt;NA&gt;      t_E8.d    0.636     0.448</span></a>
+<a class="sourceLine" id="cb9-13" title="13"><span class="co">#&gt;  9 Threshold &lt;NA&gt;      t_E9.d   -0.178     0.351</span></a>
+<a class="sourceLine" id="cb9-14" title="14"><span class="co">#&gt; 10 Threshold &lt;NA&gt;      e_E1.d    0.744     0.189</span></a>
+<a class="sourceLine" id="cb9-15" title="15"><span class="co">#&gt; # ... with 56 more rows</span></a>
+<a class="sourceLine" id="cb9-16" title="16"></a>
+<a class="sourceLine" id="cb9-17" title="17"><span class="kw">tail</span>(<span class="kw">tidy</span>(fit1, <span class="dt">par_type =</span> <span class="st">&quot;difficulty&quot;</span>), <span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb9-18" title="18"><span class="co">#&gt; # A tibble: 3 x 5</span></a>
+<a class="sourceLine" id="cb9-19" title="19"><span class="co">#&gt;   parameter component term    estimate std.error</span></a>
+<a class="sourceLine" id="cb9-20" title="20"><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb9-21" title="21"><span class="co">#&gt; 1 Corr      &lt;NA&gt;      CORR_21    0.179        NA</span></a>
+<a class="sourceLine" id="cb9-22" title="22"><span class="co">#&gt; 2 Corr      &lt;NA&gt;      CORR_31   -0.107        NA</span></a>
+<a class="sourceLine" id="cb9-23" title="23"><span class="co">#&gt; 3 Corr      &lt;NA&gt;      CORR_32   -0.826        NA</span></a></code></pre></div>
 </div>
 <div id="factor-scores" class="section level3">
 <h3>Factor scores</h3>
 <p>The factor scores or person parameter estimates are obtained via <code>augment()</code>. This returns a tibble comprised of the data set and the factor scores (plus respective standard errors) for the three dimensions <em>t</em> (F1), <em>e</em> (F2), and <em>m</em> (F3).<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<p>The correlation of the scores for the target trait (conscientiousness in this case) between the IR-tree model and the GRM indicates that the models differ in this respect even though not drastically.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">augment</span>(fit1)</span>
-<span id="cb9-2"><a href="#cb9-2"></a><span class="co">#&gt; # A tibble: 250 x 13</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a><span class="co">#&gt;       C1    C2    C3    C4    C5    C6    C7 .fittedF1 .fittedF2 .fittedF3</span></span>
-<span id="cb9-4"><a href="#cb9-4"></a><span class="co">#&gt;    &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt;  1     4     5     5     4     4     5     5    1.19      0.941     -0.997</span></span>
-<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt;  2     3     3     3     5     3     2     3   -0.552    -0.432      1.30 </span></span>
-<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt;  3     3     1     5     2     3     2     5   -1.05      0.533      0.118</span></span>
-<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt;  4     5     2     4     4     5     4     5    0.587     0.464     -0.816</span></span>
-<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt;  5     4     4     5     4     2     4     4    0.571    -0.532     -0.561</span></span>
-<span id="cb9-10"><a href="#cb9-10"></a><span class="co">#&gt;  6     4     3     4     4     2     3     5    0.249    -0.450      0.236</span></span>
-<span id="cb9-11"><a href="#cb9-11"></a><span class="co">#&gt;  7     5     2     4     5     2     3     4    0.0458    0.0543    -0.243</span></span>
-<span id="cb9-12"><a href="#cb9-12"></a><span class="co">#&gt;  8     3     3     4     2     2     3     3   -1.02     -1.40       1.18 </span></span>
-<span id="cb9-13"><a href="#cb9-13"></a><span class="co">#&gt;  9     3     3     3     2     4     2     3   -0.786    -1.39       1.16 </span></span>
-<span id="cb9-14"><a href="#cb9-14"></a><span class="co">#&gt; 10     5     5     5     5     4     5     5    1.23      1.94      -1.28 </span></span>
-<span id="cb9-15"><a href="#cb9-15"></a><span class="co">#&gt; # ... with 240 more rows, and 3 more variables: .se.fitF1 &lt;dbl&gt;,</span></span>
-<span id="cb9-16"><a href="#cb9-16"></a><span class="co">#&gt; #   .se.fitF2 &lt;dbl&gt;, .se.fitF3 &lt;dbl&gt;</span></span>
-<span id="cb9-17"><a href="#cb9-17"></a></span>
-<span id="cb9-18"><a href="#cb9-18"></a><span class="kw">cor</span>(<span class="kw">augment</span>(fit1)<span class="op">$</span>.fittedF1, <span class="kw">augment</span>(fit2)<span class="op">$</span>.fittedF1)</span>
-<span id="cb9-19"><a href="#cb9-19"></a><span class="co">#&gt; [1] 0.8988206</span></span></code></pre></div>
+<p>The correlation of the scores for the target trait (extraversion in this case) between the IR-tree model and the GRM indicates that the models differ in this respect even though not drastically.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">augment</span>(fit1)</a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="co">#&gt; # A tibble: 321 x 15</span></a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="co">#&gt;       E1    E2    E3    E4    E5    E6    E7    E8    E9 .fittedF1 .fittedF2</span></a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="co">#&gt;    &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="co">#&gt;  1     3     3     3     3     3     3     2     3     3   -0.743     -2.82 </span></a>
+<a class="sourceLine" id="cb10-6" title="6"><span class="co">#&gt;  2     3     5     3     3     5     5     5     1     5    0.560      1.62 </span></a>
+<a class="sourceLine" id="cb10-7" title="7"><span class="co">#&gt;  3     4     4     3     3     4     3     5     4     2    0.809     -0.812</span></a>
+<a class="sourceLine" id="cb10-8" title="8"><span class="co">#&gt;  4     4     3     5     4     3     4     4     3     4    1.16      -0.706</span></a>
+<a class="sourceLine" id="cb10-9" title="9"><span class="co">#&gt;  5     3     1     4     1     2     4     2     3     4   -0.634     -0.291</span></a>
+<a class="sourceLine" id="cb10-10" title="10"><span class="co">#&gt;  6     1     2     3     2     2     2     2     2     2   -1.42      -0.807</span></a>
+<a class="sourceLine" id="cb10-11" title="11"><span class="co">#&gt;  7     4     5     4     3     4     4     4     3     3    1.10      -0.808</span></a>
+<a class="sourceLine" id="cb10-12" title="12"><span class="co">#&gt;  8     3     5     3     4     4     5     3     5     4    1.13       0.237</span></a>
+<a class="sourceLine" id="cb10-13" title="13"><span class="co">#&gt;  9     2     2     3     4     2     1     2     2     2   -0.905     -0.767</span></a>
+<a class="sourceLine" id="cb10-14" title="14"><span class="co">#&gt; 10     2     4     4     2     3     4     2     3     3   -0.0666    -1.51 </span></a>
+<a class="sourceLine" id="cb10-15" title="15"><span class="co">#&gt; # ... with 311 more rows, and 4 more variables: .fittedF3 &lt;dbl&gt;,</span></a>
+<a class="sourceLine" id="cb10-16" title="16"><span class="co">#&gt; #   .se.fitF1 &lt;dbl&gt;, .se.fitF2 &lt;dbl&gt;, .se.fitF3 &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb10-17" title="17"></a>
+<a class="sourceLine" id="cb10-18" title="18"><span class="kw">cor</span>(<span class="kw">augment</span>(fit1)<span class="op">$</span>.fittedF1, <span class="kw">augment</span>(fit2)<span class="op">$</span>.fittedF1)</a>
+<a class="sourceLine" id="cb10-19" title="19"><span class="co">#&gt; [1] 0.9021495</span></a></code></pre></div>
 </div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>The order corresponds to the order of appearance in the section <code>IRT</code> of the model string.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>The order corresponds to the order of appearance in the section <code>IRT</code> of the model string.<a href="#fnref1" class="footnote-back">↩</a></p></li>
 </ol>
 </div>
 

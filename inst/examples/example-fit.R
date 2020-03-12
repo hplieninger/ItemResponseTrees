@@ -3,7 +3,7 @@ data("jackson")
 df1 <- jackson[1:456, paste0("C", 1:5)]
 df2 <- jackson[1:456, c(paste0("C", 1:5), paste0("E", 1:5))]
 
-irtree_create_template(names(df1))
+irtree_create_template(df1)
 
 # Graded Response Model ---------------------------------------------------
 

@@ -33,10 +33,10 @@ irtree_create_template <- function(data = NULL,
     k_names <- 0:1
     try(silent = TRUE, expr = {
         k_names <-
-            head(
+            utils::head(
                 sort(
                     unique(
-                        pull(
+                        dplyr::pull(
                             dplyr::select_if(data, checkmate::test_integerish), 1))
                 ), 9)
     })

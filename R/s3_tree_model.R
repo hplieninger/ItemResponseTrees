@@ -348,18 +348,19 @@ irtree_model <- function(model = NULL) {
     ##### Test if probabilities sum to 1 #####
 
     if (!is.null(model_list$equations)) {
-        tryCatch(irtree_gen_data(object = out1, N = 1, sigma = diag(e1$S),
-                                 itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
-                                                alpha = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P)),
-                                 skip = TRUE
-                                 ),
-                 improper_model = function(cnd) {
-                     with(tmp1, out1$proper_model <- FALSE)
-                     rlang::warn(
-                         paste("Equations do not constitute a proper model because",
-                               "they do not sum to 1. "),
-                         .subclass = "improper_model")
-                 })
+        tryCatch(
+            irtree_gen_data(
+                object = out1, N = 1, sigma = diag(e1$S),
+                itempar = list(beta  = matrix(stats::rnorm(e1$J*e1$P), e1$J, e1$P),
+                               alpha = matrix(stats::runif(e1$J*e1$P, .5), e1$J, e1$P)),
+                skip = TRUE),
+            improper_model = function(cnd) {
+                with(tmp1, out1$proper_model <- FALSE)
+                rlang::warn(
+                    paste("Equations do not constitute a proper model because",
+                          "they do not sum to 1. "),
+                    .subclass = "improper_model")
+            })
     }
     return(out1)
 }

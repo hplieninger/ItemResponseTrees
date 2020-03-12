@@ -1,6 +1,6 @@
 data("jackson")
 df1 <- jackson[1:234, paste0("C", 1:5)]
-irtree_create_template(names(df1))
+irtree_create_template(df1)
 m1 <- "
 IRT:
 t BY C1@1, C2@1, C3@1, C4@1, C5@1;

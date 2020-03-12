@@ -21,6 +21,7 @@ users to fit many complex models effortlessly.
 The package can be installed as follows:
 
 ``` r
+install.packages("remotes")
 remotes::install_github("hplieninger/ItemResponseTrees")
 ```
 
@@ -33,30 +34,26 @@ conscientiousness items.
 
 ``` r
 library("ItemResponseTrees")
-library("dplyr")
-```
 
-``` r
 data("jackson")
-set.seed(1432)
 
-df1 <- select(jackson, paste0("C", 1:7)) %>% 
-    sample_n(250)
+set.seed(9701)
+df1 <- jackson[sample(nrow(jackson), 321), paste0("E", 1:9)]
 df1
-#> # A tibble: 250 x 7
-#>       C1    C2    C3    C4    C5    C6    C7
-#>    <int> <dbl> <int> <dbl> <int> <dbl> <int>
-#>  1     4     5     5     4     4     5     5
-#>  2     3     3     3     5     3     2     3
-#>  3     3     1     5     2     3     2     5
-#>  4     5     2     4     4     5     4     5
-#>  5     4     4     5     4     2     4     4
-#>  6     4     3     4     4     2     3     5
-#>  7     5     2     4     5     2     3     4
-#>  8     3     3     4     2     2     3     3
-#>  9     3     3     3     2     4     2     3
-#> 10     5     5     5     5     4     5     5
-#> # ... with 240 more rows
+#> # A tibble: 321 x 9
+#>       E1    E2    E3    E4    E5    E6    E7    E8    E9
+#>    <int> <dbl> <int> <dbl> <int> <dbl> <int> <dbl> <int>
+#>  1     3     3     3     3     3     3     2     3     3
+#>  2     3     5     3     3     5     5     5     1     5
+#>  3     4     4     3     3     4     3     5     4     2
+#>  4     4     3     5     4     3     4     4     3     4
+#>  5     3     1     4     1     2     4     2     3     4
+#>  6     1     2     3     2     2     2     2     2     2
+#>  7     4     5     4     3     4     4     4     3     3
+#>  8     3     5     3     4     4     5     3     5     4
+#>  9     2     2     3     4     2     1     2     2     2
+#> 10     2     4     4     2     3     4     2     3     3
+#> # ... with 311 more rows
 ```
 
 ## Defining the Model
@@ -94,19 +91,24 @@ syntax that consists mainly of three parts.
 3.  `Class:` Can be either `Tree` for an IR-tree model or `GRM` for a
     graded response model.
 
-The function `irtree_create_template()` may be used to create a
-model-string template, which can be copy-pasted and modified.
+<!-- end list -->
 
 ``` r
-# irtree_create_template(names(df1))
+# Use irtree_create_template() to create a model-string template:
+irtree_create_template(df1)
+```
 
+In the following, the model string for the desired IR-tree model for the
+nine items is specified and saved as `m1`.
+
+``` r
 m1 <- "
 # IR-tree model for 5-point items (Böckenholt, 2012)
 
 IRT:
-t  BY  C1,   C2,   C3,   C4,   C5,   C6,   C7;
-e  BY  C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1;
-m  BY  C1@1, C2@1, C3@1, C4@1, C5@1, C6@1, C7@1;
+t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;
+e  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
+m  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
 
 Equations:
 1 = (1-m)*(1-t)*e
@@ -128,15 +130,34 @@ m2 <- "
 # Graded response model
 
 IRT:
-t  BY  C1,   C2,   C3,   C4,   C5,   C6,   C7;
+t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;
 
 Class:
 GRM
 "
 ```
 
-Further information about the model syntax is provided in
+Subsequently, the model strings `m1` and `m2` need to be parsed by
+`irtree_model()`. The resulting objects `model1` and `model2` of class
+`irtree_model` contain all the necessary information for fitting the
+model. Furthermore, one may inspect specific elements, for example, the
+pseudoitems contained in the mapping matrix.
+
+Further information on creating model strings is provided in
 `?irtree_model()`.
+
+``` r
+model1 <- irtree_model(m1)
+model2 <- irtree_model(m2)
+
+model1$mapping_matrix
+#>      cate  t  e m
+#> [1,]    1  0  1 0
+#> [2,]    2  0  0 0
+#> [3,]    3 NA NA 1
+#> [4,]    4  1  0 0
+#> [5,]    5  1  1 0
+```
 
 ## Fitting the model
 
@@ -150,11 +171,10 @@ converted into an object of class `irtree_model` using the function
 `irtree_model()`. Then, the model can be `fit()` as follows:
 
 ``` r
-model1 <- irtree_model(m1)
-model2 <- irtree_model(m2)
-
-# The following control parameters are lax but increase speed
-ctrl <- control_mirt(quadpts = 8, TOL = .01)
+# mirt can be used with an EM algorithm (the default) or, for example, with the
+# MH-RM algorithm, which seems a little bit faster here.
+# See ?mirt::mirt for details.
+ctrl <- control_mirt(method = "MHRM")
 
 fit1 <- fit(model1, data = df1, engine = "mirt", control = ctrl)
 fit2 <- fit(model2, data = df1, engine = "mirt", control = ctrl)
@@ -165,9 +185,9 @@ fit2 <- fit(model2, data = df1, engine = "mirt", control = ctrl)
 ### Model Fit
 
 Information about model fit is obtained via `glance()`. As seen below,
-the IR-tree model has 33 freely estimated parameters (3 x 7 thresholds +
-7 loadings + 2 variances + 3 covariances). The GRM has 35 estimated
-parameters (4 x 7 thresholds + 7 loadings). (Of course, this comparison
+the IR-tree model has 41 freely estimated parameters (3 x 9 thresholds +
+9 loadings + 2 variances + 3 covariances). The GRM has 45 estimated
+parameters (4 x 9 thresholds + 9 loadings). (Of course, this comparison
 is a little bit unfair, because the IR-tree model is much more flexible
 in terms of dimensionality/“random effects” even though it is less
 flexible with respect to the thresholds/“fixed effects”.)
@@ -179,56 +199,55 @@ are present in these data.
 ``` r
 glance(fit1)
 #> # A tibble: 1 x 11
-#>      AIC    BIC   AICc logLik converged iterations estimator  npar  nobs
-#>    <dbl>  <dbl>  <dbl>  <dbl> <lgl>          <int> <chr>     <int> <int>
-#> 1 13459. 13649. 13469. -6685. TRUE              12 EM           45   500
-#> # ... with 2 more variables: n.factors <int>, ngroups <int>
+#>     AIC   BIC  AICc logLik converged iterations estimator  npar  nobs n.factors
+#>   <dbl> <dbl> <dbl>  <dbl> <lgl>          <int> <chr>     <int> <int>     <int>
+#> 1 7660. 7815. 7672. -3789. TRUE             369 MHRM         41   321         3
+#> # ... with 1 more variable: ngroups <int>
 
-list("tree" = fit1, "grm" = fit2) %>% 
-    purrr::map_dfr(glance, .id = "Model")
-#> # A tibble: 2 x 12
-#>   Model    AIC    BIC   AICc logLik converged iterations estimator  npar  nobs
-#>   <chr>  <dbl>  <dbl>  <dbl>  <dbl> <lgl>          <int> <chr>     <int> <int>
-#> 1 tree  13459. 13649. 13469. -6685. TRUE              12 EM           45   500
-#> 2 grm   13466. 13677. 13477. -6683. TRUE               5 EM           50   500
-#> # ... with 2 more variables: n.factors <int>, ngroups <int>
+rbind(glance(fit1), glance(fit2))
+#> # A tibble: 2 x 11
+#>     AIC   BIC  AICc logLik converged iterations estimator  npar  nobs n.factors
+#>   <dbl> <dbl> <dbl>  <dbl> <lgl>          <int> <chr>     <int> <int>     <int>
+#> 1 7660. 7815. 7672. -3789. TRUE             369 MHRM         41   321         3
+#> 2 7686. 7856. 7701. -3798. TRUE              84 MHRM         45   321         1
+#> # ... with 1 more variable: ngroups <int>
 ```
 
 ### Parameter Estimates
 
 The parameter estimates are obtained via `tidy()`. For the IR-tree
-model, this returns a tibble with 54 rows (pertaining to the fixed and
-estimated parameters). Below, the seven loading/discrimination
-parameters `t_*.a1` pertaining to parameter *t* are shown. The loadings
-pertaining to parameter *e* (`e_*.a2`) and *m* (`m_*.a3`) were fixed to
-one and thus no standard error is returned for these. The latent
-correlations are shown below as well, and these show the typical pattern
-of a negative correlation between *e* and *m*.
+model, this returns a tibble with 66 rows (pertaining to the fixed and
+estimated parameters). Below, the nine threshold/difficulty parameters
+`t_E*.d` pertaining to parameter *t* are shown plus the threshold of
+pseudoitem `e_E1`.
+<!-- The loadings pertaining to parameter *e* (`e_*.a2`) and *m* (`m_*.a3`) were fixed to one and thus no standard error is returned for these. -->
+The latent correlations are shown below as well, and these show the
+typical pattern of a negative correlation between *e* and *m*.
 
 ``` r
 tidy(fit1, par_type = "difficulty")
-#> # A tibble: 72 x 4
-#>    effect term     estimate std.error
-#>    <chr>  <chr>       <dbl>     <dbl>
-#>  1 fixed  t_E1.a1      1.94     0.231
-#>  2 fixed  t_E2.a1      2.08     0.203
-#>  3 fixed  t_E3.a1      2.14     0.253
-#>  4 fixed  t_E4.a1      2.27     0.216
-#>  5 fixed  t_E5.a1      2.39     0.290
-#>  6 fixed  t_E6.a1      2.43     0.419
-#>  7 fixed  t_E7.a1      2.02     0.194
-#>  8 fixed  t_E8.a1      1.62     0.185
-#>  9 fixed  t_E9.a1      1.55     0.160
-#> 10 fixed  t_E10.a1     2.28     0.274
-#> # ... with 62 more rows
+#> # A tibble: 66 x 5
+#>    parameter component term   estimate std.error
+#>    <chr>     <chr>     <chr>     <dbl>     <dbl>
+#>  1 Threshold <NA>      t_E1.d    1.08      0.574
+#>  2 Threshold <NA>      t_E2.d   -1.07      0.652
+#>  3 Threshold <NA>      t_E3.d   -1.34      0.383
+#>  4 Threshold <NA>      t_E4.d   -0.208     0.563
+#>  5 Threshold <NA>      t_E5.d   -1.81      0.522
+#>  6 Threshold <NA>      t_E6.d   -2.12      0.632
+#>  7 Threshold <NA>      t_E7.d    0.622     0.540
+#>  8 Threshold <NA>      t_E8.d    0.636     0.448
+#>  9 Threshold <NA>      t_E9.d   -0.178     0.351
+#> 10 Threshold <NA>      e_E1.d    0.744     0.189
+#> # ... with 56 more rows
 
 tail(tidy(fit1, par_type = "difficulty"), 3)
-#> # A tibble: 3 x 4
-#>   effect   term    estimate std.error
-#>   <chr>    <chr>      <dbl>     <dbl>
-#> 1 ran_pars COR_t.e  -0.163         NA
-#> 2 ran_pars COR_t.m   0.0312        NA
-#> 3 ran_pars COR_e.m  -0.569         NA
+#> # A tibble: 3 x 5
+#>   parameter component term    estimate std.error
+#>   <chr>     <chr>     <chr>      <dbl>     <dbl>
+#> 1 Corr      <NA>      CORR_21    0.179        NA
+#> 2 Corr      <NA>      CORR_31   -0.107        NA
+#> 3 Corr      <NA>      CORR_32   -0.826        NA
 ```
 
 ### Factor scores
@@ -238,30 +257,30 @@ The factor scores or person parameter estimates are obtained via
 factor scores (plus respective standard errors) for the three dimensions
 *t* (F1), *e* (F2), and *m* (F3).\[1\]
 
-The correlation of the scores for the target trait (conscientiousness in
-this case) between the IR-tree model and the GRM indicates that the
-models differ in this respect even though not drastically.
+The correlation of the scores for the target trait (extraversion in this
+case) between the IR-tree model and the GRM indicates that the models
+differ in this respect even though not drastically.
 
 ``` r
 augment(fit1)
-#> # A tibble: 500 x 16
-#>       E1    E2    E3    E4    E5    E6    E7    E8    E9   E10 .fittedF1
-#>    <int> <dbl> <int> <dbl> <int> <dbl> <int> <dbl> <int> <dbl>     <dbl>
-#>  1     3     2     3     3     3     3     3     4     4     4    0.673 
-#>  2     5     4     4     5     4     5     5     4     5     4    1.58  
-#>  3     1     2     2     1     2     1     1     1     1     1   -1.68  
-#>  4     4     4     4     4     4     4     4     3     4     4    1.58  
-#>  5     3     3     3     3     3     4     3     2     4     2    0.0203
-#>  6     2     1     2     1     2     1     2     1     2     2   -1.63  
-#>  7     4     4     4     4     4     4     4     4     4     4    1.68  
-#>  8     3     4     4     2     4     4     4     3     4     3    0.622 
-#>  9     2     5     5     4     2     4     3     4     4     4    0.640 
-#> 10     2     2     3     1     4     2     2     1     1     1   -0.994 
-#> # ... with 490 more rows, and 5 more variables: .fittedF2 <dbl>,
-#> #   .fittedF3 <dbl>, .se.fitF1 <dbl>, .se.fitF2 <dbl>, .se.fitF3 <dbl>
+#> # A tibble: 321 x 15
+#>       E1    E2    E3    E4    E5    E6    E7    E8    E9 .fittedF1 .fittedF2
+#>    <int> <dbl> <int> <dbl> <int> <dbl> <int> <dbl> <int>     <dbl>     <dbl>
+#>  1     3     3     3     3     3     3     2     3     3   -0.743     -2.82 
+#>  2     3     5     3     3     5     5     5     1     5    0.560      1.62 
+#>  3     4     4     3     3     4     3     5     4     2    0.809     -0.812
+#>  4     4     3     5     4     3     4     4     3     4    1.16      -0.706
+#>  5     3     1     4     1     2     4     2     3     4   -0.634     -0.291
+#>  6     1     2     3     2     2     2     2     2     2   -1.42      -0.807
+#>  7     4     5     4     3     4     4     4     3     3    1.10      -0.808
+#>  8     3     5     3     4     4     5     3     5     4    1.13       0.237
+#>  9     2     2     3     4     2     1     2     2     2   -0.905     -0.767
+#> 10     2     4     4     2     3     4     2     3     3   -0.0666    -1.51 
+#> # ... with 311 more rows, and 4 more variables: .fittedF3 <dbl>,
+#> #   .se.fitF1 <dbl>, .se.fitF2 <dbl>, .se.fitF3 <dbl>
 
 cor(augment(fit1)$.fittedF1, augment(fit2)$.fittedF1)
-#> [1] 0.9293013
+#> [1] 0.9021495
 ```
 
 1.  The order corresponds to the order of appearance in the section

@@ -6,29 +6,22 @@
 \usage{
 control_mirt(
   SE = TRUE,
+  method = "EM",
   quadpts = NULL,
   control = list(),
-  technical = list(NCYCLES = NULL),
+  technical = list(),
   ...
 )
 }
 \arguments{
-\item{SE}{logical; estimate the standard errors by computing the parameter information matrix?
-See \code{SE.type} for the type of estimates available}
-
-\item{quadpts}{number of quadrature points per dimension (must be larger than 2).
-By default the number of quadrature uses the following scheme:
-\code{switch(as.character(nfact), '1'=61, '2'=31, '3'=15, '4'=9, '5'=7, 3)}.
-However, if the method input is set to \code{'QMCEM'} and this argument is left blank then
-the default number of quasi-Monte Carlo integration nodes will be set to 5000 in total}
+\item{SE, method, quadpts, ...}{These arguments are passed to and documented
+in \code{\link[mirt:mirt]{mirt::mirt()}}. They can be used to tweak the estimation algorithm.}
 
 \item{control}{List of arguments passed to argument \code{control} of
-\code{\link[mirt:mirt]{mirt::mirt()}}. See examples below.}
+\code{\link[mirt:mirt]{mirt::mirt()}}.}
 
 \item{technical}{List of arguments passed to argument \code{technical} of
-\code{\link[mirt:mirt]{mirt::mirt()}}. See examples below.}
-
-\item{...}{Other arguments passed to \code{\link[mirt:mirt]{mirt::mirt()}}.}
+\code{\link[mirt:mirt]{mirt::mirt()}}.}
 }
 \value{
 A list with one element for every argument of \code{control_mirt()}.
@@ -39,8 +32,10 @@ This function should be used to generate the \code{control} argument of the
 }
 \examples{
 control_mirt(SE = FALSE,
-             quadpts = 15,
-             control = list(),
-             technical = list(NCYCLES = 500),
-             TOL = .0001)
+             method = "QMCEM",
+             quadpts = 4455,
+             technical = list(NCYCLES = 567),
+             TOL = .001)
+control_mirt(method = "MHRM",
+             draws = 5544)
 }
