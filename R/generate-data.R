@@ -179,26 +179,14 @@ irtree_gen_tree <- function(object = NULL,
     # Apply subtree-structure such that each item loads on the correct theta,
     # e.g., if t = t1 + t2
 
-    # dat3 <- reshape2::melt(dat2, id.vars = c("pers", "item", "cate"), variable.name = "trait")
-    # tidyr::pivot_long(dat2, -c("pers", "item", "cate"), names_to = "trait")
-    dat3 <- reshape(dat2, direction = "long",
-                    idvar = c("pers", "item", "cate"),
-                    varying = list(which(!is.element(names(dat2), c("pers", "item", "cate")))),
-                    times = setdiff(names(dat2), c("pers", "item", "cate")),
-                    timevar = "theta", v.names = "value")
-    dat3$theta <- factor(dat3$theta, unique(dat3$theta))
-    rownames(dat3) <- NULL
+    dat3 <- tidyr::pivot_longer(
+        dat2, -c("pers", "item", "cate"), names_to = "theta",
+        names_ptypes = list(theta = factor(levels = unique(object$latent_names$theta))))
 
     dat5 <- dplyr::inner_join(dat3, lambda, by = c("item", "theta"))
 
-    dat6 <- reshape(
-        dplyr::select(dat5, .data$pers, .data$item, .data$cate, .data$mpt,
-                      .data$value),
-        direction = "wide",
-        idvar = c("pers", "item", "cate"),
-        v.names = "value",
-        timevar = "mpt")
-    names(dat6) <- sub("^value[.]", "", names(dat6))
+    dat6 <- tidyr::pivot_wider(dat5, id_cols = .data$pers:.data$cate,
+                               names_from = "mpt", values_from = "value")
 
     if (any(is.na(dat6))) {
         tmp1 <- which(is.na(dat6[, p_names]), arr.ind = TRUE)
@@ -229,7 +217,9 @@ irtree_gen_tree <- function(object = NULL,
     p_return <- dplyr::select(probs, c("pers", "item", "cate", "prob")) %>%
         dplyr::arrange(.data$pers, .data$item, .data$cate)
 
-    prob_item_sum <- aggregate(prob ~ pers + item, data = probs, sum)$prob
+    prob_item_sum <- dplyr::summarize(
+        dplyr::group_by(probs, .data$pers, .data$item),
+        p = sum(.data$prob))$p
     if (!isTRUE(all.equal(prob_item_sum, rep(1, N*J)))) {
         rlang::abort(
             paste("Probabilities do not sum to 1 within each person-item combination.",
@@ -237,27 +227,26 @@ irtree_gen_tree <- function(object = NULL,
             .subclass = "improper_model")
     }
 
-    dat10 <- aggregate(prob ~ pers + item,
-                       data = probs,
-                       function(x) object$k_names[rmultinom(n = 1, size = 1, prob = x) == 1])
-    X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
-    X <- dplyr::select(X, -.data$pers)
+    f1 <- function(x) object$k_names[rmultinom(n = 1, size = 1, prob = x) == 1]
+    dat10 <- dplyr::group_by(probs, .data$pers, .data$item) %>%
+        dplyr::summarize(p = f1(.data$prob)) %>%
+        dplyr::ungroup()
+
+    X <- tidyr::pivot_wider(dat10, .data$pers, names_from = "item", values_from = "p") %>%
+        dplyr::select(-.data$pers)
 
     if (!na_okay) {
         ii <- 0
         while (!.check_all_categ_observed(X, object$K)) {
-            dat10 <- aggregate(prob ~ pers + item,
-                               data = probs,
-                               function(x) object$k_names[rmultinom(n = 1, size = 1, prob = x) == 1])
-            X <- reshape(dat10, direction = "wide", idvar = "pers", timevar = "item")
-            X <- dplyr::select(X, -.data$pers)
+            dat10 <- dplyr::group_by(probs, .data$pers, .data$item) %>%
+                dplyr::summarize(p = f1(.data$prob)) %>%
+                dplyr::ungroup()
+            X <- tidyr::pivot_wider(dat10, .data$pers, names_from = "item", values_from = "p") %>%
+                dplyr::select(-.data$pers)
             ii <- ii + 1
             if (ii >= 25) stop("Could not generate data without missing categories.")
         }
     }
-
-    names(X) <- sub("^prob[.]", "", names(X))
-    attr(X, "reshapeWide") <- NULL
 
     return(list(data = tibble::as_tibble(X),
                 probs = p_return, spec = spec))
@@ -316,53 +305,27 @@ irtree_recode <- function(object = NULL,
     # PIs1: cast the pseudoitems back to wide format; this data frame has P*J columns
     # PIs2: cbind pseudoitems and original polytomous responses
 
-    # dat2 <- reshape2::melt(cbind(pers = seq_len(nrow(data)), data[, j_names]),
-    #                         id.vars = "pers",
-    #                         variable.name = "item",
-    #                         value.name = "cate")
-    # dat2$item <- factor(dat2$item, levels = j_names, labels = j_names)
-    tmp1 <- data.frame(pers = seq_len(nrow(data)), data[, j_names, drop = FALSE])
-    dat2 <- reshape(tmp1, direction = "long",
-                    idvar = "pers",
-                    varying = list(which(names(tmp1) != "pers")),
-                    times = names(data[, j_names, drop = FALSE]),
-                    timevar = "item", v.names = "cate")
-    dat2$item <- factor(dat2$item, levels = j_names, labels = j_names)
-    rownames(dat2) <- NULL
+    dat1 <- data.frame(pers = seq_len(nrow(data)), data[, j_names, drop = FALSE])
+    dat2 <- tidyr::pivot_longer(
+        dat1, cols = -.data$pers, names_to = "item", values_to = "cate",
+        names_ptypes = list(item = factor(levels = j_names)))
 
-    dat3 <- dplyr::left_join(dat2, data.frame(mapping_matrix), by = "cate")
+    dat3 <- dplyr::left_join(dat2, data.frame(mapping_matrix), by = "cate") %>%
+        dplyr::select(-.data$cate)
 
-    # dat4 <- reshape2::melt(dat3, id.vars = c("pers", "item"), measure.vars = p_names)
-    dat4 <- reshape(dat3, direction = "long",
-                    idvar = c("pers", "item"),
-                    drop = "cate",
-                    varying = list(which(!is.element(names(dat3), c("pers", "item", "cate")))),
-                    times = setdiff(names(dat3), c("pers", "item", "cate")),
-                    timevar = "variable", v.names = "value")
-    rownames(dat4) <- NULL
+    dat4 <-
+        tidyr::pivot_longer(
+            data = dat3,
+            cols = -(.data$pers:.data$item),
+            names_to = "variable",
+            names_ptypes = list(
+                variable = factor(
+                    levels = unique(object$latent_names$mpt)))) %>%
+        dplyr::arrange(.data$pers, .data$variable, .data$item)
 
-    # dat5 <- split(dat4, dat4$variable)
-    #
-    # for (ii in seq_along(dat5)) {
-    #     dat5[[ii]] <- dplyr::filter(dat5[[ii]], item %in%
-    #                                  names(object$irt_items[[names(dat5)[ii]]]))
-    # }
-    # dat6 <- dplyr::bind_rows(dat5)
-
-    # PIs1 <- reshape2::dcast(dat4, pers ~ variable + item, value.var = "value")[, -1]
-    tmp1 <- tidyr::unite(dat4, "time", c("variable", "item"))
-    tmp2 <- reshape(tmp1, direction = "wide", idvar = "pers")
-    PIs1 <- dplyr::select(tmp2, -.data$pers)
-    names(PIs1) <- sub("^value[.]", "", names(PIs1))
-
-    # # Make names no longer than 8 chars for Mplus
-    # names(PIs1) <- substr(names(PIs1), 1, 8)
-    # ii <- 7
-    # while (length(unique(tolower(names(PIs1)))) != ncol(PIs1)) {
-    #     tmp1 <- make.unique(substr(names(PIs1), 1, ii), sep = "_")
-    #     names(PIs1) <- substr(tmp1, 1, 8)
-    #     ii <- ii - 1
-    # }
+    PIs1 <- tidyr::pivot_wider(dat4, "pers", names_from = c("variable", "item"),
+                               values_from = "value") %>%
+        dplyr::select(-.data$pers)
 
     if (keep) {
         PIs2 <- cbind(PIs1, data)

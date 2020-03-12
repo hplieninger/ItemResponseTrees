@@ -61,6 +61,15 @@ test_that("irtree_gen_data() works if theta is not provided", {
     checkmate::qexpect(X$probs$prob, "N[0,1]")
 })
 
+test_that("irtree_recode() works as expected", {
+    df1 <- irtree_recode(model1, X$data)
+    checkmate::expect_data_frame(df1, types = "integer", nrows = N,
+                                 ncols = model1$J*model1$S,
+                                 col.names = "strict")
+    checkmate::expect_set_equal(names(df1), model1$lambda$new_name,
+                                ordered = TRUE)
+})
+
 test_that("irtree_gen_data() errors if some categories not observed", {
     expect_error(
         irtree_gen_data(object = model1,
