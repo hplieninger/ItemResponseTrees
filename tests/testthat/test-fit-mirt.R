@@ -89,11 +89,14 @@ names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 
 ##### Fit #####
 
+ctrl <- control_mirt(SE = FALSE, TOL = .01, quadpts = 31,
+                     control = list(trace = 0),
+                     technical = list(parallel = FALSE, symmetric = TRUE))
+
 res1 <- fit(data = X$data,
             engine = "mirt",
             object = model1,
-            control = control_mirt(SE = FALSE, TOL = .01, quadpts = 31,
-                                   technical = list(parallel = FALSE)),
+            control = ctrl,
             verbose = FALSE)
 
 res2 <- fit(data = ScienceNew,
@@ -153,6 +156,11 @@ test_that("Methods work for output of irtree_fit_mirt()", {
     expect_condition(capture.output(print(res1)), NA)
     expect_condition(capture.output(summary(res2)), NA)
     expect_condition(capture.output(coef(res3)), NA)
+})
+
+test_that("Passing arguments to mirt works", {
+    expect_equal(res1$mirt@Options[names(ctrl)[!names(ctrl) %in% "control"]],
+                 ctrl[!names(ctrl) %in% "control"])
 })
 
 # Tidiers -----------------------------------------------------------------

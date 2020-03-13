@@ -160,6 +160,14 @@ test_that("Methods work for output of irtree_fit_tam()", {
     expect_condition(capture.output(coef(res1)), NA)
 })
 
+test_that("Passing arguments to TAM works", {
+    expect_equal(res1$tam$control[names(control_list)], control_list)
+    expect_equal(res2$tam$control[names(control_list)], control_list)
+    expect_equal(res3$tam$control[names(control_list)], control_list)
+    expect_equal(as.list(res1$tam$CALL)$item.elim, FALSE)
+    expect_equal(as.list(res1$tam$CALL)$constraint, "cases")
+})
+
 # Tidiers -----------------------------------------------------------------
 
 # From vignette at https://broom.tidyverse.org/articles/adding-tidiers.html

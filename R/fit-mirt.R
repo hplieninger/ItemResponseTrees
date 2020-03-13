@@ -44,15 +44,20 @@ irtree_fit_mirt <- function(object = NULL,
     }
 
     mirt_input <- write_mirt_input(object = object, data = pseudoitems)
+    mirt_string <- mirt_input$mirt_string
 
     if (TRUE) {
-        tmp1 <- c(list(data     = pseudoitems,
-                       model    = mirt_input$mirt_string,
-                       itemtype = mirt_input$itemtype,
-                       verbose  = verbose),
-                  control)
-        res <- myTryCatch(
-            do.call(mirt::mirt, tmp1))
+
+        mirt_call <- rlang::call2("mirt",
+                                  .ns = "mirt",
+                                  data     = rlang::expr(pseudoitems),
+                                  model    = rlang::expr(mirt_string),
+                                  itemtype = mirt_input$itemtype,
+                                  verbose  = verbose,
+                                  !!!control)
+
+        res <- myTryCatch(rlang::eval_tidy(mirt_call))
+
         if (!is.null(res$warning)) {
             warning("mirt::mirt() returned the following warning:\n",
                     conditionMessage(res$warning), call. = FALSE)
@@ -64,9 +69,6 @@ irtree_fit_mirt <- function(object = NULL,
     } else {
         res <- list(value = NULL)
     }
-
-    # Remove call, can take up large amount of disk space
-    try(silent = TRUE, expr = {res$value@Call <- call("mirt")})
 
     out <- list(mirt = res$value, error = res$error, warning = res$warning, spec = spec)
     class(out) <- c("irtree_fit", class(out))
@@ -172,7 +174,10 @@ write_mirt_input <- function(object = NULL,
     mirt_string <- clps("\n", mod)
 
     if (object$class == "tree") {
-        itemtype <- ifelse(lambda$loading == "@1", "Rasch", "2PL")
+        itemtype <- unname(ifelse(lambda$loading == "@1", "Rasch", "2PL"))
+        if (length(unique(itemtype)) == 1) {
+            itemtype <- unique(itemtype)
+        }
     } else if (object$class == "grm") {
         itemtype <- "graded"
     } else {

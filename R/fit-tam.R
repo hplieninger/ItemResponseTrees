@@ -48,6 +48,13 @@ irtree_fit_tam <- function(object = NULL,
     spec <- c(as.list(environment()))
     spec$engine <- "tam"
 
+    tam_call <- rlang::call2("tam.mml",
+                             .ns = "TAM",
+                             resp = NULL,
+                             irtmodel = "1PL",
+                             !!!control[names(control) != "set_min_to_0"],
+                             verbose = verbose)
+
     if (object$class == "tree") {
 
         assert_irtree_not_mixture(object)
@@ -56,25 +63,24 @@ irtree_fit_tam <- function(object = NULL,
 
         Q <- .make_tam_Q(object = object, pseudoitems = pseudoitems)
 
+        tam_call <- rlang::call_modify(tam_call, Q = rlang::expr(Q),
+                                       resp = rlang::expr(pseudoitems))
+
     } else if (object$class == "pcm") {
 
-        pseudoitems <- data
-
         B <- .make_tam_B(object, array = TRUE)
+
+        tam_call <- rlang::call_modify(tam_call, B = rlang::expr(B),
+                                       resp = rlang::expr(data))
 
     } else {
         stop("Class ", object$class, " is not implemented in TAM.", call. = FALSE)
     }
 
     if (TRUE) {
-        tmp1 <- c(list(resp     = pseudoitems,
-                       irtmodel = "1PL",
-                       Q        = get0("Q", environment(), inherits = FALSE),
-                       B        = get0("B", environment(), inherits = FALSE),
-                       verbose  = verbose),
-                  control[names(control) != "set_min_to_0"])
-        res <- myTryCatch(
-            do.call(TAM::tam.mml, tmp1))
+
+        res <- myTryCatch(rlang::eval_tidy(tam_call))
+
         if (!is.null(res$warning)) {
             warning("TAM::tam() returned the following warning:\n",
                     conditionMessage(res$warning))
