@@ -22,7 +22,7 @@ The package can be installed as follows:
 
 ``` r
 install.packages("remotes")
-remotes::install_github("hplieninger/ItemResponseTrees")
+remotes::install_github("hplieninger/ItemResponseTrees", upgrade = "always")
 ```
 
 ## Example Data
@@ -94,8 +94,10 @@ syntax that consists mainly of three parts.
 <!-- end list -->
 
 ``` r
-# Use irtree_create_template() to create a model-string template:
-irtree_create_template(df1)
+# Use irtree_create_template() to create a model-string template.
+# This may also come handy if you prefer to provide the mapping matrix 
+#   (i.e., pseudoitems) rather than the model equations
+irtree_create_template(df1, mapping_matrix = NULL)
 ```
 
 In the following, the model string for the desired IR-tree model for the
@@ -105,17 +107,17 @@ nine items is specified and saved as `m1`.
 m1 <- "
 # IR-tree model for 5-point items (Böckenholt, 2012)
 
-IRT:
-t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;
-e  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
-m  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
-
 Equations:
 1 = (1-m)*(1-t)*e
 2 = (1-m)*(1-t)*(1-e)
 3 = m
 4 = (1-m)*t*(1-e)
 5 = (1-m)*t*e
+
+IRT:
+t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;
+e  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
+m  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
 
 Class:
 Tree
@@ -137,11 +139,12 @@ GRM
 "
 ```
 
-Subsequently, the model strings `m1` and `m2` need to be parsed by
-`irtree_model()`. The resulting objects `model1` and `model2` of class
-`irtree_model` contain all the necessary information for fitting the
-model. Furthermore, one may inspect specific elements, for example, the
-pseudoitems contained in the mapping matrix.
+Subsequently, the function `irtree_model()` needs to be called, which
+takes a model string such as `m1` or `m2` as its sole argument. The
+resulting objects `model1` and `model2` of class `irtree_model` contain
+all the necessary information for fitting the model. Furthermore, one
+may inspect specific elements, for example, the pseudoitems contained in
+the mapping matrix.
 
 Further information on creating model strings is provided in
 `?irtree_model()`.
@@ -161,14 +164,13 @@ model1$mapping_matrix
 
 ## Fitting the model
 
-The ItemResponseTrees package provides wrapper functions for Mplus (via
-the
+Then, the model can be `fit()` using one of three different engines. The
+ItemResponseTrees package supports the engines
+[mirt](https://cran.r-project.org/package=mirt),
+[TAM](https://cran.r-project.org/package=TAM), and Mplus (via the
 [MplusAutomation](https://cran.r-project.org/package=MplusAutomation)
-package), for the [mirt](https://cran.r-project.org/package=mirt)
-package, and for the [TAM](https://cran.r-project.org/package=TAM)
-package. To fit a model, the model string as defined above has to be
-converted into an object of class `irtree_model` using the function
-`irtree_model()`. Then, the model can be `fit()` as follows:
+package). Additional arguments for the engine, for example, details of
+the algorithms, can be specified via the `control` argument.
 
 ``` r
 # mirt can be used with an EM algorithm (the default) or, for example, with the
@@ -181,6 +183,11 @@ fit2 <- fit(model2, data = df1, engine = "mirt", control = ctrl)
 ```
 
 ## Results
+
+The easiest way to access the information stored in `fit1` and `fit2` is
+via the functions `glance()`, `tidy()`, and `augment()` (that come from
+the [broom](https://broom.tidyverse.org/) package, which is part of the
+tidyverse).
 
 ### Model Fit
 
@@ -220,9 +227,10 @@ model, this returns a tibble with 66 rows (pertaining to the fixed and
 estimated parameters). Below, the nine threshold/difficulty parameters
 `t_E*.d` pertaining to parameter *t* are shown plus the threshold of
 pseudoitem `e_E1`.
-<!-- The loadings pertaining to parameter *e* (`e_*.a2`) and *m* (`m_*.a3`) were fixed to one and thus no standard error is returned for these. -->
-The latent correlations are shown below as well, and these show the
-typical pattern of a negative correlation between *e* and *m*.
+
+The latent variances, covariances, and correlations are shown below as
+well, and these show the typical pattern of a negative correlation
+between *e* and *m*.\[1\]
 
 ``` r
 tidy(fit1, par_type = "difficulty")
@@ -241,13 +249,19 @@ tidy(fit1, par_type = "difficulty")
 #> 10 Threshold <NA>      e_E1.d    0.744     0.189
 #> # ... with 56 more rows
 
-tail(tidy(fit1, par_type = "difficulty"), 3)
-#> # A tibble: 3 x 5
+tail(tidy(fit1, par_type = "difficulty"), 9)
+#> # A tibble: 9 x 5
 #>   parameter component term    estimate std.error
 #>   <chr>     <chr>     <chr>      <dbl>     <dbl>
-#> 1 Corr      <NA>      CORR_21    0.179        NA
-#> 2 Corr      <NA>      CORR_31   -0.107        NA
-#> 3 Corr      <NA>      CORR_32   -0.826        NA
+#> 1 Var       t         COV_11     1       NA     
+#> 2 Var       e         COV_22     2.08     0.279 
+#> 3 Var       m         COV_33     0.888    0.134 
+#> 4 Cov       <NA>      COV_21     0.258    0.0954
+#> 5 Cov       <NA>      COV_31    -0.101    0.0852
+#> 6 Cov       <NA>      COV_32    -1.12     0.161 
+#> 7 Corr      <NA>      CORR_21    0.179   NA     
+#> 8 Corr      <NA>      CORR_31   -0.107   NA     
+#> 9 Corr      <NA>      CORR_32   -0.826   NA
 ```
 
 ### Factor scores
@@ -255,7 +269,7 @@ tail(tidy(fit1, par_type = "difficulty"), 3)
 The factor scores or person parameter estimates are obtained via
 `augment()`. This returns a tibble comprised of the data set and the
 factor scores (plus respective standard errors) for the three dimensions
-*t* (F1), *e* (F2), and *m* (F3).\[1\]
+*t* (F1), *e* (F2), and *m* (F3).
 
 The correlation of the scores for the target trait (extraversion in this
 case) between the IR-tree model and the GRM indicates that the models
@@ -283,5 +297,9 @@ cor(augment(fit1)$.fittedF1, augment(fit2)$.fittedF1)
 #> [1] 0.9021495
 ```
 
-1.  The order corresponds to the order of appearance in the section
-    `IRT` of the model string.
+1.  The order of the processes corresponds to the order of appearance in
+    the section `IRT` of the model string. Thus, the order here is *t*,
+    *e*, *m*, such that `COV_33` is the variance of Personparameters for
+    *m*, and `CORR_32` is the correlation between *m* and *e*. Likewise,
+    in the output of `augment(fit1)` shown herein, `F1` corresponds to
+    *t* etc.
