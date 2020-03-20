@@ -4,32 +4,59 @@
 \alias{irtree_create_template}
 \title{Create a template of a model string}
 \usage{
-irtree_create_template(data = NULL, rasch = TRUE)
+irtree_create_template(data = NULL, mapping_matrix = NULL, rasch = TRUE)
 }
 \arguments{
 \item{data}{Data frame.}
+
+\item{mapping_matrix}{Matrix of so-called pseudo-items, optional. The
+observed response categories must appear in the first column. The other
+columns contain the pseudo-items and each entry may be either \code{1}, \code{0}, or
+\code{NA}.}
 
 \item{rasch}{Logical. The string \verb{@1} will be appended to each variable name
 if \code{TRUE} with no effect otherwise.}
 }
 \description{
-This is a helper function that prints a template of a model string to the
-console based on the supplied data frame. This template can be
-copy-pasted and modified to define an \link{irtree_model}.
+This function prints a template of a model string to the console based on the
+supplied data frame. This template can be copy-pasted and modified to define
+an \link{irtree_model}.
 }
 \examples{
 irtree_create_template(jackson[, c(1, 6, 11)])
 #> m1 <- "
-#> IRT:
-#> ... BY E1@1, E2@1, E3@1;
-#> ... BY E1@1, E2@1, E3@1;
-#>
 #> Equations:
 #> 1 = ...
 #> 2 = ...
 #> 3 = ...
 #> 4 = ...
 #> 5 = ...
+#>
+#> IRT:
+#> ... BY E1@1, E2@1, E3@1;
+#> ... BY E1@1, E2@1, E3@1;
+#>
+#> Class:
+#> Tree
+#> "
+
+irtree_create_template(jackson[, c(1, 6, 11)],
+                       cbind(1:5,
+                             m = c(0, 0, 1, 0, 0),
+                             t = c(1, 1, NA, 0, 0),
+                             e = c(1, 0, NA, 0, 1)))
+#> m1 <- "
+#> Equations:
+#> 1 = (1-m)*t*e
+#> 2 = (1-m)*t*(1-e)
+#> 3 = m
+#> 4 = (1-m)*(1-t)*(1-e)
+#> 5 = (1-m)*(1-t)*e
+#>
+#> IRT:
+#> m BY E1@1, E2@1, E3@1;
+#> t BY E1@1, E2@1, E3@1;
+#> e BY E1@1, E2@1, E3@1;
 #>
 #> Class:
 #> Tree
