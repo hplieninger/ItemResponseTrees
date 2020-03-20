@@ -179,7 +179,9 @@ The parameter estimates are obtained via `tidy()`.
 For the IR-tree model, this returns a tibble with 66 rows (pertaining to the fixed and estimated parameters).
 Below, the nine threshold/difficulty parameters `t_E*.d` pertaining to parameter *t* are shown plus the threshold of pseudoitem `e_E1`.
 
-The latent variances, covariances, and correlations are shown below as well, and these show the typical pattern of a negative correlation between *e* and *m*.^[The order of the processes corresponds to the order of appearance in the section `IRT` of the model string. Thus, the order here is *t*, *e*, *m*, such that `COV_33` is the variance of Personparameters for *m*, and `CORR_32` is the correlation between *m* and *e*. Likewise, in the output of `augment(fit1)` shown herein, `F1` corresponds to *t* etc.]
+The latent variances, covariances, and correlations are shown below as well, and these show the typical pattern of a negative correlation between *e* and *m*.^[The order of the processes corresponds to the order of appearance in the section `IRT` of the model string.
+Thus, the order here is *t*, *e*, *m*, such that `COV_33` is the variance of person parameters for *m*, and `CORR_32` is the correlation between *m* and *e*.
+Likewise, in the output of `augment(fit1)` shown herein, `F1` corresponds to *t* etc.]
 
 ```{r}
 tidy(fit1, par_type = "difficulty")

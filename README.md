@@ -299,7 +299,7 @@ cor(augment(fit1)$.fittedF1, augment(fit2)$.fittedF1)
 
 1.  The order of the processes corresponds to the order of appearance in
     the section `IRT` of the model string. Thus, the order here is *t*,
-    *e*, *m*, such that `COV_33` is the variance of Personparameters for
+    *e*, *m*, such that `COV_33` is the variance of person parameters for
     *m*, and `CORR_32` is the correlation between *m* and *e*. Likewise,
     in the output of `augment(fit1)` shown herein, `F1` corresponds to
     *t* etc.
