@@ -288,7 +288,9 @@ irtree_recode <- function(object = NULL,
     checkmate::assert_class(object, "irtree_model")
     checkmate::assert_data_frame(data)
 
-    data <- dplyr::mutate_at(data, object$j_names, ~`attributes<-`(.x, NULL))
+    data <- dplyr::mutate(
+        data,
+        dplyr::across(object$j_names, ~`attributes<-`(.x, NULL)))
 
     j_names <- object$j_names
     p_names <- object$p_names

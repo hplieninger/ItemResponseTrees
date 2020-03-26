@@ -86,7 +86,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
     out <- out[names(out)[na.omit(
         match(glance_cols, names(out)))]]
 
-    out <- dplyr::mutate_if(out, rlang::is_integerish, as.integer)
+    out <- dplyr::mutate(out, dplyr::across(rlang::is_integerish, as.integer))
 
     checkmate::assert_tibble(out, nrows = 1)
 

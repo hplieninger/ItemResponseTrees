@@ -323,7 +323,10 @@ irtree_model <- function(model = NULL) {
         dplyr::left_join(e1$latent_names, by = "irt") %>%
         tidyr::unnest(.data$item) %>%
         dplyr::mutate(item = factor(.data$item, levels = e1$j_names)) %>%
-        dplyr::mutate_at(c("irt", "mpt", "theta"), function(x) factor(x, unique(x)))
+        dplyr::mutate(
+            dplyr::across(
+                tidyselect::all_of(c("irt", "mpt", "theta")),
+                ~ factor(.x, unique(.x))))
     lambda$loading <- ifelse(is.na(unlist(e1$irt_loadings)), "*", unlist(e1$irt_loadings))
 
     if (e1$class == "tree") {

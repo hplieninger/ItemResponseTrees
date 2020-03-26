@@ -15,7 +15,7 @@ Depends:
 Imports: 
     backports,
     checkmate (>= 1.9),
-    dplyr,
+    dplyr (>= 0.8.99),
     generics,
     glue,
     magrittr,
@@ -50,5 +50,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
 Remotes: 
-    alexpghayes/modeltests
+    alexpghayes/modeltests,
+    tidyverse/dplyr
 Language: en-US
