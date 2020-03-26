@@ -176,7 +176,15 @@
 #'   function of the irtrees package.
 #' @examples
 #' m1 <- "
-#' # Comment
+#' # Random comment
+#'
+#' Equations:
+#' 1 = (1-m)*(1-t)*e
+#' 2 = (1-m)*(1-t)*(1-e)
+#' 3 = m
+#' 4 = (1-m)*t*(1-e)
+#' 5 = (1-m)*t*e
+#'
 #' IRT:
 #' t1 BY x1@1, x2*, x3*;
 #' t2 BY x4@1, x5*, x6*;
@@ -185,13 +193,6 @@
 #'
 #' Constraints:
 #' t = t1 | t2
-#'
-#' Equations:
-#' 1 = (1-m)*(1-t)*e
-#' 2 = (1-m)*(1-t)*(1-e)
-#' 3 = m
-#' 4 = (1-m)*t*(1-e)
-#' 5 = (1-m)*t*e
 #'
 #' Class:
 #' Tree
