@@ -68,7 +68,6 @@ glance.irtree_fit <- function(x = NULL, ...) {
             out$converged <- FALSE
         } else if (any(tmp2 >= 0)) {
             out$converged <- FALSE
-
         }
 
         out$logLik <- x$tam$ic$loglike
@@ -81,20 +80,13 @@ glance.irtree_fit <- function(x = NULL, ...) {
         out <- tibble::as_tibble(out)
     }
 
-    out <-
-        dplyr::select(
-            out,
-            tidyselect::vars_select(
-                names(out),
-                "AIC", "BIC", "AICc", "logLik", "converged",
-                "iterations",
-                "estimator",
-                "npar",
-                "nobs",
-                "n.factors",
-                "ngroups",
-                .strict = FALSE)) %>%
-        dplyr::mutate_if(rlang::is_integerish, as.integer)
+    glance_cols <- c("AIC", "BIC", "AICc", "logLik", "converged", "iterations",
+                     "estimator", "npar", "nobs", "n.factors", "ngroups")
+
+    out <- out[names(out)[na.omit(
+        match(glance_cols, names(out)))]]
+
+    out <- dplyr::mutate_if(out, rlang::is_integerish, as.integer)
 
     checkmate::assert_tibble(out, nrows = 1)
 
@@ -253,7 +245,7 @@ tidy_mplus <- function(x = NULL) {
     est2 <- coef_corr(x$mplus) %>%
         dplyr::rename(term = "Label", estimate = "est", std.error = "se",
                       p.value = "pval") %>%
-        dplyr::mutate(parameter = "Corr", component = NA_integer_)
+        dplyr::mutate(parameter = "Corr", component = NA_character_)
 
     out <-
         dplyr::bind_rows(est1, est2) %>%

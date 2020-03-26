@@ -145,7 +145,7 @@ irtree_sim1 <- function(R = 1,
             tibble::as_tibble() %>%
             dplyr::bind_cols(dplyr::select(tmp1,
                                            -suppressWarnings(
-                                               tidyselect::one_of(
+                                               tidyselect::all_of(
                                                    names(fits[[mii]]$fit$spec$data)))))
         fits[[mii]]$fit$spec$data <- NULL
     }
