@@ -119,15 +119,18 @@ one or more models to these data. This process is repeated \code{R} times, and t
 argument \code{plan} allows to run the simulation in parallel.
 }
 \examples{
-m1 <- "
-IRT:
-a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
-b BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
+\donttest{
+# Running these examples may take a while
 
+m1 <- "
 Equations:
 1 = 1-a
 2 = a*(1-b)
 3 = a*b
+
+IRT:
+a BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
+b BY x1@1, x2@1, x3@1, x4@1, X5@1, X6@1, X7@1;
 
 Class:
 Tree
@@ -185,6 +188,7 @@ tab1
 #> [2,]    1     2 9580.718  9673.440
 #> [3,]    2     1 9769.569  9866.505
 #> [4,]    2     2 9918.594 10011.315
+}
 }
 \seealso{
 The data are generated via \code{\link[=irtree_gen_data]{irtree_gen_data()}}, and the models are

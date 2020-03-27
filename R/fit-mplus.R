@@ -6,7 +6,8 @@
 #'   the link function.
 #' @inheritParams fit.irtree_model
 #' @examples
-#' \donttest{
+#' run <- MplusAutomation::mplusAvailable() == 0
+#'
 #' m1 <- "
 #' IRT:
 #' attitude BY Comfort, Work, Future, Benefit;
@@ -17,8 +18,8 @@
 #' model1 <- irtree_model(m1)
 #' data(Science, package = "mirt")
 #'
-#' fit1 <- fit(model1, Science, engine = "mplus")
-#' }
+#' fit1 <- fit(model1, Science, engine = "mplus",
+#'             control = control_mplus(run = run))
 #' @keywords internal
 irtree_fit_mplus <- function(object = NULL,
                              data = NULL,

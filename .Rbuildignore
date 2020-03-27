@@ -12,3 +12,4 @@ vignettes/.*_cache/
 ^\.github/workflows/R-CMD-check\.yaml$
 ^\.github/workflows/pr-commands\.yaml$
 ^data-raw$
+^cran-comments\.md$

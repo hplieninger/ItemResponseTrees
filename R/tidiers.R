@@ -254,7 +254,6 @@ tidy_mplus <- function(x = NULL) {
                       p.value = dplyr::if_else(.data$tmp1, NA_real_, .data$p.value),
                       tmp1 = NULL,
                       myorder = match(.data$parameter, pars)) %>%
-        # TODO: Check order of parameters
         dplyr::arrange(.data$myorder) %>%
         dplyr::select(.data$parameter, .data$component, .data$term,
                       .data$estimate, .data$std.error, .data$p.value) %>%

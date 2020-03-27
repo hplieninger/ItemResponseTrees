@@ -1,12 +1,15 @@
 Package: ItemResponseTrees
 Title: IR-Tree Modeling in mirt, Mplus, or TAM
-Version: 0.1.1
-Authors@R: person("Hansjoerg", "Plieninger", email = "plieninger@uni-mannheim.de", role = "cre")
-Description: ItemResponseTrees is an R package that allows to fit IR-tree models
-    in mirt, Mplus, or TAM. The package automates some of the hassle of IR-tree 
-    modeling by means of a consistent syntax. This allows new users to quickly 
-    adopt this model class, and this allows experienced users to fit many 
-    complex models effortlessly.
+Version: 0.2.0
+Authors@R: person("Hansjörg", "Plieninger", email = "mail@hansjoerg.me",
+    role = "cre", comment = c(ORCID = "0000-0002-4416-300X"))
+Description: Item response tree (IR-tree) models are a class of item response
+    theory (IRT) models that assume that the responses to polytomous items can
+    best be explained by multiple psychological processes. The package
+    ItemResponseTrees allows to fit such IR-tree models in mirt, Mplus, or TAM.
+    The package automates some of the hassle of IR-tree modeling by means of a
+    consistent syntax. This allows new users to quickly adopt this model class,
+    and this allows experienced users to fit many complex models effortlessly.
 License: MIT + file LICENSE
 URL: https://github.com/hplieninger/ItemResponseTrees
 BugReports: https://github.com/hplieninger/ItemResponseTrees/issues

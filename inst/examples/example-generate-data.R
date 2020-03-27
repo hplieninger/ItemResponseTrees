@@ -1,17 +1,17 @@
 # IR-Tree Model -----------------------------------------------------------
 
 m1 <- "
-IRT:
-t BY x1, x2, x3;
-e BY x1, x2, x3;
-m BY x1, x2, x3;
-
 Equations:
 1 = (1-m)*(1-t)*e
 2 = (1-m)*(1-t)*(1-e)
 3 = m
 4 = (1-m)*t*(1-e)
 5 = (1-m)*t*e
+
+IRT:
+t BY x1, x2, x3;
+e BY x1, x2, x3;
+m BY x1, x2, x3;
 
 Class:
 Tree

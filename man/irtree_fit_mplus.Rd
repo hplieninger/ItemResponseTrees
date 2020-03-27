@@ -40,7 +40,8 @@ know what you are doing.}
 This function takes a data frame and a model string and runs the model in Mplus.
 }
 \examples{
-\donttest{
+run <- MplusAutomation::mplusAvailable() == 0
+
 m1 <- "
 IRT:
 attitude BY Comfort, Work, Future, Benefit;
@@ -51,7 +52,7 @@ GRM
 model1 <- irtree_model(m1)
 data(Science, package = "mirt")
 
-fit1 <- fit(model1, Science, engine = "mplus")
-}
+fit1 <- fit(model1, Science, engine = "mplus",
+            control = control_mplus(run = run))
 }
 \keyword{internal}

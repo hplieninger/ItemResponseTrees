@@ -35,11 +35,12 @@ irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
 
     irt4 <- stringr::str_split(irt3$X2, ",\\s*")
 
-    if (any(vapply(irt4, length, FUN.VALUE = integer(1)) == 1)) {
-        if (any(vapply(irt4, function(x) any(stringr::str_detect(x, pattern = "\\s+")), logical(1)))) {
-            stop("Problem in 'model'. Variables in section IRT must be ",
-                 "separated by commas.")
-        }
+    items_with_ws <- stringr::str_subset(unique(unlist(irt4)), "\\s+")
+    if (length(items_with_ws) > 0) {
+        stop("Problem in 'model'. Variables in section IRT must be ",
+             "separated by commas. Problem with: ",
+             clps(", ", "'", items_with_ws, "'", sep = ""),
+             call. = FALSE)
     }
 
     irt_loadings <- lapply(irt4,
@@ -155,8 +156,6 @@ assert_irtree_not_mixture <- function(object = NULL, error = TRUE) {
 }
 
 irtree_model_items <- function(e1 = new.env()) {
-
-    # REVIEW: error message if comma is forgotten in model string
 
     for (ii in seq_along(e1$irt_items)) {
         checkmate::assert_character(

@@ -29,7 +29,7 @@ remotes::install_github("hplieninger/ItemResponseTrees", upgrade = "always")
 
 Herein, an illustrative example will be shown using a popular IR-tree
 model for 5-point items (Böckenholt, 2012). The model is applied to a
-Big Five data set from Jackson (2012), more precisely to seven
+Big Five data set from Jackson (2012), more precisely to nine
 conscientiousness items.
 
 ``` r
