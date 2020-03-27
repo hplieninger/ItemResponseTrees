@@ -41,9 +41,6 @@ irtree_fit_mplus <- function(object = NULL,
     checkmate::qassert(verbose, "B1")
     checkmate::qassert(control, "l")
     checkmate::assert_names(names(control), must.include = formalArgs(control_mplus))
-    if (control$run) {
-        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
-    }
 
     spec <- c(as.list(environment()))
     spec$engine <- "mplus"
@@ -174,6 +171,8 @@ irtree_fit_mplus <- function(object = NULL,
         )
 
     if (control$run) {
+        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+
         invisible(
             capture.output(
                 MplusAutomation::runModels(
@@ -275,28 +274,39 @@ write_mplus_input <- function(object = NULL,
 
     ##### MODEL CONSTRAINT Statement #####
 
-    # TODO: If all loadings are free, fix variance to 1.
-
-    model_constr0 <-
+    model_constr <-
         vapply(seq_along(mplus1), function(x) {
             if (any(mplus1[[x]]$loading != "*")) {
                 return(character(1))
             }
-            glue::glue("0 = ",
-                       glue::glue_collapse(glue::glue("{mplus1[[x]]$label}"),
-                                           sep = " + "),
-                       " - {nrow(mplus1[[x]])};")
+            paste0(names(mplus1[x]), "@1;")
         }, FUN.VALUE = "")
 
-    model_constr <- paste(
-        lapply(
-            lapply(model_constr0[model_constr0 != ""],
-                   strwrap, width = 89, indent = 2, exdent = 4),
-            paste, collapse = "\n"),
-        collapse = "\n")
-    if (model_constr == "") {
-        model_constr <- NULL
+    if (any(nchar(model_constr) > 0)) {
+        mplus3 <- paste0(mplus3, "\n  \n  ", clps("\n  ", model_constr))
     }
+
+    # The following sum-to-1 constraint of loading parameters is deprecated.
+    #
+    # model_constr0 <-
+    #     vapply(seq_along(mplus1), function(x) {
+    #         if (any(mplus1[[x]]$loading != "*")) {
+    #             return(character(1))
+    #         }
+    #         glue::glue("0 = ",
+    #                    glue::glue_collapse(glue::glue("{mplus1[[x]]$label}"),
+    #                                        sep = " + "),
+    #                    " - {nrow(mplus1[[x]])};")
+    #     }, FUN.VALUE = "")
+    # model_constr <- paste(
+    #     lapply(
+    #         lapply(model_constr0[model_constr0 != ""],
+    #                strwrap, width = 89, indent = 2, exdent = 4),
+    #         paste, collapse = "\n"),
+    #     collapse = "\n")
+    # if (model_constr == "") {
+    #     model_constr <- NULL
+    # }
 
     ##### ANALYSIS Statement #####
 
@@ -378,8 +388,8 @@ write_mplus_input <- function(object = NULL,
         usevariables = names(pseudoitems),
         rdata = pseudoitems,
         # autov = TRUE,
-        autov = FALSE,
-        MODELCONSTRAINT = model_constr
+        autov = FALSE
+        # MODELCONSTRAINT = model_constr
     )
 
     return(list(mplus_input = mplus_input, lambda = lambda))
