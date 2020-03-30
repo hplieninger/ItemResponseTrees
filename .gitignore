@@ -38,7 +38,6 @@ vignettes/*.pdf
 .Rproj.user
 inst/doc
 /misc/
-/doc/*
-!/doc/ItemResponseTrees-Getting-started-with-IR-trees.html
+doc
 Meta
 .notes.md

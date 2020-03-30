@@ -18,10 +18,6 @@ knitr::opts_chunk$set(
 options(tibble.print_min = 10, tibble.print_max = 20, pillar.min_title_chars = 16)
 ```
 
-[![R build status](https://github.com/hplieninger/ItemResponseTrees/workflows/R-CMD-check/badge.svg)](https://github.com/hplieninger/ItemResponseTrees/actions)
-[![codecov](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/gh/hplieninger/ItemResponseTrees)
-[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/plieninger@uni-mannheim.de)
-
 ## ItemResponseTrees
 
 ItemResponseTrees is an R package that allows to fit IR-tree models in mirt, Mplus, or TAM.
