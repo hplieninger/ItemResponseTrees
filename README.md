@@ -1,6 +1,8 @@
 Getting started with IR-trees
 ================
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/ItemResponseTrees)](https://cran.r-project.org/package=ItemResponseTrees)
 [![R build
 status](https://github.com/hplieninger/ItemResponseTrees/workflows/R-CMD-check/badge.svg)](https://github.com/hplieninger/ItemResponseTrees/actions)
 [![codecov](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/gh/hplieninger/ItemResponseTrees)
