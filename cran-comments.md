@@ -1,3 +1,9 @@
+## Resumbmission
+
+This is a resubmission. Changes from 0.2.0 to 0.2.1:
+
+* The Title field in the DESCRIPTION was adjusted as requested.
+
 ## Test environments
 * macOS-latest, R release (via GitHub Actions)
 * macOS-latest, R devel   (via GitHub Actions)

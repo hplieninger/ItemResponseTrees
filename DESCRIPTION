@@ -1,6 +1,6 @@
 Package: ItemResponseTrees
-Title: IR-Tree Modeling in mirt, Mplus, or TAM
-Version: 0.2.0
+Title: IR-Tree Modeling in 'mirt', 'Mplus', or 'TAM'
+Version: 0.2.1
 Authors@R: person("Hansjörg", "Plieninger", email = "mail@hansjoerg.me",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-4416-300X"))
 Description: Item response tree (IR-tree) models are a class of item response

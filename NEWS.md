@@ -1,3 +1,7 @@
+# ItemResponseTrees 0.2.1
+
+* Updated package title for CRAN
+
 # ItemResponseTrees 0.2.0
 
 ## Breaking changes
