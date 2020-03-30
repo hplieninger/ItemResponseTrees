@@ -17,37 +17,19 @@
 #' Details for all the required and optional sections of the `model` string are
 #' given in the following.
 #'
-#' ## IRT
-#'
-#'   The `model` must contain a section with heading **IRT**. Therein, the IRT
-#'   structure of the model is described in a way resembling the MODEL part of
-#'   an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
-#'   where `LV` is the name of the latent variable/parameter/process, and
-#'   `item` is the name of the observed variable in the data set, which
-#'   is followed by the loading. The loading may either be fixed (e.g., to 1)
-#'   using \code{@1} or it may be set free using `*` or omitting the
-#'   loading completely.
-#'
-#'   Each measurement model (i.e., the LV and its items) must appear on a
-#'   separate line ending with a semicolon. Items must be separated by
-#'   commas. Line breaks are allowed. For example:
-#'
-#'   ```
-#'   IRT:
-#'   t BY x1, x2, x3, x4, x5, x6;
-#'   e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
-#'   m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
-#'   ```
-#'
 #' ## Equations
 #'
 #'   The `model` must contain a section with heading **Equations** if **Class** is
 #'   Tree.
 #'   Therein, the model equations are described.
-#'   They have a structure similar to `Cat = p1*(1-p2)`, where `Cat`
-#'   is any observed response category in the data set.
-#'   The names of the parameters must be equal to those of the latent variables
-#'   in the section **IRT** (combined with **Constraints** if specified).
+#'   They have a structure similar to `Cat = p1*(1-p2)`, where `Cat` is any
+#'   observed response category in the data set, and where `p1` is a freely
+#'   chosen name of a parameter.
+#'   These names must match the names of the latent variables in the section
+#'   **IRT** (combined with **Constraints** if specified).
+#'
+#'   If you prefer to work with pseudo-items, [irtree_create_template()] can
+#'   generate the equations for you.
 #'
 #'   The equations may contain only products and not sums.
 #'   That is, it is not possible to estimate genuine mixture models as, for
@@ -62,6 +44,28 @@
 #'   3 = m
 #'   4 = (1-m)*t*(1-e)
 #'   5 = (1-m)*t*e
+#'   ```
+#'
+#' ## IRT
+#'
+#'   The `model` must contain a section with heading **IRT**. Therein, the IRT
+#'   structure of the model is described in a way resembling the MODEL part of
+#'   an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
+#'   where `LV` is the name of the latent variable/parameter/process, and
+#'   `item` is the name of the observed variable in the data set, which
+#'   is followed by the loading. The loading may either be fixed (e.g., to 1)
+#'   using \code{@1} or it may be set free using `*` (which is equivalent to
+#'   omitting a loading altogether).
+#'
+#'   Each measurement model (i.e., the LV and its items) must appear on a
+#'   separate line ending with a semicolon. Items must be separated by
+#'   commas. Line breaks are allowed. For example:
+#'
+#'   ```
+#'   IRT:
+#'   t BY x1, x2, x3, x4, x5, x6;
+#'   e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
+#'   m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 #'   ```
 #'
 #' ## Class
@@ -100,9 +104,9 @@
 #'   response style parameters to equality across trees but not the target trait
 #'   parameters.
 #'
-#'   Each line in this section has a structure of `Param = LV |
-#'   LV`, where `Param` is the name of the process used only in section
-#'   **Equations** and `LV` it the name of the process used only in
+#'   Each line in this section has a structure of `Param = LV1 |
+#'   LV2`, where `Param` is the name of the process used only in section
+#'   **Equations** and `LV1` it the name of the process used only in
 #'   section **IRT**.
 #'   Use one line for each definition. For example:
 #'
@@ -117,7 +121,7 @@
 #'   one would specify two processes for a 3-point item. The first process would
 #'   correspond to a pseudoitem of `0-1-1` and the second process to a
 #'   pseudoitem of `NA-0-1`.
-#'   However, the latent variables corresponding to these processes would
+#'   However, the latent variables corresponding to these two processes would
 #'   typically be assumed to be equal and need thus be constrained accordingly.
 #'
 #'   Each line in this section has a structure of `LV1 = LV2`, where
@@ -156,7 +160,7 @@
 #'   Note that fitting these models is only implemented for `engine = "tam"`.
 #'
 #'   Each line in this section has a structure of `LV = weights`, where `LV` is
-#'   the name of the processes used in section **IRT**.
+#'   the name of the latent variable used in section **IRT**.
 #'   `weights` must be valid R code, namely, a vector of weights (see, e.g.,
 #'   Table 1 in Wetzel & Carstensen, 2017, or Table 2 in Falk & Cai, 2015).
 #'   Use one line for each definition. For example:
@@ -170,7 +174,7 @@
 #'
 #' @param model String with a specific structure as described below.
 #' @return List of class `irtree_model`. It contains the information extracted
-#'   from parsing `model`. Side note: The returned list contains an element
+#'   from `model`. Side note: The returned list contains an element
 #'   `mappping_matrix` that contains the pseudoitems. This information is
 #'   instructive, and it might be used as an input to the `dendrify()`
 #'   function of the irtrees package.

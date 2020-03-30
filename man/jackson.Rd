@@ -4,7 +4,8 @@
 \name{jackson}
 \alias{jackson}
 \title{IPIP Big Five personality test answers (data set)}
-\format{A data frame with 9051 rows and 58 variables:
+\format{
+A data frame with 9051 rows and 58 variables:
 \describe{
 \item{E1}{Am the life of the party.}
 \item{A1}{Feel little concern for others.}
@@ -64,7 +65,8 @@
 \item{N}{Scale mean for neuroticism}
 \item{O}{Scale mean for openness}
 \item{A}{Scale mean for agreeableness}
-}}
+}
+}
 \source{
 Jackson, A. (2012). IPIP Big Five personality test answers.
 \url{https://doi.org/10.6084/m9.figshare.96542.v3}

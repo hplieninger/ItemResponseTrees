@@ -7,10 +7,10 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
 
-* This is a new release.
-* The word 'mirt' in the package title is in lowercase, because it is the name of an R package.
+* New submission (hence, 1 note)
+* The word 'mirt' in the package title is in lowercase, because this refers to the R package mirt (https://CRAN.R-project.org/package=mirt).
 
 ## Downstream dependencies
 

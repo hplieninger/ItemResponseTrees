@@ -11,7 +11,7 @@ irtree_model(model = NULL)
 }
 \value{
 List of class \code{irtree_model}. It contains the information extracted
-from parsing \code{model}. Side note: The returned list contains an element
+from \code{model}. Side note: The returned list contains an element
 \code{mappping_matrix} that contains the pseudoitems. This information is
 instructive, and it might be used as an input to the \code{dendrify()}
 function of the irtrees package.
@@ -34,35 +34,19 @@ with \verb{#} (do not use inline comments).
 }
 Details for all the required and optional sections of the \code{model} string are
 given in the following.
-\subsection{IRT}{
-
-The \code{model} must contain a section with heading \strong{IRT}. Therein, the IRT
-structure of the model is described in a way resembling the MODEL part of
-an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
-where \code{LV} is the name of the latent variable/parameter/process, and
-\code{item} is the name of the observed variable in the data set, which
-is followed by the loading. The loading may either be fixed (e.g., to 1)
-using \code{@1} or it may be set free using \code{*} or omitting the
-loading completely.
-
-Each measurement model (i.e., the LV and its items) must appear on a
-separate line ending with a semicolon. Items must be separated by
-commas. Line breaks are allowed. For example:\preformatted{IRT:
-t BY x1, x2, x3, x4, x5, x6;
-e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
-m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
-}
-}
-
 \subsection{Equations}{
 
 The \code{model} must contain a section with heading \strong{Equations} if \strong{Class} is
 Tree.
 Therein, the model equations are described.
-They have a structure similar to \code{Cat = p1*(1-p2)}, where \code{Cat}
-is any observed response category in the data set.
-The names of the parameters must be equal to those of the latent variables
-in the section \strong{IRT} (combined with \strong{Constraints} if specified).
+They have a structure similar to \code{Cat = p1*(1-p2)}, where \code{Cat} is any
+observed response category in the data set, and where \code{p1} is a freely
+chosen name of a parameter.
+These names must match the names of the latent variables in the section
+\strong{IRT} (combined with \strong{Constraints} if specified).
+
+If you prefer to work with pseudo-items, \code{\link[=irtree_create_template]{irtree_create_template()}} can
+generate the equations for you.
 
 The equations may contain only products and not sums.
 That is, it is not possible to estimate genuine mixture models as, for
@@ -74,6 +58,26 @@ Each equation must appear on a separate, non-broken line. For example:\preformat
 3 = m
 4 = (1-m)*t*(1-e)
 5 = (1-m)*t*e
+}
+}
+
+\subsection{IRT}{
+
+The \code{model} must contain a section with heading \strong{IRT}. Therein, the IRT
+structure of the model is described in a way resembling the MODEL part of
+an Mplus input file. It has a structure of \code{LV BY item1*, item2@1},
+where \code{LV} is the name of the latent variable/parameter/process, and
+\code{item} is the name of the observed variable in the data set, which
+is followed by the loading. The loading may either be fixed (e.g., to 1)
+using \code{@1} or it may be set free using \code{*} (which is equivalent to
+omitting a loading altogether).
+
+Each measurement model (i.e., the LV and its items) must appear on a
+separate line ending with a semicolon. Items must be separated by
+commas. Line breaks are allowed. For example:\preformatted{IRT:
+t BY x1, x2, x3, x4, x5, x6;
+e BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
+m BY x1@1, x2@1, x3@1, x4@1, x5@1, x6@1;
 }
 }
 
@@ -110,8 +114,8 @@ For example, one would use one tree for each Big Five scale and fix the
 response style parameters to equality across trees but not the target trait
 parameters.
 
-Each line in this section has a structure of \code{Param = LV | LV}, where \code{Param} is the name of the process used only in section
-\strong{Equations} and \code{LV} it the name of the process used only in
+Each line in this section has a structure of \code{Param = LV1 | LV2}, where \code{Param} is the name of the process used only in section
+\strong{Equations} and \code{LV1} it the name of the process used only in
 section \strong{IRT}.
 Use one line for each definition. For example:\preformatted{Constraints:
 t = t1 | t2 | t3 | t4 | t5
@@ -124,7 +128,7 @@ For example, in a sequential model as proposed by Tutz as well as Verhelst,
 one would specify two processes for a 3-point item. The first process would
 correspond to a pseudoitem of \code{0-1-1} and the second process to a
 pseudoitem of \code{NA-0-1}.
-However, the latent variables corresponding to these processes would
+However, the latent variables corresponding to these two processes would
 typically be assumed to be equal and need thus be constrained accordingly.
 
 Each line in this section has a structure of \code{LV1 = LV2}, where
@@ -161,7 +165,7 @@ an alternative to IR-tree models.
 Note that fitting these models is only implemented for \code{engine = "tam"}.
 
 Each line in this section has a structure of \code{LV = weights}, where \code{LV} is
-the name of the processes used in section \strong{IRT}.
+the name of the latent variable used in section \strong{IRT}.
 \code{weights} must be valid R code, namely, a vector of weights (see, e.g.,
 Table 1 in Wetzel & Carstensen, 2017, or Table 2 in Falk & Cai, 2015).
 Use one line for each definition. For example:\preformatted{Weights:
