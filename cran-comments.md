@@ -1,8 +1,19 @@
 ## Resumbmission
 
-This is a resubmission. Changes from 0.2.0 to 0.2.1:
+This is a resubmission. Changes from 0.2.1 to 0.2.2:
 
-* The Title field in the DESCRIPTION was adjusted as requested.
+* The Description field in the DESCRIPTION was adjusted as
+  requested: A reference was added, and single quotes are used
+  around package names.
+* The instructions to install the package in the vignette were
+  commented out.
+* Credit for the data set `jackson` is now given via appropriate
+  attribution and reference to the CC BY 4.0 license in
+  `\source` rather than usage of `\author`.
+* Credit for `sort2()` (an unexported, internal one-liner) is
+  now given via appropriate attribution and reference to the
+  CC BY-SA 4.0 license in `details` rather than usage of
+  `\author`.
 
 ## Test environments
 * macOS-latest, R release (via GitHub Actions)

@@ -20,10 +20,9 @@ sorted \code{x}
 This function takes a vector \code{x} and returns \code{x} in
 the order provided in \code{y}.
 }
-\references{
-https://stackoverflow.com/a/2117080
-}
-\author{
-George Dontas (https://stackoverflow.com/users/170792)
+\details{
+This function was inspired by an
+\href{https://stackoverflow.com/a/2117080}{answer} by \href{https://stackoverflow.com/users/170792}{George Dontas} on Stack Overflow. User
+contributions on Stack Overflow are licensed under \href{https://creativecommons.org/licenses/by-sa/4.0/}{CC BY-SA 4.0}.
 }
 \keyword{internal}

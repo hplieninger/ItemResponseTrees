@@ -2,9 +2,10 @@
 #'
 #' Item response tree (IR-tree) models are a class of item response theory (IRT)
 #' models that assume that the responses to polytomous items can best be
-#' explained by multiple psychological processes (e.g., Böckenholt, 2012;
-#' Plieninger, 2020). The package ItemResponseTrees allows to fit such IR-tree
-#' models in [mirt](https://cran.r-project.org/package=mirt),
+#' explained by multiple psychological processes (e.g., Böckenholt, 2012,
+#' \url{https://dx.doi.org/10.1037/a0028111}). The package 'ItemResponseTrees'
+#' allows to fit such IR-tree models in
+#' [mirt](https://cran.r-project.org/package=mirt),
 #' [Mplus](https://cran.r-project.org/package=MplusAutomation), or
 #' [TAM](https://cran.r-project.org/package=TAM). The package automates some of
 #' the hassle of IR-tree modeling by means of a consistent syntax. This allows

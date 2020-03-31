@@ -29,8 +29,9 @@ This allows new users to quickly adopt this model class, and this allows experie
 The package can be installed as follows:
 
 ```{r, eval = FALSE}
-install.packages("remotes")
-remotes::install_github("hplieninger/ItemResponseTrees", upgrade = "always")
+# Please uncomment and execute the following two lines.
+# install.packages("remotes")
+# remotes::install_github("hplieninger/ItemResponseTrees", upgrade = "always")
 ```
 
 ## Example Data

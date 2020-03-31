@@ -86,10 +86,7 @@ The following items are reverse keyed and were already recoded: \code{A1}, \code
 \code{E8}, \code{C8}, and \code{E10}.
 }
 \details{
-The data set was released by Jackson under the CC BY 4.0 license.
-The version included here is Version 3 from 15.10.2012.
-}
-\author{
-Andrew Jackson
+The data set included here is Version 3 from 15.10.2012. It was
+released by Andrew Jackson under the \href{https://creativecommons.org/licenses/by/4.0/}{CC BY 4.0} license.
 }
 \keyword{datasets}

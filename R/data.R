@@ -10,8 +10,9 @@
 #' `C2`, `N2`, `O2`, `A3`, `E4`, `C4`, `N4`, `O4`, `A5`, `E6`, `C6`, `O6`, `A7`,
 #' `E8`, `C8`, and `E10`.
 #'
-#' @details The data set was released by Jackson under the CC BY 4.0 license.
-#'   The version included here is Version 3 from 15.10.2012.
+#' @details The data set included here is Version 3 from 15.10.2012. It was
+#'   released by Andrew Jackson under the [CC BY
+#'   4.0](https://creativecommons.org/licenses/by/4.0/) license.
 #'
 #' @format A data frame with 9051 rows and 58 variables:
 #' \describe{
@@ -75,7 +76,6 @@
 #'   \item{A}{Scale mean for agreeableness}
 #' }
 #' @usage data("jackson")
-#' @author Andrew Jackson
 #' @source Jackson, A. (2012). IPIP Big Five personality test answers.
 #'   \url{https://doi.org/10.6084/m9.figshare.96542.v3}
 "jackson"

@@ -1,6 +1,12 @@
+# ItemResponseTrees 0.2.2
+
+* Modified package Description field for CRAN
+* Modified vignette, `install.packages` was commented out.
+* Credit to Jackson for the `jackson` data and Dontas for `sort2()` is now given via appropriate attribution rather than usage of `\author`.
+
 # ItemResponseTrees 0.2.1
 
-* Updated package title for CRAN
+* Modified package Title field for CRAN
 
 # ItemResponseTrees 0.2.0
 

@@ -62,8 +62,11 @@ sym_diff <- function(x, y) {
 #' @param y vector providing the sort order
 #' @param subset Logical. If `TRUE`, `x` must be a subset of `y`.
 #' @return sorted `x`
-#' @references https://stackoverflow.com/a/2117080
-#' @author George Dontas (https://stackoverflow.com/users/170792)
+#' @details This function was inspired by an
+#'   [answer](https://stackoverflow.com/a/2117080) by [George
+#'   Dontas](https://stackoverflow.com/users/170792) on Stack Overflow. User
+#'   contributions on Stack Overflow are licensed under [CC BY-SA
+#'   4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 #' @keywords internal
 sort2 <- function(x = NULL, y = NULL, subset = TRUE) {
     if (!checkmate::test_character(y, min.len = 1, null.ok = FALSE)) {
