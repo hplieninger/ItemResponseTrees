@@ -1,3 +1,7 @@
+# ItemResponseTrees 0.2.3
+
+* Minor, internal changes in the documentation
+
 # ItemResponseTrees 0.2.2
 
 * Modified package Description field for CRAN

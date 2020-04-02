@@ -26,20 +26,13 @@ If you're familiar with the class of IR-tree models, this tutorial will get you 
 The package automates some of the hassle of IR-tree modeling by means of a consistent syntax.
 This allows new users to quickly adopt this model class, and this allows experienced users to fit many complex models effortlessly.
 
-The package can be installed as follows:
-
-```{r, eval = FALSE}
-# Please uncomment and execute the following two lines.
-# install.packages("remotes")
-# remotes::install_github("hplieninger/ItemResponseTrees", upgrade = "always")
-```
-
 ## Example Data
 
 Herein, an illustrative example will be shown using a popular IR-tree model for 5-point items (Böckenholt, 2012).
 The model is applied to a Big Five data set from Jackson (2012), more precisely to nine conscientiousness items.
 
 ```{r data, message = FALSE}
+# install.packages("ItemResponseTrees")
 library("ItemResponseTrees")
 
 data("jackson")

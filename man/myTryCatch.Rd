@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpers.R
 \name{myTryCatch}
 \alias{myTryCatch}
-\title{Custom tryCatch() that also returns the value of the expression}
+\title{Custom \code{tryCatch()} that also returns the value of the expression}
 \usage{
 myTryCatch(expr)
 }
@@ -15,20 +15,20 @@ list with three elements, namely, \code{value} giving the value of
 giving any error messages.
 }
 \description{
-Custom tryCatch() that also returns the value of the expression
+Custom \code{tryCatch()} that also returns the value of the expression
+}
+\details{
+This function is based on an
+\href{https://stackoverflow.com/a/24569739}{answer} by
+\href{https://stackoverflow.com/users/2161065}{user2161065} on Stack Overflow.
+User contributions on Stack Overflow are licensed under \href{https://creativecommons.org/licenses/by-sa/4.0/}{CC BY-SA 4.0}.
 }
 \examples{
 ItemResponseTrees:::myTryCatch(log(1))
 ItemResponseTrees:::myTryCatch(log(-1))
 ItemResponseTrees:::myTryCatch(log("a"))
 }
-\references{
-https://stackoverflow.com/a/4952908; https://stackoverflow.com/a/24569739
-}
 \seealso{
 \code{\link[=tryCatch]{tryCatch()}}
-}
-\author{
-https://stackoverflow.com/users/2161065
 }
 \keyword{internal}

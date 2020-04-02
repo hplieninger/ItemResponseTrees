@@ -19,13 +19,13 @@ vector
 \description{
 Symmetric difference
 }
-\references{
-https://stackoverflow.com/a/35949294
+\details{
+This function is based on an
+\href{https://stackoverflow.com/a/35949294}{answer} by
+\href{https://stackoverflow.com/users/3798973}{sebpardo} on Stack Overflow.
+User contributions on Stack Overflow are licensed under \href{https://creativecommons.org/licenses/by-sa/4.0/}{CC BY-SA 4.0}.
 }
 \seealso{
 \code{\link[base:setdiff]{base::setdiff()}}
-}
-\author{
-https://stackoverflow.com/users/3798973
 }
 \keyword{internal}

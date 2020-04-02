@@ -9,14 +9,17 @@ clps <- function(collapse = " ", ..., sep = " ") {
     paste(..., sep = sep, collapse = collapse)
 }
 
-#' Custom tryCatch() that also returns the value of the expression
+#' Custom `tryCatch()` that also returns the value of the expression
 #'
 #' @param expr expression to be evaluated
 #' @return list with three elements, namely, `value` giving the value of
 #'   `expr`, `warning` giving any warning messages, and `error`
 #'   giving any error messages.
-#' @references https://stackoverflow.com/a/4952908; https://stackoverflow.com/a/24569739
-#' @author https://stackoverflow.com/users/2161065
+#' @details This function is based on an
+#'   [answer](https://stackoverflow.com/a/24569739) by
+#'   [user2161065](https://stackoverflow.com/users/2161065) on Stack Overflow.
+#'   User contributions on Stack Overflow are licensed under [CC BY-SA
+#'   4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 #' @seealso [tryCatch()]
 #' @keywords internal
 #' @examples
@@ -47,8 +50,11 @@ myTryCatch <- function(expr) {
 # @param b PARAM_DESCRIPTION
 #' @inheritParams base::setdiff
 #' @return vector
-#' @references https://stackoverflow.com/a/35949294
-#' @author https://stackoverflow.com/users/3798973
+#' @details This function is based on an
+#'   [answer](https://stackoverflow.com/a/35949294) by
+#'   [sebpardo](https://stackoverflow.com/users/3798973) on Stack Overflow.
+#'   User contributions on Stack Overflow are licensed under [CC BY-SA
+#'   4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 #' @seealso [base::setdiff()]
 #' @keywords internal
 sym_diff <- function(x, y) {

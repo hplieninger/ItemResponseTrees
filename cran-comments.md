@@ -1,19 +1,13 @@
 ## Resumbmission
 
-This is a resubmission. Changes from 0.2.1 to 0.2.2:
+This is a resubmission. Changes from 0.2.2 to 0.2.3:
 
-* The Description field in the DESCRIPTION was adjusted as
-  requested: A reference was added, and single quotes are used
-  around package names.
-* The instructions to install the package in the vignette were
-  commented out.
-* Credit for the data set `jackson` is now given via appropriate
-  attribution and reference to the CC BY 4.0 license in
-  `\source` rather than usage of `\author`.
-* Credit for `sort2()` (an unexported, internal one-liner) is
-  now given via appropriate attribution and reference to the
-  CC BY-SA 4.0 license in `details` rather than usage of
-  `\author`.
+* Superflouous \author-fields were removed from the internal,
+  unexported functions sym_diff() and myTryCatch(). Credit to
+  these persons for their content, which is released under the
+  CC BY-SA 4.0 license, is now given in \details, which is much
+  more appropriate. I overlooked these two issues in 0.2.2 and
+  I apologize for the inconvenience caused.
 
 ## Test environments
 * macOS-latest, R release (via GitHub Actions)
