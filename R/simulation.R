@@ -120,22 +120,28 @@ irtree_sim1 <- function(R = 1,
 
         mii <- paste0("m", ii)
 
-        do_call_args <- list(object = fit_model[[ii]],
-                             data = X$data,
-                             engine = engine,
-                             link = link,
-                             verbose = verbose,
-                             control = control,
-                             improper_okay = improper_okay)
         if (engine == "mplus") {
-            do_call_args$control$file <-
-                sprintf("%s_m%1d", tools::file_path_sans_ext(file), ii)
+            control$file <- sprintf("%s_m%1d", tools::file_path_sans_ext(file), ii)
         } else if (engine == "tam") {
-            if (is.null(do_call_args$control$set_min_to_0)) {
-                do_call_args$control$set_min_to_0 <- TRUE
-            }
+            control$set_min_to_0 <- TRUE
         }
-        fits[[mii]]$fit <- do.call("fit", do_call_args)
+        out <- tryCatch.W.E(
+            fit(object = fit_model[[ii]],
+                data = X$data,
+                engine = engine,
+                link = link,
+                verbose = verbose,
+                control = control,
+                improper_okay = improper_okay))
+        if ("error" %in% class(out$value)) {
+            out$value$error <- out$value
+            out$value[1] <- list(NULL)
+        } else {
+            out$value["error"] <- list(NULL)
+        }
+        out$value["warning"] <- out["warning"]
+
+        fits[[mii]]$fit <- out$value
 
         fits[[mii]]$glanced <- glance(fits[[mii]]$fit)
         fits[[mii]]$tidied <- tidy(fits[[mii]]$fit, par_type = par_type)

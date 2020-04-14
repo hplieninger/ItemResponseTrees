@@ -30,6 +30,7 @@ irtree_fit_mirt <- function(object = NULL,
     checkmate::qassert(control, "l")
     tmp1 <- formalArgs(control_mirt)
     checkmate::assert_names(names(control), must.include = tmp1[tmp1 != "..."])
+    rm(tmp1)
 
     spec <- c(as.list(environment()))
     spec$engine <- "mirt"
@@ -47,7 +48,6 @@ irtree_fit_mirt <- function(object = NULL,
     mirt_string <- mirt_input$mirt_string
 
     if (TRUE) {
-
         mirt_call <- rlang::call2("mirt",
                                   .ns = "mirt",
                                   data     = rlang::expr(pseudoitems),
@@ -55,22 +55,10 @@ irtree_fit_mirt <- function(object = NULL,
                                   itemtype = mirt_input$itemtype,
                                   verbose  = verbose,
                                   !!!control)
-
-        res <- myTryCatch(rlang::eval_tidy(mirt_call))
-
-        if (!is.null(res$warning)) {
-            warning("mirt::mirt() returned the following warning:\n",
-                    conditionMessage(res$warning), call. = FALSE)
-        }
-        if (!is.null(res$error)) {
-            warning("mirt::mirt() returned the following error:\n",
-                    conditionMessage(res$error), call. = FALSE)
-        }
-    } else {
-        res <- list(value = NULL)
+        res <- rlang::eval_tidy(mirt_call)
     }
 
-    out <- list(mirt = res$value, error = res$error, warning = res$warning, spec = spec)
+    out <- list(mirt = res, spec = spec)
     class(out) <- c("irtree_fit", class(out))
     return(out)
 }

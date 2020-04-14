@@ -1,3 +1,7 @@
+# ItemResponseTrees 0.2.4
+
+* Refactor condition handling (e.g., replace `myTryCatch()` with `tryCatch.W.E()`)
+
 # ItemResponseTrees 0.2.3
 
 * Minor, internal changes in the documentation

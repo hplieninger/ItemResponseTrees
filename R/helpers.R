@@ -9,39 +9,30 @@ clps <- function(collapse = " ", ..., sep = " ") {
     paste(..., sep = sep, collapse = collapse)
 }
 
-#' Custom `tryCatch()` that also returns the value of the expression
+#' Catch *and* save both errors and warnings, and in the case of
+#' a warning, also keep the computed result.
 #'
-#' @param expr expression to be evaluated
-#' @return list with three elements, namely, `value` giving the value of
-#'   `expr`, `warning` giving any warning messages, and `error`
-#'   giving any error messages.
-#' @details This function is based on an
-#'   [answer](https://stackoverflow.com/a/24569739) by
-#'   [user2161065](https://stackoverflow.com/users/2161065) on Stack Overflow.
-#'   User contributions on Stack Overflow are licensed under [CC BY-SA
-#'   4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-#' @seealso [tryCatch()]
+#' @title tryCatch both warnings (with value) and errors
+#' @param expr an \R expression to evaluate
+#' @return a list with 'value' and 'warning', where
+#'   'value' may be an error caught.
+#' @author Martin Maechler;
+#'   Copyright (C) 2010-2012  The R Core Team
 #' @keywords internal
+#' @references `demo(error.catching)`
 #' @examples
-#' ItemResponseTrees:::myTryCatch(log(1))
-#' ItemResponseTrees:::myTryCatch(log(-1))
-#' ItemResponseTrees:::myTryCatch(log("a"))
-myTryCatch <- function(expr) {
-    warn <- err <- NULL
-    value <- withCallingHandlers(
-        tryCatch(
-            expr,
-            error = function(e) {
-                err <<- e
-                NULL
-            }
-        ),
-        warning = function(w) {
-            warn <<- w
-            invokeRestart("muffleWarning")
-        }
-    )
-    list(value = value, warning = warn, error = err)
+#' ItemResponseTrees:::tryCatch.W.E(log(1))
+#' ItemResponseTrees:::tryCatch.W.E(log(-1))
+#' ItemResponseTrees:::tryCatch.W.E(log("a"))
+tryCatch.W.E <- function(expr) {
+    W <- NULL
+    w.handler <- function(w){ # warning handler
+        W <<- w
+        invokeRestart("muffleWarning")
+    }
+    list(value = withCallingHandlers(tryCatch(expr, error = function(e) e),
+                                     warning = w.handler),
+         warning = W)
 }
 
 #' Symmetric difference

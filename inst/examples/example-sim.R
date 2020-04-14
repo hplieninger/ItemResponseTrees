@@ -26,11 +26,12 @@ GRM
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 
+set.seed(2413)
 res <- irtree_sim(
     ### Data generation ###
     gen_model = model1,
     link = "logit",
-    N = 200,
+    N = 500,
     sigma = function(x) diag(2),
     itempar = function(x) list(
         beta = matrix(sort(runif(model1$J*model1$P, -2, 2)),
@@ -62,9 +63,9 @@ for (ii in seq_along(res)) {
     }
 }
 tab1
-#>      iter model      AIC       BIC
-#> [1,]    1     1 9472.961  9569.896
-#> [2,]    1     2 9580.718  9673.440
-#> [3,]    2     1 9769.569  9866.505
-#> [4,]    2     2 9918.594 10011.315
+#>      iter model      AIC      BIC
+#> [1,]    1     1 6906.398 6978.046
+#> [2,]    1     2 7005.481 7068.700
+#> [3,]    2     1 6810.548 6882.196
+#> [4,]    2     2 6886.484 6949.703
 }

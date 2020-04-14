@@ -172,7 +172,9 @@ irtree_fit_mplus <- function(object = NULL,
         )
 
     if (control$run) {
-        checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+        if (control$Mplus_command == "Mplus") {
+            checkmate::assert_true(MplusAutomation::mplusAvailable() == 0)
+        }
 
         invisible(
             capture.output(
@@ -213,13 +215,14 @@ irtree_fit_mplus <- function(object = NULL,
         wrn1 <- res$warnings
         if (length(wrn1) > 0) {
             sapply(wrn1, function(x) {
-                mywarn("Mplus returned the following warning:\n", clps(, x))
+                mywarn("Mplus returned the following warning:\n", clps("\n", x))
             })
         }
         err1 <- res$errors
         if (length(err1) > 0) {
             sapply(err1, function(x) {
-                mywarn("Mplus returned the following error:\n", clps(, x))
+                stop("Mplus returned the following error:\n", clps("\n", x),
+                     call. = FALSE)
             })
         }
     } else {

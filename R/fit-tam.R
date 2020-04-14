@@ -78,22 +78,10 @@ irtree_fit_tam <- function(object = NULL,
     }
 
     if (TRUE) {
-
-        res <- myTryCatch(rlang::eval_tidy(tam_call))
-
-        if (!is.null(res$warning)) {
-            warning("TAM::tam() returned the following warning:\n",
-                    conditionMessage(res$warning))
-        }
-        if (!is.null(res$error)) {
-            warning("TAM::tam() returned the following error:\n",
-                    conditionMessage(res$error))
-        }
-    } else {
-        res <- list(value = NULL)
+        res <- rlang::eval_tidy(tam_call)
     }
 
-    out <- list(tam = res$value, error = res$error, warning = res$warning, spec = spec)
+    out <- list(tam = res, spec = spec)
     class(out) <- c("irtree_fit", class(out))
     return(out)
 }
