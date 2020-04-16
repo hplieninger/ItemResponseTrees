@@ -125,7 +125,7 @@ irtree_sim1 <- function(R = 1,
         } else if (engine == "tam") {
             control$set_min_to_0 <- TRUE
         }
-        out <- tryCatch.W.E(
+        out <- simsalapar::tryCatch.W.E(
             fit(object = fit_model[[ii]],
                 data = X$data,
                 engine = engine,
@@ -134,14 +134,26 @@ irtree_sim1 <- function(R = 1,
                 control = control,
                 improper_okay = improper_okay))
         if ("error" %in% class(out$value)) {
-            out$value$error <- out$value
-            out$value[1] <- list(NULL)
+            out$value$error   <- out$value
+            out$value$message <- NULL
+            out$value$call    <- NULL
+            out$value[engine] <- list(NULL)
         } else {
             out$value["error"] <- list(NULL)
         }
         out$value["warning"] <- out["warning"]
 
         fits[[mii]]$fit <- out$value
+
+        if (!is.null(out$value$warning)) {
+            warning(out$value$warning)
+        }
+        if (!is.null(out$value$error)) {
+            warning(# "fit() returned the following error:\n",
+                    "Converted to warning: ",
+                    out$value$error, call. = F)
+            next()
+        }
 
         fits[[mii]]$glanced <- glance(fits[[mii]]$fit)
         fits[[mii]]$tidied <- tidy(fits[[mii]]$fit, par_type = par_type)
@@ -166,7 +178,7 @@ irtree_sim1 <- function(R = 1,
                              file = paste0(tools::file_path_sans_ext(file), ".rda")))
     }
     if (reduce_output) {
-        res$fits <- purrr::map(res$fits, ~purrr::assign_in(.x, list("fit", 1), list()))
+        res$fits <- purrr::map(res$fits, ~purrr::assign_in(.x, list("fit", engine), list()))
     }
     if (save_rdata) {
         return(invisible(res))
@@ -257,7 +269,7 @@ irtree_sim <- function(R = 1,
                 call. = FALSE)
     }
 
-    has_namespace(c("future", "listenv", "progress"))
+    has_namespace(c("future", "listenv", "progress", "simsalapar"))
     oplan <- future::plan()
     on.exit(future::plan(oplan), add = TRUE)
 

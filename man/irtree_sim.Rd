@@ -147,7 +147,6 @@ GRM
 model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 
-set.seed(2413)
 res <- irtree_sim(
     ### Data generation ###
     gen_model = model1,
@@ -168,27 +167,27 @@ res <- irtree_sim(
 
     ### Replications ###
     R = 2,
-    save_rdata = FALSE
+    save_rdata = FALSE,
 
     ### Optional parallelization ###
-    # plan = "multiprocess",
-    # plan_args = list(workers = 2)
+    plan = "multiprocess",
+    plan_args = list(workers = future::availableCores() - 1)
 )
 
-tab1 <- matrix(NA, 0, 4, dimnames = list(NULL, c("iter", "model", "AIC", "BIC")))
+tab1 <- matrix(NA, 0, 4, dimnames = list(NULL, c("Rep", "Model", "AIC", "BIC")))
 
 for (ii in seq_along(res)) {
     for (jj in seq_along(res[[ii]]$fits)) {
         IC <- res[[ii]]$fits[[jj]]$glanced
-        tab1 <- rbind(tab1, c(ii, jj, IC$AIC, IC$BIC))
+        tab1 <- rbind(tab1, c(ii, jj, round(IC$AIC, -1), round(IC$BIC, -1)))
     }
 }
 tab1
-#>      iter model      AIC      BIC
-#> [1,]    1     1 6906.398 6978.046
-#> [2,]    1     2 7005.481 7068.700
-#> [3,]    2     1 6810.548 6882.196
-#> [4,]    2     2 6886.484 6949.703
+#>      Rep Model  AIC  BIC
+#> [1,]   1     1 6900 6970
+#> [2,]   1     2 7000 7060
+#> [3,]   2     1 6810 6880
+#> [4,]   2     2 6880 6940
 }
 }
 \seealso{

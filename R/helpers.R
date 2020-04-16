@@ -9,32 +9,6 @@ clps <- function(collapse = " ", ..., sep = " ") {
     paste(..., sep = sep, collapse = collapse)
 }
 
-#' Catch *and* save both errors and warnings, and in the case of
-#' a warning, also keep the computed result.
-#'
-#' @title tryCatch both warnings (with value) and errors
-#' @param expr an \R expression to evaluate
-#' @return a list with 'value' and 'warning', where
-#'   'value' may be an error caught.
-#' @author Martin Maechler;
-#'   Copyright (C) 2010-2012  The R Core Team
-#' @keywords internal
-#' @references `demo(error.catching)`
-#' @examples
-#' ItemResponseTrees:::tryCatch.W.E(log(1))
-#' ItemResponseTrees:::tryCatch.W.E(log(-1))
-#' ItemResponseTrees:::tryCatch.W.E(log("a"))
-tryCatch.W.E <- function(expr) {
-    W <- NULL
-    w.handler <- function(w){ # warning handler
-        W <<- w
-        invokeRestart("muffleWarning")
-    }
-    list(value = withCallingHandlers(tryCatch(expr, error = function(e) e),
-                                     warning = w.handler),
-         warning = W)
-}
-
 .stop_not_implemented <- function() {
     stop("The requested behavior is not implemented. ",
          "Please modify your function call. For example, ",
