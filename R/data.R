@@ -1,7 +1,7 @@
 #' IPIP Big Five personality test answers (data set)
 #'
 #' @description "This is data from an online big five personality test:
-#' \url{http://personality-testing.info/tests/BIG5.php}. The following items
+#' http://personality-testing.info/tests/BIG5.php. The following items
 #' were rated on a likert scale from 1=disagree to 5=agree in relation to how
 #' much they applied to the test taker, they were presented to the taker 5 per
 #' page" (Jackson, 2012).

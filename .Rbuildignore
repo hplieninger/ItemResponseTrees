@@ -13,3 +13,4 @@ vignettes/.*_cache/
 ^\.github/workflows/pr-commands\.yaml$
 ^data-raw$
 ^cran-comments\.md$
+^CRAN-RELEASE$
