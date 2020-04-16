@@ -35,7 +35,7 @@ irtree_fit_tam <- function(object = NULL,
              tmp2, call. = FALSE)
     }
 
-    object$j_names <- sort2(object$j_names, names(data))
+    object$j_names <- object$j_names[order(match(object$j_names, names(data)))]
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 

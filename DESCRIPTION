@@ -32,6 +32,7 @@ Imports:
     mirt (>= 1.30),
     purrr,
     rlang (>= 0.4.0),
+    sets,
     stringr,
     tibble,
     tidyr (>= 1.0.0),

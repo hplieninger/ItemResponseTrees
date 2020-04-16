@@ -54,7 +54,9 @@ irtree_fit_mplus <- function(object = NULL,
         }
     }
 
-    spec$object$j_names <- object$j_names <- sort2(object$j_names, names(data))
+    spec$object$j_names <-
+        object$j_names <-
+            object$j_names[order(match(object$j_names, names(data)))]
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     # CAVE: The following line is super important. It is the only safeguard that
     # assures that the items in the 'MODEL'-statement of the mplus input are in

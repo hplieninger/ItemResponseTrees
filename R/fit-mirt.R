@@ -21,7 +21,7 @@ irtree_fit_mirt <- function(object = NULL,
 
     assert_irtree_proper(object, improper_okay = improper_okay)
 
-    object$j_names <- sort2(object$j_names, names(data))
+    object$j_names <- object$j_names[order(match(object$j_names, names(data)))]
     object$lambda$item <- factor(object$lambda$item, levels = object$j_names)
     object$lambda <- object$lambda[order(object$lambda$item, object$lambda$irt), ]
 

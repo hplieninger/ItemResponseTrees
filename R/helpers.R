@@ -35,49 +35,6 @@ tryCatch.W.E <- function(expr) {
          warning = W)
 }
 
-#' Symmetric difference
-
-# @param a PARAM_DESCRIPTION
-# @param b PARAM_DESCRIPTION
-#' @inheritParams base::setdiff
-#' @return vector
-#' @details This function is based on an
-#'   [answer](https://stackoverflow.com/a/35949294) by
-#'   [sebpardo](https://stackoverflow.com/users/3798973) on Stack Overflow.
-#'   User contributions on Stack Overflow are licensed under [CC BY-SA
-#'   4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-#' @seealso [base::setdiff()]
-#' @keywords internal
-sym_diff <- function(x, y) {
-    unique(c(setdiff(x, y), setdiff(y, x)))
-}
-
-#' @title Sort a Vector Based on a Second Vector
-#' @description This function takes a vector `x` and returns `x` in
-#'   the order provided in `y`.
-#' @param x vector that should be sorted
-#' @param y vector providing the sort order
-#' @param subset Logical. If `TRUE`, `x` must be a subset of `y`.
-#' @return sorted `x`
-#' @details This function was inspired by an
-#'   [answer](https://stackoverflow.com/a/2117080) by [George
-#'   Dontas](https://stackoverflow.com/users/170792) on Stack Overflow. User
-#'   contributions on Stack Overflow are licensed under [CC BY-SA
-#'   4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-#' @keywords internal
-sort2 <- function(x = NULL, y = NULL, subset = TRUE) {
-    if (!checkmate::test_character(y, min.len = 1, null.ok = FALSE)) {
-        return(x)
-    }
-    checkmate::assert_character(y,
-                                min.len = ifelse(subset, length(unique(x)), 1),
-                                unique = TRUE)
-    checkmate::assert_character(x, min.chars = 1, any.missing = FALSE,
-                                names = "unnamed")
-    if (subset) checkmate::assert_subset(x, y)
-    x[order(match(x, y))]
-}
-
 .stop_not_implemented <- function() {
     stop("The requested behavior is not implemented. ",
          "Please modify your function call. For example, ",

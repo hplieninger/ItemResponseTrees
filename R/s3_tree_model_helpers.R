@@ -298,18 +298,18 @@ irtree_model_constr_sub <- function(sub = NULL, e1 = new.env()) {
                 as.formula(
                     paste("~", e1$equations[2, ], collapse = " + ")))
 
-        flag1 <- sym_diff(p_names, mpt_names)
+        flag1 <- sets::set_symdiff(unique(p_names), mpt_names)
         if (length(flag1) > 0) {
             stop("Problem in 'model': All parameters in 'Equations' must be present in 'IRT' ",
-                 "combined with 'Constraints 'and vice versa. Problem with ",
+                 "(combined with 'Constraints') and vice versa. Problem with ",
                  paste(flag1, collapse = ", "), ".", call. = FALSE)
 
         }
     } else if (e1$class == "pcm") {
-        flag1 <- sym_diff(names(e1$weights), e1$latent_names$irt)
+        flag1 <- sets::set_symdiff(names(e1$weights), e1$latent_names$irt)
         if (length(flag1) > 0) {
             stop("Problem in 'model': All parameters in 'Weights' must be present in 'IRT' ",
-                 "combined with 'Constraints 'and vice versa. Problem with ",
+                 "(combined with 'Constraints') and vice versa. Problem with ",
                  paste(flag1, collapse = ", "), ".", call. = FALSE)
         }
 

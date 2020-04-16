@@ -1,6 +1,7 @@
 # ItemResponseTrees 0.2.4
 
 * Refactor condition handling (e.g., replace `myTryCatch()` with `tryCatch.W.E()`)
+* `sym_diff()` was replaced with `sets::set_symdiff()`, and `sort2()` was removed.
 
 # ItemResponseTrees 0.2.3
 

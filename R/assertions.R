@@ -37,13 +37,15 @@ assert_irtree_data <- function(data = NULL,
     categ_dat <- na.omit(unique(unlist(data[object$j_names], use.names = FALSE)))
 
     if (object$class == "tree") {
-        if (length(sym_diff(categ_dat, object$k_names)) > 0) {
+        if (length(sets::set_symdiff(as.numeric(categ_dat),
+                                     as.numeric(object$k_names))) > 0) {
             stop("'data' has categories ", clps(", ", sort(categ_dat)),
                  " but 'object' has equations for categories ", clps(", ", object$k_names), "."
                  , call. = FALSE)
         }
     } else if (object$class == "pcm" && engine == "tam") {
-        if (length(sym_diff(categ_dat, object$k_names)) > 0) {
+        if (length(sets::set_symdiff(as.numeric(categ_dat),
+                                     as.numeric(object$k_names))) > 0) {
             if (min(data[object$j_names] != 0, na.rm = TRUE)) {
                 stop("Minimum of data is not equal to zero. ",
                      "You should recode your data or set 'set_min_to_0 = TRUE'.",
