@@ -159,7 +159,10 @@ test_that("Methods work for output of irtree_fit_mirt()", {
 })
 
 test_that("Passing arguments to mirt works", {
-    expect_equal(res1$mirt@Options[names(ctrl)[!names(ctrl) %in% "control"]],
+    skip_if_not_installed("mirt", "1.32.1")
+    tmp1 <- res1$mirt@Options[names(ctrl)[!names(ctrl) %in% "control"]]
+    tmp1$technical <- tmp1$technical[names(ctrl$technical)]
+    expect_equal(tmp1,
                  ctrl[!names(ctrl) %in% "control"])
 })
 
@@ -260,14 +263,23 @@ test_that("implementation of augment.irtree_fit()", {
     modeltests::check_dims(ag4, nrow(ScienceNew), ncol(ScienceNew) + model4$S*2)
     modeltests::check_dims(ag5, nrow(Science), ncol(Science) - 1 + model5$S*2)
 
-    checkmate::expect_numeric(ag1$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag1$.se.fitF2, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag2$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag3$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag4$.se.fitF1, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag4$.se.fitF2, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag5$.se.fitF1, lower = 0, finite = TRUE, any.missing = FALSE)
+    skip_if_not_installed("mirt", "1.32.1")
 
-    expect_gt(cor(ag3$.fittedF1, mirt::fscores(res3x)), .99)
+    checkmate::expect_numeric(ag1$.fitted.a, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.fitted.b, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag2$.fitted.a, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag3$.fitted.a, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag4$.fitted.a, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag4$.fitted.b, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag5$.fitted.a, finite = TRUE, any.missing = FALSE)
 
+    checkmate::expect_numeric(ag1$.se.fit.a, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.se.fit.b, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag2$.se.fit.a, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag3$.se.fit.a, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag4$.se.fit.a, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag4$.se.fit.b, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag5$.se.fit.a, lower = 0, finite = TRUE, any.missing = FALSE)
+
+    expect_gt(cor(ag3$.fitted.a, mirt::fscores(res3x)), .99)
 })
