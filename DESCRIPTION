@@ -59,4 +59,5 @@ VignetteBuilder: knitr
 Language: en-US
 Remotes:
     r-lib/rlang@v0.4.6,
+    r-lib/vctrs@671dd82c6af02a2cdc5b3b26795f521dfa199609,
     tidyverse/dplyr
