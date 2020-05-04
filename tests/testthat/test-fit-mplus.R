@@ -281,10 +281,15 @@ test_that("augment.irtree_fit()", {
     modeltests::check_dims(ag2, nrow(Science), ncol(Science) + model2$S*2)
     modeltests::check_dims(ag3, nrow(Science), ncol(Science) + model2$S*2)
 
-    checkmate::expect_numeric(ag1$.se.fitB, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag1$.se.fitA, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag2$.se.fitA, lower = 0, finite = TRUE, all.missing = FALSE)
-    checkmate::expect_numeric(ag3$.se.fitT, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.fitted.B, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.fitted.A, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag2$.fitted.A, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag3$.fitted.T, finite = TRUE, all.missing = FALSE)
+
+    checkmate::expect_numeric(ag1$.se.fit.B, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag1$.se.fit.A, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag2$.se.fit.A, lower = 0, finite = TRUE, all.missing = FALSE)
+    checkmate::expect_numeric(ag3$.se.fit.T, lower = 0, finite = TRUE, all.missing = FALSE)
 
 })
 

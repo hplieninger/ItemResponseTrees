@@ -225,6 +225,7 @@ tidy_mplus <- function(x = NULL) {
 
     est1 <-
         coef(x$mplus, type = "un") %>%
+        as.data.frame() %>%
         dplyr::rename(term = "Label", estimate = "est", std.error = "se",
                       p.value = "pval") %>%
         dplyr::mutate(term = trimws(.data$term),
@@ -238,7 +239,8 @@ tidy_mplus <- function(x = NULL) {
 
     coef_corr <- purrr::possibly(
         ~ coef(.x, type = stdyx, params = "undirected") %>%
-            dplyr::mutate(Label = paste0("CORR_", trimws(.data$Label))),
+            dplyr::mutate(Label = paste0("CORR_", trimws(.data$Label))) %>%
+            as.data.frame(),
         otherwise = data.frame(Label = character(0), est = numeric(0),
                                se = numeric(0), pval = numeric(0), stringsAsFactors = FALSE))
 
@@ -375,8 +377,8 @@ augment.irtree_fit <- function(x = NULL,
             se <- dplyr::select(fscores,
                                 ncol(fscores) - seq(to = 0, by = -2,
                                                     length.out = tmp1/2))
-            names(est) <- paste0(".fitted", names(est))
-            names(se) <- paste0(".se.fit",
+            names(est) <- paste0(".fitted.", names(est))
+            names(se) <- paste0(".se.fit.",
                                 sub("_SE$", "", names(se)))
             if (se.fit) {
                 out <- cbind(data, est, se)
@@ -430,9 +432,9 @@ augment_mirt <- function(x, se.fit = TRUE, method = "EAP", ...) {
                       full.scores.SE = se.fit,
                       ...))
 
-    names(out) <- paste0(".fitted", names(out))
+    names(out) <- paste0(".fitted.", names(out))
     if (se.fit) {
-        names(out) <- sub("^.fittedSE_", ".se.fit", names(out))
+        names(out) <- sub("^.fitted.SE_", ".se.fit.", names(out))
     }
 
     return(out)
