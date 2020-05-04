@@ -16,9 +16,8 @@ License: MIT + file LICENSE
 URL: https://github.com/hplieninger/ItemResponseTrees
 BugReports: https://github.com/hplieninger/ItemResponseTrees/issues
 Depends: 
-    R (>= 3.4)
+    R (>= 3.6.0)
 Imports: 
-    backports,
     checkmate (>= 1.9),
     dplyr,
     generics,
@@ -57,7 +56,3 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 Language: en-US
-Remotes:
-    r-lib/rlang@v0.4.6,
-    r-lib/vctrs@671dd82c6af02a2cdc5b3b26795f521dfa199609,
-    tidyverse/dplyr

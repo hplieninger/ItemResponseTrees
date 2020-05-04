@@ -6,7 +6,7 @@ citEntry(
     author = personList(as.person("Hansj\\\"{o}rg Plieninger")),
     year         = "2020",
     url          = "https://github.com/hplieninger/ItemResponseTrees/",
-    version      = "0.2.0",
+    version      = "0.2.5",
     note         = "R package",
 
     textVersion  = paste(
