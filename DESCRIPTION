@@ -58,5 +58,5 @@ RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 Language: en-US
 Remotes:
-    tidyverse/dplyr,
-    r-lib/rlang@c0a0da06bbc0f729759f7f3f99e6280625c700bc
+    r-lib/rlang@v0.4.6,
+    tidyverse/dplyr
