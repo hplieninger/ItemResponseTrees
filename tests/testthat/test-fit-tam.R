@@ -64,7 +64,7 @@ model4 <- irtree_model(m4)
 set.seed(123)
 
 data1 <- irtree_gen_data(
-    object = model1, N = 150,
+    object = model1, N = 200,
     sigma = diag(model1$S),
     itempar = list(beta = matrix(rnorm(model1$J*model1$P), model1$J, model1$P),
                    alpha = matrix(1, model1$J, model1$P)),
@@ -78,7 +78,7 @@ ScienceNew <- Science - 1
 names(ScienceNew) <- sub("Benefit", "Benefitvar", names(ScienceNew))
 
 data3 <- irtree_gen_data(
-    object = model3, N = 150,
+    object = model3, N = 200,
     link = "logit",
     sigma = function() diag(model3$S),
     itempar = function() {

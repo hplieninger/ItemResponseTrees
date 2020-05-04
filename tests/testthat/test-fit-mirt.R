@@ -69,7 +69,7 @@ model5 <- irtree_model(m5)
 
 ##### Data #####
 
-X <- irtree_gen_data(object = model1, N = 100,
+X <- irtree_gen_data(object = model1, N = 200,
                      sigma = diag(model1$S),
                      itempar = list(beta = matrix(sort(rnorm(model1$J*model1$P)),
                                                   model1$J, model1$P),

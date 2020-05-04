@@ -1,0 +1,82 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+options(tibble.print_min = 10, tibble.print_max = 20, pillar.min_title_chars = 16)
+```
+
+# ItemResponseTrees
+
+<!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/ItemResponseTrees)](https://CRAN.R-project.org/package=ItemResponseTrees)
+[![R build status](https://github.com/hplieninger/ItemResponseTrees/workflows/R-CMD-check/badge.svg)](https://github.com/hplieninger/ItemResponseTrees/actions)
+[![codecov](https://codecov.io/gh/hplieninger/ItemResponseTrees/branch/master/graph/badge.svg)](https://codecov.io/gh/hplieninger/ItemResponseTrees)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/plieninger@uni-mannheim.de)
+<!-- badges: end -->
+
+Item response tree (IR-tree) models like the one depicted below are a class of item response theory (IRT) models that assume that the responses to polytomous items can best be explained by multiple psychological processes (e.g., [Böckenholt, 2012](https://dx.doi.org/10.1037/a0028111); [Plieninger, 2020](https://doi.org/10.1177/1094428120911096)).
+The package ItemResponseTrees allows to fit such IR-tree models in [mirt](https://cran.r-project.org/package=mirt), [TAM](https://cran.r-project.org/package=TAM), and Mplus (via [MplusAutomation](https://cran.r-project.org/package=MplusAutomation)).
+
+The package automates some of the hassle of IR-tree modeling by means of a consistent syntax.
+This allows new users to quickly adopt this model class, and this allows experienced users to fit many complex models effortlessly.
+
+```{r, out.width="80%", echo = FALSE, out.extra='style="border:0px;display: block;  margin-left: auto; margin-right: auto;"'}
+knitr::include_graphics("tools/ecn-model.png")
+```
+
+## Installation
+
+You can install the released version of ItemResponseTrees from [CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("ItemResponseTrees")
+```
+
+And the development version from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("hplieninger/ItemResponseTrees")
+```
+## Example
+
+The IR-tree model depicted above can be fit as follows.
+For more details, see the [vignette](https://cran.r-project.org/package=ItemResponseTrees/vignettes/ItemResponseTrees-Getting-started-with-IR-trees.html) and `?irtree_model`.
+
+```{r example, eval = FALSE}
+library("ItemResponseTrees")
+
+m1 <- "
+Equations:
+1 = (1-m)*(1-t)*e
+2 = (1-m)*(1-t)*(1-e)
+3 = m
+4 = (1-m)*t*(1-e)
+5 = (1-m)*t*e
+
+IRT:
+t  BY  E1,   E2,   E3,   E4,   E5,   E6,   E7,   E8,   E9;
+e  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
+m  BY  E1@1, E2@1, E3@1, E4@1, E5@1, E6@1, E7@1, E8@1, E9@1;
+
+Class:
+Tree
+"
+
+model1 <- irtree_model(m1)
+
+fit1 <- fit(model1, data = jackson[, paste0("E", 1:9)])
+
+glance( fit1)
+tidy(   fit1, par_type = "difficulty")
+augment(fit1)
+```

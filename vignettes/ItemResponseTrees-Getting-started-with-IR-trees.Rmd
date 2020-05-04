@@ -2,12 +2,12 @@
 title: "Getting started with IR-trees"
 output: 
     rmarkdown::html_vignette:
-        readme: true
+        readme: false
         self_contained: true
 vignette: >
   %\VignetteIndexEntry{Getting started with IR-trees}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r, include = FALSE}
@@ -21,9 +21,10 @@ options(tibble.print_min = 10, tibble.print_max = 20, pillar.min_title_chars = 1
 ## ItemResponseTrees
 
 ItemResponseTrees is an R package that allows to fit IR-tree models in mirt, Mplus, or TAM.
-If you're unfamiliar with IR-trees, the paper of [Böckenholt (2012)](https://dx.doi.org/10.1037/a0028111) is a good starting point.
+If you're unfamiliar with IR-trees, the papers of  [Böckenholt (2012)](https://dx.doi.org/10.1037/a0028111) and [Plieninger (2020)](https://doi.org/10.1177/1094428120911096) are good starting points.
 If you're familiar with the class of IR-tree models, this tutorial will get you started.
-The package automates some of the hassle of IR-tree modeling by means of a consistent syntax.
+
+The package ItemResponseTrees automates some of the hassle of IR-tree modeling by means of a consistent syntax.
 This allows new users to quickly adopt this model class, and this allows experienced users to fit many complex models effortlessly.
 
 ## Example Data
@@ -32,7 +33,6 @@ Herein, an illustrative example will be shown using a popular IR-tree model for 
 The model is applied to a Big Five data set from Jackson (2012), more precisely to nine conscientiousness items.
 
 ```{r data, message = FALSE}
-# install.packages("ItemResponseTrees")
 library("ItemResponseTrees")
 
 data("jackson")
@@ -46,38 +46,26 @@ df1
 
 The model is defined by the following tree diagram.
 The model equations can be directly derived from the diagram:
-The probability for a specific category is given by multiplying all parameters along the branch that lead to that category (see also Böckenholt, 2012; Plieninger & Heck, 2018).
+The probability for a specific category is given by multiplying all parameters along the branch that lead to that category (see also Böckenholt, 2012; Plieninger, 2020).
 For example, the branch leading to Category 5 is comprised of the parameters (1-*m*), *t*, and *e*.
 The resulting five equations are shown in the right part of the figure.
 
 ```{r, out.width="80%", echo = FALSE, out.extra='style="border:0px;display: block;  margin-left: auto; margin-right: auto;"'}
 
-if (!isTRUE(all.equal(tools::md5sum("tools/ecn-model.png"),
-                      tools::md5sum("../tools/ecn-model.png"), check.attributes = FALSE))) {
-    invisible(file.copy("../tools/ecn-model.png", "tools/ecn-model.png",
-                        overwrite = TRUE))
-}
-
-knitr::include_graphics("tools/ecn-model.png")
+knitr::include_graphics("../tools/ecn-model.png")
 ```
 
 In the ItemResponseTrees package, a model is defined using a specific syntax that consists mainly of three parts.
 
-1. `Equations:` Herein, the model equation for each response category is listed in the format `cat = p1 * (1-p2)`, where `cat` is one of the observed responses (e.g., 1, ..., 5). Furthermore, `p1` is a freely chosen parameter label, and I've chosen `t`, `e`, and `m` below corresponding to the diagram above.
+1. `Equations:` Herein, the equation for each response category is listed in the format `cat = p1 * (1-p2)`, where `cat` is one of the observed responses (e.g., 1, ..., 5). Furthermore, `p1` is a freely chosen parameter label, and I've chosen `t`, `e`, and `m` below corresponding to the diagram above.
 2. `IRT:` The parameters in the `Equations` (and also those in the figure above) actually correspond to latent variables of an IRT model.
 These latent variables are measured using a number of items/variables, and this is specified in this section using the same parameter labels as in `Equations`.  
 The format for this section is highly similar to the MODEL statement in Mplus: a semicolon is used after each definition; loadings (discrimination parameters) can be fixed using `@`.
 The syntax below fixes all loadings corresponding to dimensions *e* and *m* to 1 corresponding to a 1PL or Rasch model, whereas all loadings corresponding to dimension *t* are freely estimated (i.e., 2PL-structure).
 3. `Class:` Can be either `Tree` for an IR-tree model or `GRM` for a graded response model.
 
-```{r template, eval = FALSE}
-# Use irtree_create_template() to create a model-string template.
-# This may also come handy if you prefer to provide the mapping matrix 
-#   (i.e., pseudoitems) rather than the model equations
-irtree_create_template(df1, mapping_matrix = NULL)
-```
-
-In the following, the model string for the desired IR-tree model for the nine items is specified and saved as `m1`.
+In the following code chunk, the model string for the IR-tree model depicted above is specified and saved as `m1`.
+The helper function `irtree_create_template()` can assist you in creating such a model string (especially if you know the "pseudoitems").
 
 ```{r model-tree}
 m1 <- "
@@ -100,7 +88,7 @@ Tree
 "
 ```
 
-In case of a graded response model, only two sections need to be specified.
+In case of a graded response model, only two sections of the model string need to be specified.
 
 ```{r model-grm}
 m2 <- "
@@ -118,7 +106,7 @@ Subsequently, the function `irtree_model()` needs to be called, which takes a mo
 The resulting objects `model1` and `model2` of class `irtree_model` contain all the necessary information for fitting the model.
 Furthermore, one may inspect specific elements, for example, the pseudoitems contained in the mapping matrix.
 
-Further information on creating model strings is provided in `?irtree_model()`.
+Further information on creating model strings is provided in `?irtree_model`.
 
 ```{r}
 model1 <- irtree_model(m1)
@@ -170,8 +158,7 @@ For the IR-tree model, this returns a tibble with 66 rows (pertaining to the fix
 Below, the nine threshold/difficulty parameters `t_E*.d` pertaining to parameter *t* are shown plus the threshold of pseudoitem `e_E1`.
 
 The latent variances, covariances, and correlations are shown below as well, and these show the typical pattern of a negative correlation between *e* and *m*.^[The order of the processes corresponds to the order of appearance in the section `IRT` of the model string.
-Thus, the order here is *t*, *e*, *m*, such that `COV_33` is the variance of person parameters for *m*, and `CORR_32` is the correlation between *m* and *e*.
-Likewise, in the output of `augment(fit1)` shown herein, `F1` corresponds to *t* etc.]
+Thus, the order here is *t*, *e*, *m*, such that `COV_33` is the variance of person parameters for *m*, and `CORR_32` is the correlation between *m* and *e*.]
 
 ```{r}
 tidy(fit1, par_type = "difficulty")
@@ -182,12 +169,12 @@ tail(tidy(fit1, par_type = "difficulty"), 9)
 ### Factor scores
 
 The factor scores or person parameter estimates are obtained via `augment()`.
-This returns a tibble comprised of the data set and the factor scores (plus respective standard errors) for the three dimensions *t* (F1), *e* (F2), and *m* (F3).
+This returns a tibble comprised of the data set, the factor scores (e.g., `.fitted.t`), and respective standard errors (e.g., `.se.fit.t`).
 
 The correlation of the scores for the target trait (extraversion in this case) between the IR-tree model and the GRM indicates that the models differ in this respect even though not drastically.
 
 ```{r augment, cache = TRUE}
 augment(fit1)
 
-cor(augment(fit1)$.fittedF1, augment(fit2)$.fittedF1)
+cor(augment(fit1)$.fitted.t, augment(fit2)$.fitted.t)
 ```
