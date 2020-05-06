@@ -22,9 +22,9 @@ options(tibble.print_min = 10, tibble.print_max = 20, pillar.min_title_chars = 1
 
 ItemResponseTrees is an R package that allows to fit IR-tree models in mirt, Mplus, or TAM.
 If you're unfamiliar with IR-trees, the papers of  [Böckenholt (2012)](https://dx.doi.org/10.1037/a0028111) and [Plieninger (2020)](https://doi.org/10.1177/1094428120911096) are good starting points.
-If you're familiar with the class of IR-tree models, this tutorial will get you started.
+If you're familiar with the class of IR-tree models, this vignette will get you started on fitting your models with ItemResponseTrees.
 
-The package ItemResponseTrees automates some of the hassle of IR-tree modeling by means of a consistent syntax.
+The package automates some of the hassle of IR-tree modeling by means of a consistent syntax.
 This allows new users to quickly adopt this model class, and this allows experienced users to fit many complex models effortlessly.
 
 ## Example Data

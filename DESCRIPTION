@@ -48,7 +48,7 @@ Suggests:
     simsalapar,
     sfsmisc,
     spelling,
-    TAM,
+    TAM (>= 3.5-19),
     testthat (>= 2.1.0)
 Encoding: UTF-8
 LazyData: true

@@ -2,7 +2,9 @@
 
 * Fixed tests and vignette that failed due to changes in package mirt version 1.32.1.
 * `augment()` now consistently prefixes new columns with `.fitted.` or `.se.fit.`.
+  Furthermore, its argument `se.fit` was renamed to `se_fit` (as recommended by package modeltests).
 * Uncoupled README from the vignette; README is now much shorter.
+* R (>= 3.6.0) is now required in alignment with the dependency mirt.
 
 # ItemResponseTrees 0.2.4 (2020-04-24)
 
