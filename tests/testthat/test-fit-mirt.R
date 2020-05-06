@@ -170,11 +170,11 @@ test_that("Passing arguments to mirt works", {
 
 # From vignette at https://broom.tidyverse.org/articles/adding-tidiers.html
 
-skip_if_not_installed("modeltests")
-
-data(column_glossary, package = "modeltests")
-
 test_that("tidy.irtree_fit()", {
+
+    skip_if_not_installed("modeltests")
+
+    data(column_glossary, package = "modeltests")
 
     expect_error(tidy(res1), "Assertion on 'par_type' failed")
     td1 <- tidy(res1, par_type = "easiness")
@@ -218,6 +218,10 @@ test_that("tidy.irtree_fit()", {
 
 test_that("glance.irtree_fit()", {
 
+    skip_if_not_installed("modeltests")
+
+    data(column_glossary, package = "modeltests")
+
     gl1 <- glance(res1)
     gl2 <- glance(res2)
     gl3 <- glance(res3)
@@ -243,6 +247,10 @@ test_that("glance.irtree_fit()", {
 })
 
 test_that("implementation of augment.irtree_fit()", {
+
+    skip_if_not_installed("modeltests")
+
+    # data(column_glossary, package = "modeltests")
 
     modeltests::check_augment_function(
         augment.irtree_fit, res1, data = X$data, strict = FALSE

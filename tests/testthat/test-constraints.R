@@ -1,7 +1,5 @@
 ##### Data #####
 
-skip_on_cran()
-
 data("jackson")
 
 df1 <- select(jackson, starts_with("E")[1:10], starts_with("C")[1:10]) %>%
@@ -64,39 +62,41 @@ model1 <- irtree_model(m1)
 model2 <- irtree_model(m2)
 model3 <- irtree_model(m3)
 
-##### Fit #####
-
-verbose <- FALSE
-
-res11 <- fit(data = df1,
-             engine = "tam",
-             object = model1,
-             control = control_tam(
-                 control = list(snodes = 1000, convD = .01, conv = .001)),
-             verbose = verbose)
-
-res12 <- fit(data = df1,
-             engine = "mirt",
-             object = model1,
-             control = control_mirt(SE = FALSE, TOL = .01, quadpts = 10),
-             verbose = verbose)
-
-res21 <- fit(data = df1,
-             engine = "tam",
-             object = model2,
-             control = control_tam(set_min_to_0 = TRUE,
-                                   control = list(snodes = 1000, convD = .01, conv = .001)),
-             verbose = verbose)
-
-res31 <- fit(data = df1,
-             engine = "mirt",
-             object = model3,
-             control = control_mirt(SE = FALSE, TOL = .01, quadpts = 10),
-             verbose = verbose)
-
-##### Tests #####
-
 test_that("Model constraints work", {
+
+    skip_on_cran()
+
+    ##### Fit #####
+
+    verbose <- FALSE
+
+    res11 <- fit(data = df1,
+                 engine = "tam",
+                 object = model1,
+                 control = control_tam(
+                     control = list(snodes = 1000, convD = .01, conv = .001)),
+                 verbose = verbose)
+
+    res12 <- fit(data = df1,
+                 engine = "mirt",
+                 object = model1,
+                 control = control_mirt(SE = FALSE, TOL = .01, quadpts = 10),
+                 verbose = verbose)
+
+    res21 <- fit(data = df1,
+                 engine = "tam",
+                 object = model2,
+                 control = control_tam(set_min_to_0 = TRUE,
+                                       control = list(snodes = 1000, convD = .01, conv = .001)),
+                 verbose = verbose)
+
+    res31 <- fit(data = df1,
+                 engine = "mirt",
+                 object = model3,
+                 control = control_mirt(SE = FALSE, TOL = .01, quadpts = 10),
+                 verbose = verbose)
+
+    ##### Tests #####
 
     expect_s3_class(res11, "irtree_fit")
     expect_s3_class(res12, "irtree_fit")
