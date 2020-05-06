@@ -4,16 +4,16 @@
 \alias{augment.irtree_fit}
 \title{Augment data with information from an irtree_fit object}
 \usage{
-\method{augment}{irtree_fit}(x = NULL, data = NULL, se.fit = TRUE, method = "EAP", ...)
+\method{augment}{irtree_fit}(x = NULL, data = NULL, se_fit = TRUE, method = "EAP", ...)
 }
 \arguments{
-\item{x}{object of class irtree_fit as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
+\item{x}{object of class \code{irtree_fit} as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
 
 \item{data}{Optional data frame that is returned together with the predicted
 values. Argument is not needed since the data are contained in the fitted
 object.}
 
-\item{se.fit}{Logical indicating whether standard errors for the fitted
+\item{se_fit}{Logical indicating whether standard errors for the fitted
 values should be returned as well.}
 
 \item{method}{This is passed to \code{\link[mirt:fscores]{mirt::fscores()}} or
@@ -27,7 +27,7 @@ applicable.}
 \value{
 Returns a \link[tibble:tibble-package]{tibble} with one row for each
 observation and one (two) additional columns for each latent variable if
-\code{se.fit = FALSE} (if \code{se.fit = TRUE}). The names of the new columns start
+\code{se_fit = FALSE} (if \code{se_fit = TRUE}). The names of the new columns start
 with \code{.fit} (and \code{.se.fit}).
 }
 \description{
@@ -37,8 +37,7 @@ in the .fitted column. New columns always begin with a . prefix to avoid
 overwriting columns in the original dataset.
 }
 \details{
-Note that \code{method} is used only for objects returned from
-\code{irtree_fit(engine = "mirt")}.
+Note that argument \code{method} is used only for engines mirt and TAM.
 }
 \examples{
 data("jackson")

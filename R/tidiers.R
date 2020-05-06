@@ -97,7 +97,7 @@ glance.irtree_fit <- function(x = NULL, ...) {
 #'
 #' Tidy summarizes information about the parameter estimates of an ItemResponseTrees model.
 #'
-#' @param x object of class irtree_fit as returned from  [`fit()`][fit.irtree_model].
+#' @param x object of class `irtree_fit` as returned from  [`fit()`][fit.irtree_model].
 #' @param par_type Only used if the fit engine was mirt. Item parameters (or
 #'   thresholds) can be either of type `easiness` (the mirt default) or
 #'   `difficulty` (as in Mplus and TAM).
@@ -321,14 +321,13 @@ tidy_tam <- function(x = NULL) {
 #'   in the .fitted column. New columns always begin with a . prefix to avoid
 #'   overwriting columns in the original dataset.
 #'
-#' @details Note that `method` is used only for objects returned from
-#'   `irtree_fit(engine = "mirt")`.
+#' @details Note that argument `method` is used only for engines mirt and TAM.
 #'
-#' @param x object of class irtree_fit as returned from  [`fit()`][fit.irtree_model].
+#' @param x object of class `irtree_fit` as returned from  [`fit()`][fit.irtree_model].
 #' @param data Optional data frame that is returned together with the predicted
 #'   values. Argument is not needed since the data are contained in the fitted
 #'   object.
-#' @param se.fit Logical indicating whether standard errors for the fitted
+#' @param se_fit Logical indicating whether standard errors for the fitted
 #'   values should be returned as well.
 #' @param method This is passed to [mirt::fscores()] or
 #'   [`TAM:::IRT.factor.scores()`][TAM::IRT.factor.scores.tam.mml] (as argument
@@ -338,14 +337,14 @@ tidy_tam <- function(x = NULL) {
 #'   applicable.
 #' @return Returns a [tibble][tibble::tibble-package] with one row for each
 #'   observation and one (two) additional columns for each latent variable if
-#'   `se.fit = FALSE` (if `se.fit = TRUE`). The names of the new columns start
+#'   `se_fit = FALSE` (if `se_fit = TRUE`). The names of the new columns start
 #'   with `.fit` (and `.se.fit`).
 #' @example inst/examples/example-tidiers.R
 #' @seealso [generics::augment()]
 #' @export
 augment.irtree_fit <- function(x = NULL,
                                data = NULL,
-                               se.fit = TRUE,
+                               se_fit = TRUE,
                                method = "EAP",
                                ...) {
     # ellipsis::check_dots_used()
@@ -380,7 +379,7 @@ augment.irtree_fit <- function(x = NULL,
             names(est) <- paste0(".fitted.", names(est))
             names(se) <- paste0(".se.fit.",
                                 sub("_SE$", "", names(se)))
-            if (se.fit) {
+            if (se_fit) {
                 out <- cbind(data, est, se)
             } else {
                 out <- cbind(data, est)
@@ -397,7 +396,7 @@ augment.irtree_fit <- function(x = NULL,
     } else if (engine == "mirt") {
 
         out <- tryCatch({
-            tmp1 <- augment_mirt(x = x, se.fit = se.fit, method = method, ...)
+            tmp1 <- augment_mirt(x = x, se_fit = se_fit, method = method, ...)
             tibble::as_tibble(cbind(data, tmp1))
         },
         error = function(cond) {
@@ -420,7 +419,7 @@ augment.irtree_fit <- function(x = NULL,
     }
 }
 
-augment_mirt <- function(x, se.fit = TRUE, method = "EAP", ...) {
+augment_mirt <- function(x, se_fit = TRUE, method = "EAP", ...) {
 
     out <- as.data.frame(
         mirt::fscores(x$mirt,
@@ -429,11 +428,11 @@ augment_mirt <- function(x, se.fit = TRUE, method = "EAP", ...) {
                       append_response.pattern = FALSE,
                       returnER = FALSE,
                       return.acov = FALSE,
-                      full.scores.SE = se.fit,
+                      full.scores.SE = se_fit,
                       ...))
 
     names(out) <- paste0(".fitted.", names(out))
-    if (se.fit) {
+    if (se_fit) {
         names(out) <- sub("^.fitted.SE_", ".se.fit.", names(out))
     }
 

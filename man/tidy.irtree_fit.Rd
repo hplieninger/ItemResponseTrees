@@ -7,7 +7,7 @@
 \method{tidy}{irtree_fit}(x = NULL, par_type = NULL, ...)
 }
 \arguments{
-\item{x}{object of class irtree_fit as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
+\item{x}{object of class \code{irtree_fit} as returned from  \code{\link[=fit.irtree_model]{fit()}}.}
 
 \item{par_type}{Only used if the fit engine was mirt. Item parameters (or
 thresholds) can be either of type \code{easiness} (the mirt default) or
