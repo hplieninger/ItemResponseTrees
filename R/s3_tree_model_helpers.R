@@ -88,24 +88,26 @@ irtree_model_equations <- function(model_list = NULL, e1 = new.env()) {
 
     e1$expr <- purrr::map(e1$equations[2, ],
                           ~parse(text = .x, keep.source = FALSE))
-    names(e1$expr) <- e1$equations[1, ]
+
+    e1$k_names <- as.numeric(e1$equations[1, ])
+    checkmate::assert_integerish(e1$k_names, any.missing = FALSE,
+                                 unique = TRUE, .var.name = "lhs of equations")
+    e1$k_names <- vctrs::vec_cast(e1$k_names, integer())
+
+    names(e1$expr) <- e1$k_names
     e1$K <- length(e1$expr)
-    e1$k_names <- as.integer(e1$equations[1, ])
+
     tmp1 <- diff(sort(e1$k_names))
-    if (any(tmp1 != 1)) {
+    if (!isTRUE(all.equal(tmp1, rep(1, length(tmp1))))) {
         stop("Categories in the model equations must be consecutive integers.")
     }
 
-    checkmate::assert_matrix(e1$equations, mode = "character",
-                             nrows = 2, ncols = e1$K)
-    checkmate::assert_character(e1$equations, min.chars = 1)
-    checkmate::assert_integerish(as.numeric(e1$equations[1, ]), any.missing = FALSE,
-                                 unique = TRUE, .var.name = "lhs of equations")
 }
 
 assert_irtree_equations <- function(object = NULL, mixture_okay = TRUE) {
 
     checkmate::assert_matrix(object$equations, mode = "character", min.cols = 2, nrows = 2)
+    checkmate::assert_character(object$equations, min.chars = 1)
 
     equations <- object$equations[2, ]
 
@@ -322,7 +324,7 @@ irtree_model_mapping <- function(e1 = new.env()) {
 
         p_names <- unique(e1$latent_names$mpt)
 
-        mapping_matrix <- matrix(NA, e1$K, e1$P,
+        mapping_matrix <- matrix(NA_integer_, e1$K, e1$P,
                                  dimnames = list(NULL, p_names))
         mapping_matrix <- cbind(categ = e1$k_names, mapping_matrix)
 
@@ -331,7 +333,7 @@ irtree_model_mapping <- function(e1 = new.env()) {
                                         grepl,
                                         pattern = p_names[ii], perl = TRUE,
                                         FUN.VALUE = logical(1)),
-                                 no = NA,
+                                 no = NA_integer_,
                                  yes = ifelse(vapply(e1$equations[2, ],
                                                      grepl,
                                                      pattern = paste0("(?<!-)", p_names[ii]),

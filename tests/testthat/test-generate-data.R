@@ -40,7 +40,7 @@ X <- irtree_gen_data(object = model1,
 
 test_that("irtree_gen_data() works if theta is provided", {
     checkmate::expect_data_frame(X$data, nrows = N, ncols = J)
-    checkmate::qexpectr(X$data, "X[1,3]")
+    checkmate::qexpectr(X$data, "I[1,3]")
     checkmate::expect_data_frame(X$probs, nrows = N*J*3, ncols = 4)
     checkmate::qexpect(X$probs$prob, "N[0,1]")
 })
@@ -56,7 +56,7 @@ X <- irtree_gen_data(
 
 test_that("irtree_gen_data() works if theta is not provided", {
     checkmate::expect_data_frame(X$data, nrows = N, ncols = J)
-    checkmate::qexpectr(X$data, "X[1,3]")
+    checkmate::qexpectr(X$data, "I[1,3]")
     checkmate::expect_data_frame(X$probs, nrows = N*J*3, ncols = 4)
     checkmate::qexpect(X$probs$prob, "N[0,1]")
 })

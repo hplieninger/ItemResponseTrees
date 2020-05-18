@@ -354,7 +354,8 @@ irtree_recode <- function(object = NULL,
 
     PIs1 <- tidyr::pivot_wider(dat4, "pers", names_from = c("variable", "item"),
                                values_from = "value") %>%
-        dplyr::select(-.data$pers)
+        dplyr::select(-.data$pers) %>%
+        dplyr::mutate_all(~ vctrs::vec_cast(., integer()))
 
     if (keep) {
         PIs2 <- cbind(PIs1, data)

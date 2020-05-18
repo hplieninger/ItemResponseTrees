@@ -98,6 +98,13 @@ test_that("Model constraints work", {
 
     ##### Tests #####
 
+    expect_s3_class(model1, "irtree_model")
+    expect_s3_class(model2, "irtree_model")
+    expect_s3_class(model3, "irtree_model")
+    expect_integers_in_irtree_model(model1)
+    expect_integers_in_irtree_model(model2)
+    expect_integers_in_irtree_model(model3)
+
     expect_s3_class(res11, "irtree_fit")
     expect_s3_class(res12, "irtree_fit")
     expect_s3_class(res21, "irtree_fit")

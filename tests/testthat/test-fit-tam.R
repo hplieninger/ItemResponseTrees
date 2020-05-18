@@ -145,6 +145,10 @@ test_that("irtree_model() works", {
     expect_s3_class(model2, "irtree_model")
     expect_s3_class(model3, "irtree_model")
     expect_s3_class(model4, "irtree_model")
+    expect_integers_in_irtree_model(model1)
+    expect_integers_in_irtree_model(model2)
+    expect_integers_in_irtree_model(model3)
+    expect_integers_in_irtree_model(model4)
 })
 
 test_that("irtree_fit_tam() works", {
