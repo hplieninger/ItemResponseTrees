@@ -358,9 +358,10 @@ irtree_recode <- function(object = NULL,
         dplyr::mutate_all(~ vctrs::vec_cast(., integer()))
 
     if (keep) {
-        PIs2 <- cbind(PIs1, data)
+        PIs2 <- cbind(data, PIs1)
     } else {
-        PIs2 <- cbind(PIs1, data[, !names(data) %in% j_names, drop = FALSE])
+        PIs2 <- cbind(data[, !names(data) %in% j_names, drop = FALSE],
+                      PIs1)
     }
     class(PIs2) <- class(data)
 
