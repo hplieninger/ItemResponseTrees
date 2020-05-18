@@ -261,6 +261,12 @@ irtree_gen_tree <- function(object = NULL,
 #' @inheritParams fit.irtree_model
 #' @param keep Logical indicating whether to append the original items to the
 #'   data frame of the generated pseudoitems
+#' @param mapping_matrix Matrix of so-called pseudo-items, optional and
+#'   overwritten by `object` if present. The observed response categories must
+#'   appear in the first column. The other columns contain the pseudo-items and
+#'   each entry may be either `1`, `0`, or `NA`. The first column name must be
+#'   `categ`, and the other names (related to the pseudo-items) are used to
+#'   construct the names of the returned data frame.
 #' @return Data frame
 #' @examples
 #' m1 <- "
@@ -280,19 +286,42 @@ irtree_gen_tree <- function(object = NULL,
 #' model1 <- irtree_model(m1)
 #' dat <- data.frame(x1 = 1:5)
 #' irtree_recode(model1, dat, keep = TRUE)
+#'
+#' irtree_recode(data = dat,
+#'               mapping_matrix = cbind(cate = 1:5,
+#'                                      m = c(0, 0, 1, 0, 0),
+#'                                      t = c(1, 1, NA, 0, 0),
+#'                                      e = c(1, 0, NA, 0, 1)))
 #' @export
 irtree_recode <- function(object = NULL,
                           data = NULL,
-                          keep = FALSE) {
+                          keep = FALSE,
+                          mapping_matrix = NULL) {
 
-    checkmate::assert_class(object, "irtree_model")
+    checkmate::assert_class(object, "irtree_model",
+                            null.ok = !is.null(mapping_matrix))
     checkmate::assert_data_frame(data)
 
-    data <- dplyr::mutate_at(data, object$j_names, ~`attributes<-`(.x, NULL))
+    if (is.null(object)) {
+        mapping_matrix <- data.matrix(mapping_matrix)
+        checkmate::assert_matrix(mapping_matrix, col.names = "strict")
+        checkmate::assert_names(colnames(mapping_matrix)[1],
+                                identical.to = "cate",
+                                what = "colnames")
+        checkmate::assert_subset(na.omit(unique(unlist(data))),
+                                 mapping_matrix[, 1])
+        checkmate::qassert(mapping_matrix[, -1], "x[0, 1]")
 
-    j_names <- object$j_names
-    p_names <- object$p_names
-    mapping_matrix <- object$mapping_matrix
+        j_names <- names(data)
+        mpt_names <- p_names <- colnames(mapping_matrix[, -1])
+    } else {
+        j_names <- object$j_names
+        p_names <- object$p_names
+        mapping_matrix <- object$mapping_matrix
+        mpt_names <- unique(object$latent_names$mpt)
+    }
+
+    data <- dplyr::mutate_at(data, j_names, ~`attributes<-`(.x, NULL))
 
     # data: polytomous items in wide format
     # PIs1: binary pseudoitems in wide format
@@ -320,7 +349,7 @@ irtree_recode <- function(object = NULL,
             names_to = "variable",
             names_ptypes = list(
                 variable = factor(
-                    levels = unique(object$latent_names$mpt)))) %>%
+                    levels = mpt_names))) %>%
         dplyr::arrange(.data$pers, .data$variable, .data$item)
 
     PIs1 <- tidyr::pivot_wider(dat4, "pers", names_from = c("variable", "item"),

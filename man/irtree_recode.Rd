@@ -4,7 +4,7 @@
 \alias{irtree_recode}
 \title{Recode data into pseudoitems}
 \usage{
-irtree_recode(object = NULL, data = NULL, keep = FALSE)
+irtree_recode(object = NULL, data = NULL, keep = FALSE, mapping_matrix = NULL)
 }
 \arguments{
 \item{object}{Object of class \code{irtree_model}. See \link{irtree_model} for more
@@ -16,6 +16,13 @@ column per variable. The variable names must correspond to those used in
 
 \item{keep}{Logical indicating whether to append the original items to the
 data frame of the generated pseudoitems}
+
+\item{mapping_matrix}{Matrix of so-called pseudo-items, optional and
+overwritten by \code{object} if present. The observed response categories must
+appear in the first column. The other columns contain the pseudo-items and
+each entry may be either \code{1}, \code{0}, or \code{NA}. The first column name must be
+\code{categ}, and the other names (related to the pseudo-items) are used to
+construct the names of the returned data frame.}
 }
 \value{
 Data frame
@@ -42,4 +49,10 @@ Tree
 model1 <- irtree_model(m1)
 dat <- data.frame(x1 = 1:5)
 irtree_recode(model1, dat, keep = TRUE)
+
+irtree_recode(data = dat,
+              mapping_matrix = cbind(cate = 1:5,
+                                     m = c(0, 0, 1, 0, 0),
+                                     t = c(1, 1, NA, 0, 0),
+                                     e = c(1, 0, NA, 0, 1)))
 }

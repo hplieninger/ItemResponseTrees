@@ -49,6 +49,9 @@ irtree_create_template(data.frame(x1 = 0:2, x2 = 0:2),
 #> "
 #>
 
+irtree_recode(data = data.frame(x1 = 0:2, x2 = 0:2),
+              mapping_matrix = mm)
+
 }
 \references{
 Böckenholt, U. (2012). Modeling multiple response processes in
