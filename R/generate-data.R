@@ -159,9 +159,9 @@ irtree_gen_tree <- function(object = NULL,
     # Apply model equation for each categ, i.e., p1*(1-p2)
 
     dat1 <- data.frame(
-        pers = gl(N, J*K, length = J*K*N),
-        item = gl(J, K,   length = J*K*N, labels = j_names),
-        cate = gl(K, 1,   length = J*K*N, labels = object$k_names)
+        pers  = gl(N, J*K, length = J*K*N),
+        item  = gl(J, K,   length = J*K*N, labels = j_names),
+        categ = gl(K, 1,   length = J*K*N, labels = object$k_names)
     )
 
     if (is.null(theta)) {
@@ -180,12 +180,12 @@ irtree_gen_tree <- function(object = NULL,
     # e.g., if t = t1 + t2
 
     dat3 <- tidyr::pivot_longer(
-        dat2, -c("pers", "item", "cate"), names_to = "theta",
+        dat2, -c("pers", "item", "categ"), names_to = "theta",
         names_ptypes = list(theta = factor(levels = unique(object$latent_names$theta))))
 
     dat5 <- dplyr::inner_join(dat3, lambda, by = c("item", "theta"))
 
-    dat6 <- tidyr::pivot_wider(dat5, id_cols = .data$pers:.data$cate,
+    dat6 <- tidyr::pivot_wider(dat5, id_cols = .data$pers:.data$categ,
                                names_from = "mpt", values_from = "value")
 
     if (any(is.na(dat6))) {
@@ -207,15 +207,15 @@ irtree_gen_tree <- function(object = NULL,
                                                              dplyr::pull(dat7, beta_names[ii]))))
     }
 
-    dat8 <- split(dat7, dat7$cate)
+    dat8 <- split(dat7, dat7$categ)
 
     for (ii in seq_along(dat8)) {
         dat8[[ii]] <- within(dat8[[ii]], "prob" <- eval(expr[[names(dat8)[ii]]]))
     }
 
     probs <- dplyr::bind_rows(dat8)
-    p_return <- dplyr::select(probs, c("pers", "item", "cate", "prob")) %>%
-        dplyr::arrange(.data$pers, .data$item, .data$cate)
+    p_return <- dplyr::select(probs, c("pers", "item", "categ", "prob")) %>%
+        dplyr::arrange(.data$pers, .data$item, .data$categ)
 
     prob_item_sum <- dplyr::summarize(
         dplyr::group_by(probs, .data$pers, .data$item),
@@ -288,7 +288,7 @@ irtree_gen_tree <- function(object = NULL,
 #' irtree_recode(model1, dat, keep = TRUE)
 #'
 #' irtree_recode(data = dat,
-#'               mapping_matrix = cbind(cate = 1:5,
+#'               mapping_matrix = cbind(categ = 1:5,
 #'                                      m = c(0, 0, 1, 0, 0),
 #'                                      t = c(1, 1, NA, 0, 0),
 #'                                      e = c(1, 0, NA, 0, 1)))
@@ -306,7 +306,7 @@ irtree_recode <- function(object = NULL,
         mapping_matrix <- data.matrix(mapping_matrix)
         checkmate::assert_matrix(mapping_matrix, col.names = "strict")
         checkmate::assert_names(colnames(mapping_matrix)[1],
-                                identical.to = "cate",
+                                identical.to = "categ",
                                 what = "colnames")
         checkmate::assert_subset(na.omit(unique(unlist(data))),
                                  mapping_matrix[, 1])
@@ -327,7 +327,7 @@ irtree_recode <- function(object = NULL,
     # PIs1: binary pseudoitems in wide format
     #
     # dat2: reshape data to long format
-    # dat3: original responses 1,2,3,... are in column 'cate'. This is
+    # dat3: original responses 1,2,3,... are in column 'categ'. This is
     # left_joined with the mapping matrix such that the original polytomous
     # response is recoded into P binary pseudoitems.
     # dat4: pseudoitems P are wide, reshape to long format
@@ -336,11 +336,11 @@ irtree_recode <- function(object = NULL,
 
     dat1 <- data.frame(pers = seq_len(nrow(data)), data[, j_names, drop = FALSE])
     dat2 <- tidyr::pivot_longer(
-        dat1, cols = -.data$pers, names_to = "item", values_to = "cate",
+        dat1, cols = -.data$pers, names_to = "item", values_to = "categ",
         names_ptypes = list(item = factor(levels = j_names)))
 
-    dat3 <- dplyr::left_join(dat2, data.frame(mapping_matrix), by = "cate") %>%
-        dplyr::select(-.data$cate)
+    dat3 <- dplyr::left_join(dat2, data.frame(mapping_matrix), by = "categ") %>%
+        dplyr::select(-.data$categ)
 
     dat4 <-
         tidyr::pivot_longer(

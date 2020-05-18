@@ -138,10 +138,10 @@ irtree_gen_pcm <- function(object = NULL,
     }
 
     p_return <- data.frame(
-        pers = gl(N, J*K, length = J*K*N),
-        item = gl(J, K,   length = J*K*N, labels = j_names),
-        cate = gl(K, 1,    length = J*K*N),
-        prob = matrix(p, ncol = 1)[, 1]
+        pers  = gl(N, J*K, length = J*K*N),
+        item  = gl(J, K,   length = J*K*N, labels = j_names),
+        categ = gl(K, 1,    length = J*K*N),
+        prob  = matrix(p, ncol = 1)[, 1]
     )
 
     return(list(data = dat, probs = p_return, spec = spec))

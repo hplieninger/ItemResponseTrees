@@ -51,7 +51,7 @@ dat <- data.frame(x1 = 1:5)
 irtree_recode(model1, dat, keep = TRUE)
 
 irtree_recode(data = dat,
-              mapping_matrix = cbind(cate = 1:5,
+              mapping_matrix = cbind(categ = 1:5,
                                      m = c(0, 0, 1, 0, 0),
                                      t = c(1, 1, NA, 0, 0),
                                      e = c(1, 0, NA, 0, 1)))

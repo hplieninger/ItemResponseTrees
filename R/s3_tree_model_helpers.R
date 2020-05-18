@@ -324,7 +324,7 @@ irtree_model_mapping <- function(e1 = new.env()) {
 
         mapping_matrix <- matrix(NA, e1$K, e1$P,
                                  dimnames = list(NULL, p_names))
-        mapping_matrix <- cbind(cate = e1$k_names, mapping_matrix)
+        mapping_matrix <- cbind(categ = e1$k_names, mapping_matrix)
 
         for (ii in seq_len(e1$P)) {
             pseudoitem <- ifelse(vapply(e1$equations[2, ],

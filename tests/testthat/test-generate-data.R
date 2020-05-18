@@ -69,7 +69,7 @@ test_that("irtree_recode() works as expected", {
                           b = sample(tmp1)),
         mapping_matrix = matrix(c(1:tmp1, c(0, 0, 1, 1, 1)),
                                 tmp1, 2,
-                                dimnames = list(NULL, c("cate", "bar"))))
+                                dimnames = list(NULL, c("categ", "bar"))))
     checkmate::expect_data_frame(df1, types = "integer", nrows = N,
                                  ncols = model1$J*model1$S,
                                  col.names = "strict")
