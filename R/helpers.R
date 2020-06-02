@@ -72,7 +72,7 @@ rtruncatednorm <- function(n = NULL, mean = 0, sd = 1, ll = -Inf, ul = Inf) {
     x <- utils::head(x, n)
 
     while (length(x) < n) {
-        x <- c(.rtruncatednorm1(n = more_n, mean = mean, sd = sd, ll = ll, ul = ul))
+        x <- c(x, .rtruncatednorm1(n = more_n, mean = mean, sd = sd, ll = ll, ul = ul))
         x <- utils::head(x, n)
     }
     return(x)
