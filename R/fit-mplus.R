@@ -223,8 +223,7 @@ irtree_fit_mplus <- function(object = NULL,
         err1 <- res$errors
         if (length(err1) > 0) {
             sapply(err1, function(x) {
-                stop("Mplus returned the following error:\n", clps("\n", x),
-                     call. = FALSE)
+                mywarn("Mplus returned the following error:\n", clps("\n", x))
             })
         }
     } else {
