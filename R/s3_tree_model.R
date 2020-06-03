@@ -314,6 +314,8 @@ irtree_model <- function(model = NULL) {
 
     irtree_model_constraints(model_list, e1)
 
+    assert_item_used_only_once(e1)
+
     ##### Mapping Matrix #####
 
     irtree_model_mapping(e1 = e1)

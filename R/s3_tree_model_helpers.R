@@ -3,6 +3,10 @@
 #    classical tree for 5-point items)
 # S: Number of latent dimensions (e.g., S=7 for the classical tree for 5-point
 #    items applied to Big-5 data)
+# latent_names$irt: Those are the names used in section IRT of the model string
+# latent_names$mpt: Those are the names used in section Equations of the model string
+# latent_names$theta: Those are the names of the latent variables after applying
+#                     constraints on latent_names$irt
 
 irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
 
@@ -30,7 +34,7 @@ irtree_model_irt <- function(model_list = NULL, e1 = new.env()) {
     irt2$X1 <- factor(irt2$X1, levels = unique(irt1[1, ]))
     irt3 <- aggregate(. ~ X1, irt2, paste, collapse = ", ")
 
-    lv_names <- irt1[1, ]
+    lv_names <- as.character(irt3[, 1])
     S <- length(lv_names)
 
     irt4 <- stringr::str_split(irt3$X2, ",\\s*")
@@ -155,6 +159,26 @@ assert_irtree_not_mixture <- function(object = NULL, error = TRUE) {
     }
 }
 
+assert_item_used_only_once <- function(e1 = new.env()) {
+    if (e1$class == "pcm") {
+        invisible(return(NULL))
+    }
+    irt_items <- e1$irt_items
+    names(irt_items) <- stringr::str_replace_all(
+        names(irt_items),
+        setNames(e1$latent_names$mpt, e1$latent_names$irt))
+
+    for (ii in unique(e1$latent_names$mpt)) {
+        items <- unlist(irt_items[which(names(irt_items) == ii)])
+        dup_items <- duplicated(items)
+        if (any(dup_items)) {
+            stop("Problem in 'model': Cross-loadings of items are not allowed.",
+                 " Problem with item '", head(items[dup_items], 1), "'.")
+        }
+    }
+    invisible(return(NULL))
+}
+
 irtree_model_items <- function(e1 = new.env()) {
 
     for (ii in seq_along(e1$irt_items)) {
@@ -166,7 +190,7 @@ irtree_model_items <- function(e1 = new.env()) {
             min.len = 1,
             unique = TRUE,
             names = "unnamed",
-            .var.name = "Item names")
+            .var.name = "item names (per dimension)")
     }
     e1$j_names <- unique(unlist(e1$irt_items, use.names = F))
     e1$J <- length(e1$j_names)
