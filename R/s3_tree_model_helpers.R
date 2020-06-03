@@ -175,7 +175,7 @@ assert_item_used_only_once <- function(e1 = new.env()) {
         dup_items <- duplicated(items)
         if (any(dup_items)) {
             stop("Problem in 'model': Cross-loadings of items are not allowed.",
-                 " Problem with item '", head(items[dup_items], 1), "'.")
+                 " Problem with item '", items[dup_items][1], "'.")
         }
     }
     invisible(return(NULL))
