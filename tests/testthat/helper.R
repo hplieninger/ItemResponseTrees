@@ -77,3 +77,21 @@ remove_filenames <- function(object = NULL) {
     class(object$mplus) <- oclass
     return(object)
 }
+
+expect_integers_in_irtree_model <- function(object) {
+    act <- quasi_label(rlang::enquo(object), arg = "object")
+
+    act$integers[1] <- checkmate::test_integer(object$k_names, min.len = 2,
+                                               null.ok = TRUE)
+    act$integers[2] <- checkmate::test_integer(object$mapping_matrix,
+                                               min.len = 4, null.ok = TRUE)
+
+    if (all(act$integers)) {
+        succeed()
+        return(invisible(act$val))
+    }
+
+    message <- glue::glue("{act$lab} contains elements that should be integers, ",
+                          "but are not.")
+    fail(message)
+}

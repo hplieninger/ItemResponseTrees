@@ -33,7 +33,8 @@ Imports:
     stringr,
     tibble,
     tidyr (>= 1.0.0),
-    tidyselect
+    tidyselect,
+    vctrs
 Suggests:
     covr,
     future,

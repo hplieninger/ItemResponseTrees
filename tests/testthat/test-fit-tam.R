@@ -47,6 +47,7 @@ test_that("IRTree in TAM", {
     ag1 <- augment(res1)
 
     expect_s3_class(model1, "irtree_model")
+    expect_integers_in_irtree_model(model1)
     expect_s3_class(res1$tam, "tam.mml")
 
     expect_condition(capture.output(print(res1)), NA)
@@ -128,6 +129,7 @@ test_that("PCM in TAM", {
     ag2 <- augment(res2, method = "WLE")
 
     expect_s3_class(model2, "irtree_model")
+    expect_integers_in_irtree_model(model2)
     expect_s3_class(res2$tam, "tam.mml")
     expect_equal(res2$tam$control[names(control_list)], control_list)
 
@@ -195,6 +197,7 @@ test_that("MPCM in TAM", {
     ag3 <- augment(res3)
 
     expect_s3_class(model3, "irtree_model")
+    expect_integers_in_irtree_model(model3)
     expect_s3_class(res3$tam, "tam.mml")
     expect_equal(res3$tam$control[names(control_list)], control_list)
 
@@ -246,6 +249,7 @@ test_that("Constraints in TAM", {
     model4 <- irtree_model(m4)
 
     expect_s3_class(model4, "irtree_model")
+    expect_integers_in_irtree_model(model4)
 
 })
 

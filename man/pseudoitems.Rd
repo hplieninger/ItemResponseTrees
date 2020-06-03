@@ -3,6 +3,7 @@
 \encoding{UTF-8}
 \name{pseudoitems}
 \alias{pseudoitems}
+\alias{pseudo-items}
 \title{Pseudo-Items}
 \description{
 IR-tree models can be fit on the basis of so-called pseudo-items. To this
@@ -12,9 +13,10 @@ equations (e.g., Böckenholt, 2012; Plieninger, 2020).
 
 The ItemResponseTrees package internally works with pseudo-items as well.
 However, the user has to specify the model equations rather than the
-pseudo-items in the \link{irtree_model} syntax. Internally, the original responses
-are recoded on the basis of the model supplied by the user by the function
-\code{\link[=irtree_recode]{irtree_recode()}}. This function may also be used directly if desired.
+pseudo-items in the \link{irtree_model} syntax. Internally, before fitting the
+model, the original responses are recoded on the basis of the model supplied
+by the user by the function \code{\link[=irtree_recode]{irtree_recode()}}. This function may also be used
+directly if desired.
 
 As an alternative to specifying the model equations themselves, users may
 also use the function \code{\link[=irtree_create_template]{irtree_create_template()}} with a mapping matrix (that
@@ -23,13 +25,13 @@ automatically.
 }
 \examples{
 # Mapping matrix for data with three response categories:
-(mm <- cbind(cat = 0:2,
+(mm <- cbind(categ = 0:2,
              p1 = c(0,  1, 1),
              p2 = c(NA, 0, 1)))
-#>      cat p1 p2
-#> [1,]   0  0 NA
-#> [2,]   1  1  0
-#> [3,]   2  1  1
+#>      categ p1 p2
+#> [1,]     0  0 NA
+#> [2,]     1  1  0
+#> [3,]     2  1  1
 
 irtree_create_template(data.frame(x1 = 0:2, x2 = 0:2),
                        mapping_matrix = mm)
@@ -48,6 +50,9 @@ irtree_create_template(data.frame(x1 = 0:2, x2 = 0:2),
 #> Tree
 #> "
 #>
+
+irtree_recode(data = data.frame(x1 = 0:2, x2 = 0:2),
+              mapping_matrix = mm)
 
 }
 \references{

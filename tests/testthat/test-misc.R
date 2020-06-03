@@ -31,3 +31,13 @@ test_that("has_namespace", {
 test_that("assert_nchar", {
     expect_error(assert_nchar("abcd", 3), "must have at most")
 })
+
+test_that("expect_integers_in_irtree_model() works correctly", {
+    success <- list(k_names = 1L:2L,
+                    mapping_matrix = matrix(1L, 2, 2))
+    fail1 <- within(success, k_names <- c(1.0, 2))
+    fail2 <- within(success, mapping_matrix[1, 1] <- 1.0)
+    expect_success(expect_integers_in_irtree_model(success))
+    expect_failure(expect_integers_in_irtree_model(fail1))
+    expect_failure(expect_integers_in_irtree_model(fail2))
+})

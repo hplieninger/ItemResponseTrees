@@ -129,7 +129,7 @@ irtree_fit_mplus <- function(object = NULL,
 
     if (object$class == "tree") {
         tmp1 <- object$mapping_matrix
-        tmp1 <- tmp1[, !is.element(colnames(tmp1), "cate"), drop = FALSE]
+        tmp1 <- tmp1[, !is.element(colnames(tmp1), "categ"), drop = FALSE]
 
         tmp2 <- vapply(seq_len(ncol(tmp1)),
                        function(x) {

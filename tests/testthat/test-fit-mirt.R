@@ -141,6 +141,11 @@ test_that("irtree_model() works", {
     expect_s3_class(model3, "irtree_model")
     expect_s3_class(model4, "irtree_model")
     expect_s3_class(model5, "irtree_model")
+    expect_integers_in_irtree_model(model1)
+    expect_integers_in_irtree_model(model2)
+    expect_integers_in_irtree_model(model3)
+    expect_integers_in_irtree_model(model4)
+    expect_integers_in_irtree_model(model5)
 })
 
 test_that("irtree_fit_mirt() works", {
