@@ -19,7 +19,7 @@ Depends:
     R (>= 3.6.0)
 Imports: 
     checkmate (>= 1.9),
-    dplyr (>= 0.8.99),
+    dplyr (>= 1.0.0),
     generics,
     glue,
     magrittr,
