@@ -1,4 +1,4 @@
-library("testthat", exclude = "matches")
+library("testthat")
 library("ItemResponseTrees")
 
 test_check("ItemResponseTrees")

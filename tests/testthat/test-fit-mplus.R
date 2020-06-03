@@ -74,6 +74,8 @@ for (ii in seq_len(ncol(X$data))) {
 }
 df1 <- sample(data.frame(X$data, y1 = rnorm(100)))
 
+set.seed(NULL)
+
 data(Science, package = "mirt")
 
 counts <- Science %>%

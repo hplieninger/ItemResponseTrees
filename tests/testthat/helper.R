@@ -1,6 +1,6 @@
 # Load packages required for tests ----------------------------------------
 
-library("dplyr")
+library("dplyr", mask.ok = "matches")
 
 # Define functions required for tests -------------------------------------
 
