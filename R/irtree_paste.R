@@ -69,7 +69,7 @@ irtree_create_template <- function(data = NULL,
                     sort(
                         unique(
                             dplyr::pull(
-                                dplyr::select_if(data, checkmate::test_integerish), 1))
+                                dplyr::select(data, rlang::is_integerish), 1))
                     ), 9)
         })
         equations <- clps("\n", k_names, "= ...")
@@ -84,12 +84,13 @@ irtree_create_template <- function(data = NULL,
     } else {
 
         f1 <- function(x) {
-            x2 <- as.character(substitute(x))
+            x2 <- dplyr::cur_column()
             dplyr::case_when(
                 x == 1 ~ x2,
                 x == 0 ~ paste0("(1-", x2, ")"))
         }
-        mm2 <- dplyr::mutate_at(as.data.frame(mapping_matrix), -1, f1)
+        mm2 <- dplyr::mutate(as.data.frame(mapping_matrix),
+                             dplyr::across(-1, f1))
         equations <- paste(mm2[, 1], "=", purrr::pmap_chr(mm2[, -1], ~paste(..., sep = "*")))
         equations <- clps("\n", gsub("[*]NA|NA[*]", "", equations))
 

@@ -93,7 +93,8 @@ irtree_fit_tam <- function(object = NULL,
         reshape(direction = "wide", v.names = "dim",
                 idvar = "new_name", timevar = "theta") %>%
         dplyr::mutate(new_name = factor(.data$new_name, levels = names(pseudoitems))) %>%
-        dplyr::mutate_at(-1, tidyr::replace_na, 0)
+        dplyr::mutate(
+            dplyr::across(-1, tidyr::replace_na, 0))
 
     tmp1 <- paste0("dim.", levels(object$lambda$theta))
     tmp2 <- tmp1[tmp1 %in% names(Q)[-1]]
