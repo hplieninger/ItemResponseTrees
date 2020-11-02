@@ -127,7 +127,7 @@ tidy.irtree_fit <- function(x = NULL, par_type = NULL, ...) {
             checkmate::assert_choice(par_type,
                                      c("difficulty", "easiness"))
         }
-        match.arg(par_type, choices = c("difficulty", "easiness"))
+        par_type <- match.arg(par_type, choices = c("difficulty", "easiness"))
         out <- tidy_mirt(x, par_type = par_type, ...)
     } else if (engine == "tam") {
         match.arg(par_type, choices = "difficulty")
