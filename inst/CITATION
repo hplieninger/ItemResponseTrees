@@ -5,12 +5,12 @@ citEntry(
     title = "{ItemResponseTrees}: {IR}-Tree Modeling in mirt, {Mplus}, or {TAM}",
     author = personList(as.person("Hansj\\\"{o}rg Plieninger")),
     year         = "2020",
-    url          = "https://github.com/hplieninger/ItemResponseTrees/",
+    url          = "https://CRAN.R-project.org/package=ItemResponseTrees",
     version      = "0.2.5",
     note         = "R package",
 
     textVersion  = paste(
         "Plieninger, H. (2020).",
         "ItemResponseTrees: IR-tree modeling in mirt, Mplus, or TAM.",
-        "Retrieved from https://github.com/hplieninger/ItemResponseTrees/")
+        "Retrieved from https://CRAN.R-project.org/package=ItemResponseTrees")
 )

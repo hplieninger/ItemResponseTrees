@@ -57,7 +57,7 @@ and runs the model in either mirt, Mplus, or TAM.
  The methods \code{coef()}, \code{summary()}, and \code{print()} are
 implemented for objects of class \code{irtree_fit}, and those wrap the
 respective functions of \link[mirt:mirt-package]{mirt},
-\link[MplusAutomation:MplusAutomation-package]{MplusAutomation}, or
+\link[MplusAutomation:MplusAutomation]{MplusAutomation}, or
 \link[TAM:TAM-package]{TAM}. However, \code{\link[=glance.irtree_fit]{glance()}},
 \code{\link[=tidy.irtree_fit]{tidy()}}, and \code{\link[=augment.irtree_fit]{augment()}} may be
 more helpful.

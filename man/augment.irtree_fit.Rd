@@ -17,11 +17,11 @@ object.}
 values should be returned as well.}
 
 \item{method}{This is passed to \code{\link[mirt:fscores]{mirt::fscores()}} or
-\code{\link[TAM:IRT.factor.scores.tam.mml]{TAM:::IRT.factor.scores()}} (as argument
+\code{\link[TAM:IRT.factor.scores.tam]{TAM:::IRT.factor.scores()}} (as argument
 \code{type}) if applicable.}
 
 \item{...}{Additional arguments passed to \code{\link[mirt:fscores]{mirt::fscores()}} or
-\code{\link[TAM:IRT.factor.scores.tam.mml]{TAM:::IRT.factor.scores()}} if
+\code{\link[TAM:IRT.factor.scores.tam]{TAM:::IRT.factor.scores()}} if
 applicable.}
 }
 \value{

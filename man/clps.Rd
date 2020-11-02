@@ -13,7 +13,11 @@ clps(collapse = " ", ..., sep = " ")
 \item{...}{
   Arguments passed on to \code{\link[base:paste]{base::paste}}
   \describe{
-    \item{\code{}}{}
+    \item{\code{recycle0}}{\code{\link[base]{logical}} indicating if zero-length
+    character arguments should lead to the zero-length
+    \code{\link[base]{character}(0)} after the \code{sep}-phase (which turns into
+    \code{""} in the \code{collapse}-phase, i.e., when \code{collapse} is
+    not \code{NULL}).}
   }}
 
 \item{sep}{a character string to separate the terms.  Not

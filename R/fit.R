@@ -6,7 +6,7 @@
 #' @section Methods: The methods `coef()`, `summary()`, and `print()` are
 #'   implemented for objects of class `irtree_fit`, and those wrap the
 #'   respective functions of [mirt][mirt::mirt-package],
-#'   [MplusAutomation][MplusAutomation::MplusAutomation-package], or
+#'   [MplusAutomation][MplusAutomation::MplusAutomation], or
 #'   [TAM][TAM::TAM-package]. However, [`glance()`][glance.irtree_fit],
 #'   [`tidy()`][tidy.irtree_fit], and [`augment()`][augment.irtree_fit] may be
 #'   more helpful.
