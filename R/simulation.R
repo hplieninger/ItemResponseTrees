@@ -289,7 +289,9 @@ irtree_sim <- function(R = 1,
         for (rr in Rseq) {
 
             res1[[which(rr == Rseq)]] <-
-                future::future({
+                future::future(
+                    seed = TRUE,
+                    expr = {
                     irtree_sim1(gen_model = gen_model,
                                 fit_model = fit_model,
                                 N = N,
